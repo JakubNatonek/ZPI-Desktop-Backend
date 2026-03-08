@@ -7,15 +7,35 @@ Prosty backend oparty o FastAPI.
 - Python 3.12+
 - Wirtualne srodowisko (`venv`)
 
-## Instalacja
+## Instalacja lokalna
+
+### Windows (PowerShell)
+
+```powershell
+python -m venv .venv;
+.\.venv\Scripts\Activate.ps1;
+pip install -r requirements.txt;
+```
+
+### Linux/macOS
 
 ```bash
-python -m venv venv
-source venv/bin/activate
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Uruchomienie
+## Uruchomienie lokalne
+
+
+### Windows (PowerShell)
+
+```powershell
+.\.venv\Scripts\Activate.ps1;
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload;
+```
+
+### Linux/macOS
 
 ```bash
 uvicorn app.main:app --reload
