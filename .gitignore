@@ -28,3 +28,4 @@ htmlcov/
 # Local environment files
 .env
 .env.*
+docker-compose.temp.yml
