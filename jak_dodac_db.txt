@@ -1,0 +1,24 @@
+# Instrukcja: Jak utworzyć bazę danych PostgreSQL i użytkownika
+
+# 1. Sprawdź, czy PostgreSQL działa
+sudo systemctl status postgresql
+
+# 2. Zaloguj się jako administrator postgres
+sudo -u postgres psql
+
+# 3. Utwórz użytkownika (zmień nazwę i hasło według potrzeb)
+CREATE USER userzpi WITH PASSWORD 'userzpi#';
+
+# 4. Utwórz bazę danych i przypisz ją do użytkownika
+CREATE DATABASE zpidb OWNER userzpi;
+
+# 5. Nadaj uprawnienia do bazy
+GRANT ALL PRIVILEGES ON DATABASE zpidb TO userzpi;
+
+# 6. Wyjdź z konsoli psql
+\q
+
+# 7. (Opcjonalnie) Zaloguj się do bazy przez terminal
+psql -U userzpi -h localhost -d zpidb
+
+# 8. Możesz też zalogować się do bazy przez pgAdmin (host: localhost, port: 5432, user: userzpi, hasło: userzpi#)

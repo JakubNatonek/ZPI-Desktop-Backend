@@ -1,23 +1,25 @@
-# import os # for later use in using .env
+import os
+
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
-# TODO: Configure PostgreSQL connection
-# Database URL format: postgresql://user:password@host:port/database
-# Example: postgresql://postgres:password@localhost:5432/zpi_db
-# For production, use environment variables from .env file
+load_dotenv()
 
-SQLALCHEMY_DATABASE_URL = "postgresql://user:password@localhost:5432/dbname"
-# TODO: Replace placeholder values:
-# - user: your PostgreSQL username
-# - password: your PostgreSQL password
-# - localhost: database host (use 'localhost' for local, or server IP/hostname)
-# - 5432: PostgreSQL port (default is 5432)
-# - dbname: your database name
+# URL should come from .env in development and env vars in deployment.
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql://userzpi:userzpi%23@localhost:5432/zpidb",
+)
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+engine = create_engine(DATABASE_URL)
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine,
+)
 
 Base = declarative_base()
 
