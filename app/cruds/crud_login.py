@@ -1,46 +1,49 @@
-# import os
-from typing import Any
 from sqlalchemy.orm import Session
-# from app.models.model_login import Login  # Uncomment when implementing CRUD
-
-# #inport of values from .env file
-# def _env_int(name: str, default: int) -> int:
-#     value = os.getenv(name)
-#     try:
-#         return int(value) if value is not None else default
-#     except ValueError:
-#         return default
-    
-# #seting the valuse of paramets
-# DEFAULT_SKIP = _env_int("PAGINATION_SKIP_DEFAULT", 0)
-# DEFAULT_LIMIT = _env_int("PAGINATION_LIMIT_DEFAULT", 100)
+from app.auth.password_utils import hash_password, verify_password
+from app.models.model_user import DzialEnum, RolaEnum, User
 
 
-# TODO: Implement CRUD functions with proper database queries
-def get_all_logins(db: Session) -> list[Any]:
-    """TODO: Fetch all login records from database."""
-    raise NotImplementedError("get_all_logins not yet implemented")
+def get_user_by_login(db: Session, login: str) -> User | None:
+    """Fetch user by login."""
+    return db.query(User).filter(User.login == login).first()
 
 
-def get_login_by_id(db: Session, login_id: int) -> Any:
-    """TODO: Fetch a single login record by ID."""
-    _ = (db, login_id)
-    raise NotImplementedError("get_login_by_id not yet implemented")
+def get_user_by_email(db: Session, email: str) -> User | None:
+    """Fetch user by email."""
+    return db.query(User).filter(User.email == email).first()
 
 
-def create_login(db: Session, message: str) -> Any:
-    """TODO: Create a new login record in database."""
-    _ = (db, message)
-    raise NotImplementedError("create_login not yet implemented")
+def create_user_by_admin(
+    db: Session,
+    login: str,
+    email: str,
+    password_hash: str,
+    rola: RolaEnum,
+    dzial: DzialEnum,
+) -> User:
+    """Create user from admin-provided data."""
+    stored_password_hash = password_hash
+    if not password_hash.startswith("$2"):
+        stored_password_hash = hash_password(password_hash)
+
+    user = User(
+        login=login,
+        email=email,
+        password_hash=stored_password_hash,
+        rola=rola.value,
+        dzial=dzial.value,
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
 
 
-def update_login(db: Session, login_id: int, message: str) -> Any:
-    """TODO: Update an existing login record."""
-    _ = (db, login_id, message)
-    raise NotImplementedError("update_login not yet implemented")
-
-
-def delete_login(db: Session, login_id: int) -> bool:
-    """TODO: Delete a login record by ID."""
-    _ = (db, login_id)
-    raise NotImplementedError("delete_login not yet implemented")
+def authenticate_user(db: Session, login: str, password: str) -> User | None:
+    """Verify user credentials and return user if valid."""
+    user = get_user_by_login(db, login)
+    if user is None:
+        return None
+    if not verify_password(password, user.password_hash):
+        return None
+    return user

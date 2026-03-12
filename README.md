@@ -24,6 +24,8 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
+### jak wyjsc z venv 
+deactivate
 
 ## Uruchomienie lokalne
 
