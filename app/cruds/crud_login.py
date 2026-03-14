@@ -13,6 +13,11 @@ def get_user_by_email(db: Session, email: str) -> User | None:
     return db.query(User).filter(User.email == email).first()
 
 
+def get_user_by_id(db: Session, user_id: int) -> User | None:
+    """Fetch user by id."""
+    return db.query(User).filter(User.user_id == user_id).first()
+
+
 def create_user_by_admin(
     db: Session,
     login: str,
