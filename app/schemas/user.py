@@ -15,3 +15,20 @@ class AdminUserCreate(BaseModel):
 class UserLogin(BaseModel):
     login: str
     password: str
+
+
+class AuthResponse(BaseModel):
+    user_id: int
+    login: str
+    email: EmailStr
+    access_token: str
+    token_type: str = "bearer"
+    access_token_expires_in: int
+
+
+class CurrentUserResponse(BaseModel):
+    user_id: int
+    login: str
+    email: EmailStr
+    role: RolaEnum
+    dzial: DzialEnum

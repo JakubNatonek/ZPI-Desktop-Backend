@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from .database import engine
 from . import models
 from fastapi.middleware.cors import CORSMiddleware
+import os
 import subprocess
 
 from app.apis.api_login import router as login_router
@@ -17,9 +18,14 @@ models.Base.metadata.create_all(bind=engine)
 run_migrations()
 
 # Enable CORS for frontend development
+cors_origins = os.getenv(
+    "CORS_ORIGINS",
+    "http://localhost:8100,http://127.0.0.1:8100,http://localhost:4200,http://127.0.0.1:4200",
+)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[origin.strip() for origin in cors_origins.split(",") if origin.strip()],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

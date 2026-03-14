@@ -5,6 +5,7 @@ from app.database import Base
 
 
 class RolaEnum(str, PyEnum):
+    ADMIN = "admin"
     WYKLADOWCA = "wykladowca"
     CWICZENIA = "cwiczenia"
     LABORATORIUM = "laboratorium"
@@ -14,6 +15,7 @@ class RolaEnum(str, PyEnum):
 
 
 class DzialEnum(str, PyEnum):
+    ADMIN = "admin"
     INFORMATYKA = "informatyka"
     MECHATRONIKA = "mechatronika"
     ENERGETYKA = "energetyka"
