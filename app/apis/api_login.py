@@ -18,7 +18,7 @@ from app.cruds.crud_login import (
     create_user_by_admin,
     get_user_by_email,
     get_user_by_id,
-    get_user_by_login,
+    update_user_password,
 )
 from app.cruds.crud_refresh_token import (
     create_refresh_session,
@@ -28,9 +28,13 @@ from app.cruds.crud_refresh_token import (
 from app.database import get_db
 from app.models.model_user import User
 from app.schemas.user import (
-    AuthResponse,
     AdminUserCreate,
+    AuthResponse,
+    ChangePasswordRequest,
+    ChangePasswordResponse,
     CurrentUserResponse,
+    UserCreatedResponse,
+    UserCredentialsResponse,
     UserLogin,
 )
 
@@ -54,34 +58,60 @@ def _set_refresh_cookie(response: Response, refresh_token: str) -> None:
     )
 
 
-@router.post("/create", status_code=201)
-def create_user(payload: AdminUserCreate, db: Session = Depends(get_db)) -> dict[str, str | int]:
-    existing_login = get_user_by_login(db, payload.login)
-    if existing_login is not None:
-        raise HTTPException(status_code=409, detail="User with this login already exists")
-
+@router.post(
+    "/create",
+    response_model=UserCreatedResponse,
+    status_code=201,
+    summary="Utwórz nowego użytkownika",
+)
+def create_user(payload: AdminUserCreate, db: Session = Depends(get_db)) -> UserCreatedResponse:
     existing_email = get_user_by_email(db, payload.email)
     if existing_email is not None:
         raise HTTPException(status_code=409, detail="User with this email already exists")
 
     user = create_user_by_admin(
         db,
-        payload.login,
-        payload.email,
-        payload.password_hash,
-        payload.rola,
-        payload.dzial,
+        imie=payload.imie,
+        nazwisko=payload.nazwisko,
+        email=payload.email,
+        rola=payload.rola,
+        dzial=payload.dzial,
     )
 
-    return {
-        "user_id": user.user_id,
-        "login": user.login,
-        "email": user.email,
-        "message": "User created",
-    }
+    return UserCreatedResponse(
+        user_id=user.user_id,
+        login=user.login,
+        email=user.email,
+        imie=user.imie,
+        nazwisko=user.nazwisko,
+        rola=user.rola,
+        dzial=user.dzial,
+        one_time_password=user.plain_password,
+    )
 
 
-@router.post("/", response_model=AuthResponse)
+@router.get(
+    "/credentials/{user_id}",
+    response_model=UserCredentialsResponse,
+    summary="Pobierz dane logowania użytkownika",
+)
+def get_credentials(user_id: int, db: Session = Depends(get_db)) -> UserCredentialsResponse:
+    user = get_user_by_id(db, user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return UserCredentialsResponse(
+        user_id=user.user_id,
+        login=user.login,
+        one_time_password=user.plain_password,
+    )
+
+
+@router.post(
+    "/",
+    response_model=AuthResponse,
+    summary="Zaloguj użytkownika",
+)
 def login(payload: UserLogin, response: Response, db: Session = Depends(get_db)) -> AuthResponse:
     user = authenticate_user(db, payload.login, payload.password)
     if user is None:
@@ -103,10 +133,15 @@ def login(payload: UserLogin, response: Response, db: Session = Depends(get_db))
         email=user.email,
         access_token=access_token,
         access_token_expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        must_change_password=user.must_change_password,
     )
 
 
-@router.post("/refresh", response_model=AuthResponse)
+@router.post(
+    "/refresh",
+    response_model=AuthResponse,
+    summary="Odśwież tokeny",
+)
 def refresh_tokens(request: Request, response: Response, db: Session = Depends(get_db)) -> AuthResponse:
     refresh_token = request.cookies.get(REFRESH_COOKIE_NAME)
     if not refresh_token:
@@ -148,10 +183,28 @@ def refresh_tokens(request: Request, response: Response, db: Session = Depends(g
         email=user.email,
         access_token=access_token,
         access_token_expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        must_change_password=user.must_change_password,
     )
 
 
-@router.post("/logout")
+@router.post(
+    "/change-one-time-password",
+    response_model=ChangePasswordResponse,
+    summary="Zmień jednorazowe hasło użytkownika",
+)
+def change_password(
+    payload: ChangePasswordRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> ChangePasswordResponse:
+    update_user_password(db, current_user, payload.new_password)
+    return ChangePasswordResponse(message="One-time password changed successfully")
+
+
+@router.post(
+    "/logout",
+    summary="Wyloguj użytkownika",
+)
 def logout(request: Request, response: Response, db: Session = Depends(get_db)) -> dict[str, str]:
     refresh_token = request.cookies.get(REFRESH_COOKIE_NAME)
 
@@ -169,7 +222,11 @@ def logout(request: Request, response: Response, db: Session = Depends(get_db)) 
     return {"message": "Logged out"}
 
 
-@router.get("/me", response_model=CurrentUserResponse)
+@router.get(
+    "/me",
+    response_model=CurrentUserResponse,
+    summary="Dane zalogowanego użytkownika",
+)
 def me(current_user: User = Depends(get_current_user)) -> CurrentUserResponse:
     return CurrentUserResponse(
         user_id=current_user.user_id,
