@@ -1,6 +1,6 @@
 from enum import Enum as PyEnum
 
-from sqlalchemy import Column, Enum, Integer, String
+from sqlalchemy import Boolean, Column, Enum, Integer, String
 from app.database import Base
 
 
@@ -25,9 +25,13 @@ class User(Base):
     __tablename__ = "users"
 
     user_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    imie = Column(String, nullable=False)
+    nazwisko = Column(String, nullable=False)
     login = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     password_hash = Column(String, nullable=False)
+    plain_password = Column(String, nullable=True)
+    must_change_password = Column(Boolean, nullable=False, default=False)
     rola = Column(
         Enum(
             RolaEnum,
