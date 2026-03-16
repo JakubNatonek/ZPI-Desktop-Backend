@@ -25,7 +25,7 @@ from app.cruds.crud_refresh_token import (
     is_refresh_session_active,
     revoke_refresh_session,
 )
-from app.database import get_db
+from app.core.database import get_db
 from app.models.model_user import User
 from app.schemas.user import (
     AdminUserCreate,
@@ -41,9 +41,9 @@ from app.schemas.user import (
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-REFRESH_COOKIE_NAME = os.getenv("REFRESH_COOKIE_NAME", "refresh_token")
-REFRESH_COOKIE_SECURE = os.getenv("REFRESH_COOKIE_SECURE", "false").lower() == "true"
-REFRESH_COOKIE_SAMESITE = os.getenv("REFRESH_COOKIE_SAMESITE", "lax")
+REFRESH_COOKIE_NAME = os.getenv("REFRESH_COOKIE_NAME")
+REFRESH_COOKIE_SECURE = os.getenv("REFRESH_COOKIE_SECURE").lower() == "true"
+REFRESH_COOKIE_SAMESITE = os.getenv("REFRESH_COOKIE_SAMESITE")
 
 
 def _set_refresh_cookie(response: Response, refresh_token: str) -> None:

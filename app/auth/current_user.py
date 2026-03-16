@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.auth.jwt_utils import decode_access_token
 from app.cruds.crud_login import get_user_by_id
-from app.database import get_db
+from app.core.database import get_db
 from app.models.model_user import User
 
 

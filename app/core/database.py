@@ -5,14 +5,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+
 load_dotenv()
-
-# URL should come from .env in development and env vars in deployment.
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://userzpi:userzpi%23@localhost:5432/zpidb",
-)
-
+DATABASE_URL = os.getenv("DATABASE_URL")
 engine = create_engine(DATABASE_URL)
 
 SessionLocal = sessionmaker(
