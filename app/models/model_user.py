@@ -1,6 +1,7 @@
 from enum import Enum as PyEnum
 
 from sqlalchemy import Boolean, Column, Enum, Integer, String
+from sqlalchemy.orm import relationship
 from app.core.database import Base
 
 
@@ -47,4 +48,15 @@ class User(Base):
             name="user_dzial",
         ),
         nullable=False,
+    )
+
+    conversation_memberships = relationship(
+        "ConversationMember",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    sent_messages = relationship(
+        "Message",
+        back_populates="sender",
+        cascade="all, delete-orphan",
     )

@@ -114,3 +114,8 @@ def update_user_password(db: Session, user: User, new_password: str) -> User:
     db.commit()
     db.refresh(user)
     return user
+
+
+def get_all_users(db: Session) -> list[User]:
+    """Pobierz wszystkich użytkowników posortowanych po nazwisku i imieniu."""
+    return db.query(User).order_by(User.nazwisko.asc(), User.imie.asc()).all()

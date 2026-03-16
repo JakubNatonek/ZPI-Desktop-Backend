@@ -9,6 +9,8 @@ import os
 import subprocess
 
 from app.apis.api_login import router as login_router
+from app.apis.api_users import router as users_router
+from app.apis.api_chat import router as chat_router
 from scripts.migration_runner import run_migrations
 from scripts.create_admin import create_admin
 
@@ -38,8 +40,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Include routers
 app.include_router(login_router)
+app.include_router(users_router)
+app.include_router(chat_router)
 
 
 

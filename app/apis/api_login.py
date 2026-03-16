@@ -1,4 +1,5 @@
 import os
+from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from jose import JWTError
@@ -35,6 +36,7 @@ from app.schemas.user import (
     CurrentUserResponse,
     UserCreatedResponse,
     UserCredentialsResponse,
+    UserNameResponse,
     UserLogin,
 )
 
@@ -235,3 +237,5 @@ def me(current_user: User = Depends(get_current_user)) -> CurrentUserResponse:
         role=current_user.rola,
         dzial=current_user.dzial,
     )
+
+
