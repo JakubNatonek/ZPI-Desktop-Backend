@@ -1,4 +1,4 @@
-from app.database import Base
+from app.core.database import Base
 
 # Import models so SQLAlchemy registers table metadata before create_all.
 from app.models.model_refresh_token import RefreshTokenSession

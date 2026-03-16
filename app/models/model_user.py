@@ -1,7 +1,7 @@
 from enum import Enum as PyEnum
 
 from sqlalchemy import Boolean, Column, Enum, Integer, String
-from app.database import Base
+from app.core.database import Base
 
 
 class RolaEnum(str, PyEnum):

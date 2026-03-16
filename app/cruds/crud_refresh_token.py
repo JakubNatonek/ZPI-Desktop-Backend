@@ -1,7 +1,5 @@
 from datetime import datetime, timezone
-
 from sqlalchemy.orm import Session
-
 from app.models.model_refresh_token import RefreshTokenSession
 
 
