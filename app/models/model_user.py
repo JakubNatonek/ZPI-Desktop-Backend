@@ -60,3 +60,15 @@ class User(Base):
         back_populates="sender",
         cascade="all, delete-orphan",
     )
+    teacher_profile = relationship(
+        "Teacher",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
+    student_profile = relationship(
+        "Student",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )

@@ -1,20 +1,46 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
+from typing import List, Optional
+from sqlalchemy import or_
 from app.core.database import get_db
-from typing import List
+from app.models.model_user import User
+from app.schemas.user import UserNameResponse
 from app.schemas.chat import ConversationStartResponse, MessageResponse
+from app.schemas.chat_send import SendMessageRequest
+from app.schemas.chat_group import CreateGroupRequest, CreateGroupResponse
 from app.auth.current_user import get_current_user
 from app.cruds.chat.crud_conversation import get_or_create_direct_conversation
 from app.cruds.chat.crud_message import get_messages_for_conversation
 from app.cruds.chat.crud_message_send import save_message
-from app.schemas.chat_send import SendMessageRequest
-from app.schemas.chat_group import CreateGroupRequest, CreateGroupResponse
 from app.cruds.crud_group_conversation import create_group_conversation
 from app.models.chat.model_conversation_member import ConversationMember
-from fastapi import HTTPException
 
-router = APIRouter(prefix="/chat", tags=["chat"])
+router = APIRouter(prefix="/api/chat", tags=["chat"])
+
+# Wyszukiwanie użytkowników po imieniu lub nazwisku (do search bara)
+@router.get(
+    "/search-users",
+    response_model=List[UserNameResponse],
+    summary="Wyszukaj użytkowników po imieniu lub nazwisku"
+)
+def search_users(
+    q: Optional[str] = None,
+    db: Session = Depends(get_db),
+) -> List[UserNameResponse]:
+    """Wyszukaj użytkowników po imieniu lub nazwisku (case-insensitive, partial match)."""
+    query = db.query(User)
+    if q:
+        if len(q) >= 2:
+            query = query.filter(
+                or_(User.imie.ilike(f"{q}%"), User.nazwisko.ilike(f"{q}%"))
+            )
+        else:
+            query = query.filter(
+                or_(User.imie.ilike(f"%{q}%"), User.nazwisko.ilike(f"%{q}%"))
+            )
+    users = query.order_by(User.nazwisko.asc(), User.imie.asc()).all()
+    return [UserNameResponse(user_id=u.user_id, imie=u.imie, nazwisko=u.nazwisko) for u in users]
 
 @router.post(
     "/create-group",

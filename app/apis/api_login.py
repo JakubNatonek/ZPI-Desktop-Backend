@@ -135,7 +135,7 @@ def login(payload: UserLogin, response: Response, db: Session = Depends(get_db))
         email=user.email,
         access_token=access_token,
         access_token_expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        must_change_password=user.must_change_password,
+        must_change_password=user.must_change_password or user.plain_password is not None,
     )
 
 
@@ -185,7 +185,7 @@ def refresh_tokens(request: Request, response: Response, db: Session = Depends(g
         email=user.email,
         access_token=access_token,
         access_token_expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        must_change_password=user.must_change_password,
+        must_change_password=user.must_change_password or user.plain_password is not None,
     )
 
 

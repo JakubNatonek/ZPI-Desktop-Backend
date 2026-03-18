@@ -42,6 +42,7 @@ app.add_middleware(
 
 
 # Include routers
+
 app.include_router(login_router)
 app.include_router(users_router)
 app.include_router(chat_router)
