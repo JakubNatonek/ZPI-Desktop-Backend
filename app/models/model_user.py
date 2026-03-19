@@ -1,6 +1,5 @@
 from enum import Enum as PyEnum
-
-from sqlalchemy import Boolean, Column, Enum, Integer, String
+from sqlalchemy import Boolean, Column, DateTime, Enum, Integer, String
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
@@ -33,6 +32,8 @@ class User(Base):
     password_hash = Column(String, nullable=False)
     plain_password = Column(String, nullable=True)
     must_change_password = Column(Boolean, nullable=False, default=False)
+    is_online = Column(Boolean, nullable=False, default=False)
+    last_seen_at = Column(DateTime(timezone=True), nullable=True)
     rola = Column(
         Enum(
             RolaEnum,

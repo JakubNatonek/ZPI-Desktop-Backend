@@ -22,3 +22,17 @@ def get_or_create_direct_conversation(db: Session, user_a_id: int, user_b_id: in
     db.add(ConversationMember(conversation_id=conv.id, user_id=user_b_id))
     db.commit()
     return conv
+
+
+def get_conversations_for_user(db: Session, user_id: int) -> list[Conversation]:
+    """Pobierz listę rozmów, do których należy użytkownik."""
+    return (
+        db.query(Conversation)
+        .join(
+            ConversationMember,
+            ConversationMember.conversation_id == Conversation.id,
+        )
+        .filter(ConversationMember.user_id == user_id)
+        .order_by(Conversation.created_at.desc())
+        .all()
+    )

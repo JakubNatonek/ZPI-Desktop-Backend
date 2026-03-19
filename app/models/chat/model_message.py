@@ -28,7 +28,9 @@ class Message(Base):
     )
     content = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), nullable=False, default=_utcnow)
+    delivered_at = Column(DateTime(timezone=True), nullable=True)
     is_read = Column(Boolean, nullable=False, default=False)
+    read_at = Column(DateTime(timezone=True), nullable=True)
 
     conversation = relationship("Conversation", back_populates="messages")
     sender = relationship("User", back_populates="sent_messages")
