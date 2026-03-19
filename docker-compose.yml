@@ -4,6 +4,11 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: ZPI-Desktop-Backend
+    env_file:
+      - .env.docker
+    depends_on:
+      db:
+        condition: service_healthy
     ports:
       - "8000:8000"
   db:
