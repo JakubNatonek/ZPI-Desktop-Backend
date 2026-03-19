@@ -1,13 +1,17 @@
 import os
 from datetime import datetime, timedelta, timezone
+from typing import Any
 from uuid import uuid4
 
+from dotenv import load_dotenv
 from jose import JWTError, jwt
 
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-JWT_ALGORITHM = os.getenv("JWT_ALGORITHM")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
-REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS"))
+load_dotenv()
+
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "change-me-in-env")
+JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "15"))
+REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
 
 
 def _create_token(
@@ -18,7 +22,7 @@ def _create_token(
     jti: str | None = None,
 ) -> str:
     expire = datetime.now(timezone.utc) + expires_delta
-    payload = {
+    payload: dict[str, Any] = {
         "user_id": user_id,
         "role": role,
         "type": token_type,
@@ -50,18 +54,18 @@ def create_refresh_token(user_id: int, role: str) -> tuple[str, str]:
     return token, refresh_jti
 
 
-def decode_token(token: str) -> dict:
+def decode_token(token: str) -> dict[str, Any]:
     return jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
 
 
-def decode_refresh_token(token: str) -> dict:
+def decode_refresh_token(token: str) -> dict[str, Any]:
     payload = decode_token(token)
     if payload.get("type") != "refresh":
         raise JWTError("Invalid token type")
     return payload
 
 
-def decode_access_token(token: str) -> dict:
+def decode_access_token(token: str) -> dict[str, Any]:
     payload = decode_token(token)
     if payload.get("type") != "access":
         raise JWTError("Invalid token type")

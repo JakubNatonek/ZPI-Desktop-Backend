@@ -1,12 +1,8 @@
 from fastapi import FastAPI
-from .core.database import engine
-from . import models
-from sqlalchemy.orm import Session
-from app.core.database import SessionLocal
-from app.models.model_user import User, RolaEnum, DzialEnum
 from fastapi.middleware.cors import CORSMiddleware
 import os
-import subprocess
+
+from app.core.database import init_database
 
 from app.apis.api_login import router as login_router
 from app.apis.api_users import router as users_router
@@ -19,7 +15,8 @@ app = FastAPI(title="ZPI Desktop Backend")
 
 @app.on_event("startup")
 async def startup() -> None:
-    run_migrations()
+    init_database()
+    # run_migrations() # this should not be done evry time the server is run
     create_admin()
 
 
