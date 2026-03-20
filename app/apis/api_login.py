@@ -1,6 +1,7 @@
 import os
 from typing import List
 
+from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from jose import JWTError
 from sqlalchemy.orm import Session
@@ -43,9 +44,11 @@ from app.schemas.user import (
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-REFRESH_COOKIE_NAME = os.getenv("REFRESH_COOKIE_NAME")
-REFRESH_COOKIE_SECURE = os.getenv("REFRESH_COOKIE_SECURE").lower() == "true"
-REFRESH_COOKIE_SAMESITE = os.getenv("REFRESH_COOKIE_SAMESITE")
+load_dotenv()
+
+REFRESH_COOKIE_NAME = os.getenv("REFRESH_COOKIE_NAME", "refresh_token")
+REFRESH_COOKIE_SECURE = os.getenv("REFRESH_COOKIE_SECURE", "false").lower() == "true"
+REFRESH_COOKIE_SAMESITE = os.getenv("REFRESH_COOKIE_SAMESITE", "lax")
 
 
 def _set_refresh_cookie(response: Response, refresh_token: str) -> None:

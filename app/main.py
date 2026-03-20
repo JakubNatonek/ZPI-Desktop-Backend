@@ -10,7 +10,8 @@ from app.core.database import SessionLocal
 from app.models.model_user import User, RolaEnum, DzialEnum
 from fastapi.middleware.cors import CORSMiddleware
 import os
-import subprocess
+
+from app.core.database import init_database
 
 from app.apis.api_login import router as login_router
 from app.apis.api_users import router as users_router
@@ -37,7 +38,8 @@ create_socket_events(sio)
 
 @app.on_event("startup")
 async def startup() -> None:
-    run_migrations()
+    init_database()
+    # run_migrations() # this should not be done evry time the server is run
     create_admin()
 
 
@@ -50,9 +52,18 @@ cors_origins = os.getenv(
     "http://localhost:8100,http://127.0.0.1:8100,http://localhost:4200,http://127.0.0.1:4200",
 )
 
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=[origin.strip() for origin in cors_origins.split(",") if origin.strip()],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
+
+# Enable CORS for frontend development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[origin.strip() for origin in cors_origins.split(",") if origin.strip()],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
