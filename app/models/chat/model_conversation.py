@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from enum import Enum as PyEnum
 
-from sqlalchemy import Column, DateTime, Enum, Integer
+from sqlalchemy import Column, DateTime, Enum, Integer, String
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
@@ -28,6 +28,7 @@ class Conversation(Base):
         ),
         nullable=False,
     )
+    name = Column(String(255), nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False, default=_utcnow)
 
     members = relationship(

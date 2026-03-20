@@ -4,7 +4,7 @@ from app.models.chat.model_conversation_member import ConversationMember
 
 
 def create_group_conversation(db: Session, name: str, user_ids: list[int]) -> Conversation:
-    conv = Conversation(type=ConversationTypeEnum.GROUP)
+    conv = Conversation(type=ConversationTypeEnum.GROUP, name=name)
     db.add(conv)
     db.commit()
     db.refresh(conv)

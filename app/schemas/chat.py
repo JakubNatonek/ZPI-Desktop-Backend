@@ -19,6 +19,7 @@ class ConversationStartResponse(BaseModel):
 class ConversationListItemResponse(BaseModel):
     id: int
     type: str
+    name: str | None = None
     created_at: str
     member_ids: list[int]
 

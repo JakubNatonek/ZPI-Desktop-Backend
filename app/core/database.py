@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
@@ -6,7 +7,13 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 
-load_dotenv()
+# Prefer the repository root .env so backend and frontend share one source of truth.
+# override=True protects against stale shell variables (e.g. old DATABASE_URL).
+project_root_env = Path(__file__).resolve().parents[3] / ".env"
+if project_root_env.exists():
+    load_dotenv(dotenv_path=project_root_env, override=True)
+else:
+    load_dotenv(override=True)
 DATABASE_URL = os.getenv("DATABASE_URL")
 engine = create_engine(DATABASE_URL)
 

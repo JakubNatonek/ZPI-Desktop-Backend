@@ -1,99 +1,92 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
-
-from typing import List, Optional
-from datetime import datetime, timedelta, timezone
-from threading import Lock
 from sqlalchemy import or_
-from app.core.database import get_db
-from app.models.model_user import User
-from app.schemas.user import UserNameResponse
-from app.schemas.chat import (
-    ConversationStartResponse,
-    MessageResponse,
-    ConversationListItemResponse,
-    MessageStatusResponse,
-    UserPresenceResponse,
-    TypingIndicatorRequest,
-    TypingIndicatorResponse,
-)
-from app.schemas.chat_send import SendMessageRequest
-from app.schemas.chat_group import CreateGroupRequest, CreateGroupResponse
+from sqlalchemy.orm import Session
+from typing import List
+
 from app.auth.current_user import get_current_user
+from app.core.database import get_db
 from app.cruds.chat.crud_conversation import get_or_create_direct_conversation, get_conversations_for_user
+from app.cruds.chat.crud_group_conversation import create_group_conversation
 from app.cruds.chat.crud_message import (
-    get_messages_for_conversation,
     get_message_for_user,
+    get_messages_for_conversation,
     mark_message_delivered,
     mark_message_read,
 )
 from app.cruds.chat.crud_message_send import save_message
-from app.cruds.crud_group_conversation import create_group_conversation
-from app.models.chat.model_conversation_member import ConversationMember
+from app.models.model_user import User
+from app.schemas.chat import (
+    ConversationListItemResponse,
+    ConversationStartResponse,
+    MessageResponse,
+    MessageStatusResponse,
+    TypingIndicatorRequest,
+    TypingIndicatorResponse,
+    UserPresenceResponse,
+)
+from app.schemas.chat_group import CreateGroupRequest, CreateGroupResponse
+from app.schemas.chat_send import SendMessageRequest
+from app.schemas.user import UserNameResponse
+from app.services.chat_service import (
+    ERROR_CANNOT_MARK_OWN_MESSAGE,
+    ERROR_EMPTY_GROUP_NAME,
+    ERROR_EMPTY_MESSAGE,
+    ERROR_INSUFFICIENT_GROUP_MEMBERS,
+    ERROR_MESSAGE_NOT_FOUND,
+    ERROR_SAME_USER_CONVERSATION,
+    ERROR_USERS_NOT_FOUND,
+    MIN_GROUP_MEMBERS,
+    MIN_SEARCH_QUERY_LENGTH,
+    build_message_status_response,
+    build_presence_response,
+    build_typing_response,
+    ensure_conversation_member,
+    get_user_or_raise,
+    typing_state,
+    validate_ttl_seconds,
+)
 
 router = APIRouter(prefix="/api/chat", tags=["chat"])
-_typing_state: dict[tuple[int, int], datetime] = {}
-_typing_state_lock = Lock()
 
 
-def _now_utc() -> datetime:
-    return datetime.now(timezone.utc)
+def _get_message_or_404(db: Session, message_id: int, current_user: User):
+    message = get_message_for_user(db, message_id, current_user.user_id)
+    if not message:
+        raise HTTPException(status_code=404, detail=ERROR_MESSAGE_NOT_FOUND)
+    return message
 
 
-def _to_iso(value: datetime | None) -> str | None:
-    return value.isoformat() if value else None
+def _filter_users_by_query(query, search_term: str | None):
+    if not search_term:
+        return query
 
+    trimmed = search_term.strip()
+    if not trimmed:
+        return query
 
-def _ensure_conversation_member(db: Session, conversation_id: int, user_id: int) -> None:
-    member = (
-        db.query(ConversationMember)
-        .filter(
-            ConversationMember.conversation_id == conversation_id,
-            ConversationMember.user_id == user_id,
+    pattern = trimmed + "%" if len(trimmed) >= MIN_SEARCH_QUERY_LENGTH else f"%{trimmed}%"
+    return query.filter(
+        or_(
+            User.imie.ilike(pattern),
+            User.nazwisko.ilike(pattern),
         )
-        .first()
-    )
-    if not member:
-        raise HTTPException(status_code=403, detail="Nie masz dostępu do tej rozmowy.")
-
-
-def _cleanup_typing_state(now: datetime) -> None:
-    expired = [
-        key
-        for key, expires_at in _typing_state.items()
-        if expires_at <= now
-    ]
-    for key in expired:
-        _typing_state.pop(key, None)
-
-
-def _typing_users_for_conversation(conversation_id: int, now: datetime) -> list[int]:
-    _cleanup_typing_state(now)
-    return [
-        user_id
-        for (conv_id, user_id), expires_at in _typing_state.items()
-        if conv_id == conversation_id and expires_at > now
-    ]
-
-
-def _message_status_response(message) -> MessageStatusResponse:
-    return MessageStatusResponse(
-        message_id=message.id,
-        sent=True,
-        delivered=message.delivered_at is not None,
-        read=bool(message.is_read),
-        sent_at=message.created_at.isoformat(),
-        delivered_at=message.delivered_at.isoformat() if message.delivered_at else None,
-        read_at=message.read_at.isoformat() if message.read_at else None,
     )
 
 
-def _presence_response(user: User) -> UserPresenceResponse:
-    return UserPresenceResponse(
-        user_id=user.user_id,
-        is_online=bool(user.is_online),
-        last_seen_at=_to_iso(user.last_seen_at),
-    )
+def _validate_group_members(db: Session, member_ids: set[int]) -> None:
+    existing_user_ids = {
+        row[0]
+        for row in db.query(User.user_id).filter(User.user_id.in_(member_ids)).all()
+    }
+
+    missing_ids = sorted(member_ids - existing_user_ids)
+    if missing_ids:
+        raise HTTPException(
+            status_code=404,
+            detail=ERROR_USERS_NOT_FOUND.format(
+                ", ".join(str(uid) for uid in missing_ids)
+            ),
+        )
 
 
 @router.post(
@@ -103,15 +96,14 @@ def _presence_response(user: User) -> UserPresenceResponse:
 )
 def set_online(
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> UserPresenceResponse:
-    user = db.query(User).filter(User.user_id == current_user.user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="Użytkownik nie istnieje.")
+    """Mark the current user as online."""
+    user = get_user_or_raise(db, current_user.user_id)
     user.is_online = True
     db.commit()
     db.refresh(user)
-    return _presence_response(user)
+    return build_presence_response(user)
 
 
 @router.post(
@@ -121,16 +113,16 @@ def set_online(
 )
 def set_offline(
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> UserPresenceResponse:
-    user = db.query(User).filter(User.user_id == current_user.user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="Użytkownik nie istnieje.")
+    """Mark the current user as offline and record current timestamp."""
+    from datetime import datetime, timezone
+    user = get_user_or_raise(db, current_user.user_id)
     user.is_online = False
-    user.last_seen_at = _now_utc()
+    user.last_seen_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(user)
-    return _presence_response(user)
+    return build_presence_response(user)
 
 
 @router.get(
@@ -141,13 +133,11 @@ def set_offline(
 def get_user_presence(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> UserPresenceResponse:
-    _ = current_user
-    user = db.query(User).filter(User.user_id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="Użytkownik nie istnieje.")
-    return _presence_response(user)
+    """Get online status and last seen timestamp for specified user."""
+    user = get_user_or_raise(db, user_id)
+    return build_presence_response(user)
 
 
 @router.post(
@@ -159,22 +149,19 @@ def set_typing_indicator(
     conversation_id: int,
     payload: TypingIndicatorRequest,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> TypingIndicatorResponse:
-    _ensure_conversation_member(db, conversation_id, current_user.user_id)
-    now = _now_utc()
-    ttl = max(3, min(payload.ttl_seconds, 30))
-    key = (conversation_id, current_user.user_id)
-    with _typing_state_lock:
-        if payload.is_typing:
-            _typing_state[key] = now + timedelta(seconds=ttl)
-        else:
-            _typing_state.pop(key, None)
-        typing_user_ids = _typing_users_for_conversation(conversation_id, now)
-    return TypingIndicatorResponse(
-        conversation_id=conversation_id,
-        typing_user_ids=typing_user_ids,
-    )
+    """Update typing indicator for current user in conversation."""
+    ensure_conversation_member(db, conversation_id, current_user.user_id)
+    
+    ttl = validate_ttl_seconds(payload.ttl_seconds)
+    if payload.is_typing:
+        typing_state.set_typing(conversation_id, current_user.user_id, ttl)
+    else:
+        typing_state.clear_typing(conversation_id, current_user.user_id)
+    
+    typing_user_ids = typing_state.get_typing_users(conversation_id)
+    return build_typing_response(conversation_id, typing_user_ids)
 
 
 @router.get(
@@ -185,16 +172,12 @@ def set_typing_indicator(
 def get_typing_indicator(
     conversation_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> TypingIndicatorResponse:
-    _ensure_conversation_member(db, conversation_id, current_user.user_id)
-    now = _now_utc()
-    with _typing_state_lock:
-        typing_user_ids = _typing_users_for_conversation(conversation_id, now)
-    return TypingIndicatorResponse(
-        conversation_id=conversation_id,
-        typing_user_ids=typing_user_ids,
-    )
+    """Get current typing users in conversation."""
+    ensure_conversation_member(db, conversation_id, current_user.user_id)
+    typing_user_ids = typing_state.get_typing_users(conversation_id)
+    return build_typing_response(conversation_id, typing_user_ids)
 
 
 @router.get(
@@ -204,13 +187,15 @@ def get_typing_indicator(
 )
 def list_conversations(
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> List[ConversationListItemResponse]:
+    """Get all conversations for the current user."""
     conversations = get_conversations_for_user(db, current_user.user_id)
     return [
         ConversationListItemResponse(
             id=conv.id,
             type=conv.type.value if hasattr(conv.type, "value") else str(conv.type),
+            name=conv.name,
             created_at=conv.created_at.isoformat(),
             member_ids=[member.user_id for member in conv.members],
         )
@@ -226,12 +211,11 @@ def list_conversations(
 def get_message_status(
     message_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> MessageStatusResponse:
-    message = get_message_for_user(db, message_id, current_user.user_id)
-    if not message:
-        raise HTTPException(status_code=404, detail="Wiadomość nie istnieje lub brak dostępu.")
-    return _message_status_response(message)
+    """Get delivery and read status for a message."""
+    message = _get_message_or_404(db, message_id, current_user)
+    return build_message_status_response(message)
 
 
 @router.post(
@@ -242,15 +226,14 @@ def get_message_status(
 def acknowledge_message_delivered(
     message_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> MessageStatusResponse:
-    message = get_message_for_user(db, message_id, current_user.user_id)
-    if not message:
-        raise HTTPException(status_code=404, detail="Wiadomość nie istnieje lub brak dostępu.")
+    """Mark message as delivered."""
+    message = _get_message_or_404(db, message_id, current_user)
     if message.sender_id == current_user.user_id:
-        raise HTTPException(status_code=403, detail="Nadawca nie może oznaczyć własnej wiadomości jako dostarczonej.")
+        raise HTTPException(status_code=403, detail=ERROR_CANNOT_MARK_OWN_MESSAGE)
     message = mark_message_delivered(db, message)
-    return _message_status_response(message)
+    return build_message_status_response(message)
 
 
 @router.post(
@@ -261,15 +244,14 @@ def acknowledge_message_delivered(
 def acknowledge_message_read(
     message_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> MessageStatusResponse:
-    message = get_message_for_user(db, message_id, current_user.user_id)
-    if not message:
-        raise HTTPException(status_code=404, detail="Wiadomość nie istnieje lub brak dostępu.")
+    """Mark message as read."""
+    message = _get_message_or_404(db, message_id, current_user)
     if message.sender_id == current_user.user_id:
-        raise HTTPException(status_code=403, detail="Nadawca nie może oznaczyć własnej wiadomości jako przeczytanej.")
+        raise HTTPException(status_code=403, detail=ERROR_CANNOT_MARK_OWN_MESSAGE)
     message = mark_message_read(db, message)
-    return _message_status_response(message)
+    return build_message_status_response(message)
 
 # Wyszukiwanie użytkowników po imieniu lub nazwisku (do search bara)
 @router.get(
@@ -278,22 +260,37 @@ def acknowledge_message_read(
     summary="Wyszukaj użytkowników po imieniu lub nazwisku"
 )
 def search_users(
-    q: Optional[str] = None,
+    q: str | None = None,
+    limit: int = Query(default=20, ge=1, le=100),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> List[UserNameResponse]:
-    """Wyszukaj użytkowników po imieniu lub nazwisku (case-insensitive, partial match)."""
-    query = db.query(User)
-    if q:
-        if len(q) >= 2:
-            query = query.filter(
-                or_(User.imie.ilike(f"{q}%"), User.nazwisko.ilike(f"{q}%"))
-            )
-        else:
-            query = query.filter(
-                or_(User.imie.ilike(f"%{q}%"), User.nazwisko.ilike(f"%{q}%"))
-            )
-    users = query.order_by(User.nazwisko.asc(), User.imie.asc()).all()
-    return [UserNameResponse(user_id=u.user_id, imie=u.imie, nazwisko=u.nazwisko) for u in users]
+    """
+    Search for users by first or last name (case-insensitive, partial match).
+    
+    Args:
+        q: Search query (minimum 2 chars for prefix match, shorter for contains match)
+        limit: Maximum number of results to return
+        db: Database session
+        current_user: Current authenticated user (results exclude themselves)
+    
+    Returns:
+        List of matching users sorted by last name then first name
+    """
+    query = db.query(User).filter(User.user_id != current_user.user_id)
+    filtered_query = _filter_users_by_query(query, q)
+
+    users = (
+        filtered_query
+        .order_by(User.nazwisko.asc(), User.imie.asc())
+        .limit(limit)
+        .all()
+    )
+    
+    return [
+        UserNameResponse(user_id=u.user_id, imie=u.imie, nazwisko=u.nazwisko)
+        for u in users
+    ]
 
 @router.post(
     "/create-group",
@@ -303,16 +300,32 @@ def search_users(
 def create_group(
     payload: CreateGroupRequest,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> CreateGroupResponse:
-    # Dodaj aktualnego usera do grupy jeśli nie ma go na liście
-    user_ids = set(payload.user_ids)
+    """
+    Create a new group conversation.
+    
+    The current user is automatically added to the group if not already specified.
+    Validates that all users exist and group has at least 2 members.
+    """
+    group_name = payload.name.strip()
+    if not group_name:
+        raise HTTPException(status_code=400, detail=ERROR_EMPTY_GROUP_NAME)
+
+    user_ids = {int(uid) for uid in payload.user_ids}
     user_ids.add(current_user.user_id)
-    conv = create_group_conversation(db, payload.name, list(user_ids))
+    
+    if len(user_ids) < MIN_GROUP_MEMBERS:
+        raise HTTPException(status_code=400, detail=ERROR_INSUFFICIENT_GROUP_MEMBERS)
+
+    _validate_group_members(db, user_ids)
+
+    sorted_user_ids = sorted(user_ids)
+    conv = create_group_conversation(db, group_name, sorted_user_ids)
     return CreateGroupResponse(
         conversation_id=conv.id,
-        name=payload.name,
-        members=list(user_ids),
+        name=group_name,
+        members=sorted_user_ids,
     )
 
 @router.post(
@@ -323,12 +336,25 @@ def create_group(
 def start_conversation(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> ConversationStartResponse:
+    """
+    Start or get existing direct conversation with another user.
+    
+    If a direct conversation already exists, returns that; otherwise creates a new one.
+    Validates that the target user exists and is not the current user.
+    """
     if user_id == current_user.user_id:
-        return ConversationStartResponse(conversation_id=0, user_a_id=current_user.user_id, user_b_id=user_id)
+        raise HTTPException(status_code=400, detail=ERROR_SAME_USER_CONVERSATION)
+    
+    get_user_or_raise(db, user_id)
     conv = get_or_create_direct_conversation(db, current_user.user_id, user_id)
-    return ConversationStartResponse(conversation_id=conv.id, user_a_id=current_user.user_id, user_b_id=user_id)
+    
+    return ConversationStartResponse(
+        conversation_id=conv.id,
+        user_a_id=current_user.user_id,
+        user_b_id=user_id,
+    )
 
 
 @router.get(
@@ -336,15 +362,15 @@ def start_conversation(
     response_model=List[MessageResponse],
     summary="Pobierz wiadomości dla rozmowy",
 )
-
 def get_conversation_messages(
     conversation_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> List[MessageResponse]:
-    # Kontrola bezpieczeństwa: czy user należy do rozmowy
-    _ensure_conversation_member(db, conversation_id, current_user.user_id)
+    """Get all messages for a conversation. Current user must be a member."""
+    ensure_conversation_member(db, conversation_id, current_user.user_id)
     messages = get_messages_for_conversation(db, conversation_id)
+    
     return [
         MessageResponse(
             id=m.id,
@@ -368,11 +394,17 @@ def send_message(
     conversation_id: int,
     payload: SendMessageRequest,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ) -> MessageResponse:
-    # Kontrola bezpieczeństwa: czy user należy do rozmowy
-    _ensure_conversation_member(db, conversation_id, current_user.user_id)
-    msg = save_message(db, conversation_id, current_user.user_id, payload.content)
+    """Send a message in a conversation. Current user must be a member."""
+    ensure_conversation_member(db, conversation_id, current_user.user_id)
+    
+    content = payload.content.strip()
+    if not content:
+        raise HTTPException(status_code=400, detail=ERROR_EMPTY_MESSAGE)
+    
+    msg = save_message(db, conversation_id, current_user.user_id, content)
+    
     return MessageResponse(
         id=msg.id,
         sender_id=msg.sender_id,

@@ -1,4 +1,4 @@
-DATABASE_URL=postgresql://userzpi:userzpi%23@localhost:5432/zpidb
+DATABASE_URL=postgresql://postgresql:postgresql@localhost:5432/zpidb
 JWT_SECRET_KEY=qwe123asdzxcnmhjsd4rfvcxs1902342
 JWT_ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=15
