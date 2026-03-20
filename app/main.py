@@ -2,14 +2,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import socketio
 import os
+from contextlib import asynccontextmanager
+from collections.abc import AsyncIterator
 
-from .core.database import engine
-from . import models
-from sqlalchemy.orm import Session
-from app.core.database import SessionLocal
-from app.models.model_user import User, RolaEnum, DzialEnum
 from fastapi.middleware.cors import CORSMiddleware
-import os
 
 from app.core.database import init_database
 
@@ -22,7 +18,15 @@ from scripts.migration_runner import run_migrations
 from scripts.create_admin import create_admin
 
 
-app = FastAPI(title="ZPI Desktop Backend")
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    init_database()
+    # run_migrations() # this should not be done evry time the server is run
+    create_admin()
+    yield
+
+
+app = FastAPI(title="ZPI Desktop Backend", lifespan=lifespan)
 
 # Initialize Socket.IO
 sio = socketio.AsyncServer(
@@ -34,13 +38,6 @@ sio = socketio.AsyncServer(
 
 # Create socket event handlers
 create_socket_events(sio)
-
-
-@app.on_event("startup")
-async def startup() -> None:
-    init_database()
-    # run_migrations() # this should not be done evry time the server is run
-    create_admin()
 
 
 # Create database tables 
@@ -85,4 +82,4 @@ def read_root() -> dict[str, str]:
 
 
 # Export ASGI app with Socket.IO support.
-app = socketio.ASGIApp(sio, fastapi_app)
+app = socketio.ASGIApp(sio, other_asgi_app=app)

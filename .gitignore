@@ -4,6 +4,7 @@ venv/
 
 # Editor settings
 .vscode/
+.idea/
 
 # Python cache/bytecode
 __pycache__/
