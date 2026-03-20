@@ -73,3 +73,11 @@ class CurrentUserResponse(BaseModel):
     email: EmailStr
     role: RolaEnum
     dzial: DzialEnum
+
+
+class UserNameResponse(BaseModel):
+    """Podstawowe dane użytkownika do listowania i edycji."""
+
+    user_id: int
+    imie: str
+    nazwisko: str

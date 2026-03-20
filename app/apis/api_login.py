@@ -1,5 +1,7 @@
 import os
+from typing import List
 
+from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from jose import JWTError
 from sqlalchemy.orm import Session
@@ -35,15 +37,18 @@ from app.schemas.user import (
     CurrentUserResponse,
     UserCreatedResponse,
     UserCredentialsResponse,
+    UserNameResponse,
     UserLogin,
 )
 
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-REFRESH_COOKIE_NAME = os.getenv("REFRESH_COOKIE_NAME")
-REFRESH_COOKIE_SECURE = os.getenv("REFRESH_COOKIE_SECURE").lower() == "true"
-REFRESH_COOKIE_SAMESITE = os.getenv("REFRESH_COOKIE_SAMESITE")
+load_dotenv()
+
+REFRESH_COOKIE_NAME = os.getenv("REFRESH_COOKIE_NAME", "refresh_token")
+REFRESH_COOKIE_SECURE = os.getenv("REFRESH_COOKIE_SECURE", "false").lower() == "true"
+REFRESH_COOKIE_SAMESITE = os.getenv("REFRESH_COOKIE_SAMESITE", "lax")
 
 
 def _set_refresh_cookie(response: Response, refresh_token: str) -> None:
@@ -133,7 +138,7 @@ def login(payload: UserLogin, response: Response, db: Session = Depends(get_db))
         email=user.email,
         access_token=access_token,
         access_token_expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        must_change_password=user.must_change_password,
+        must_change_password=user.must_change_password or user.plain_password is not None,
     )
 
 
@@ -183,7 +188,7 @@ def refresh_tokens(request: Request, response: Response, db: Session = Depends(g
         email=user.email,
         access_token=access_token,
         access_token_expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        must_change_password=user.must_change_password,
+        must_change_password=user.must_change_password or user.plain_password is not None,
     )
 
 
@@ -235,3 +240,5 @@ def me(current_user: User = Depends(get_current_user)) -> CurrentUserResponse:
         role=current_user.rola,
         dzial=current_user.dzial,
     )
+
+

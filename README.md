@@ -23,7 +23,6 @@ pip install -r requirements.txt;
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn app.main:app --reload
 ```
 ### jak wyjsc z venv 
 deactivate
@@ -32,7 +31,6 @@ deactivate
 
 
 ### Windows (PowerShell)
-uvicorn app.main:app --reload
 
 ```powershell
 .\.venv\Scripts\Activate.ps1;
@@ -42,6 +40,7 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload;
 ### Linux/macOS
 
 ```bash
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 Aplikacja bedzie dostepna pod adresem: `http://127.0.0.1:8000`.
@@ -49,3 +48,6 @@ Aplikacja bedzie dostepna pod adresem: `http://127.0.0.1:8000`.
 ## Endpoint testowy
 
 - `GET /` -> zwraca status `ok`
+
+### Swager
+`http://127.0.0.1:8000/docs#/default`
