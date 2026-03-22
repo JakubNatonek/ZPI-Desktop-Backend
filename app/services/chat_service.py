@@ -123,7 +123,6 @@ def build_presence_response(user: User) -> UserPresenceResponse:
     """Convert user model to presence response schema."""
     return UserPresenceResponse(
         user_id=user.user_id,
-        is_online=bool(user.is_online),
         last_seen_at=_to_iso(user.last_seen_at),
     )
 

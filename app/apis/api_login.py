@@ -59,7 +59,7 @@ def _set_refresh_cookie(response: Response, refresh_token: str) -> None:
         secure=REFRESH_COOKIE_SECURE,
         samesite=REFRESH_COOKIE_SAMESITE,
         max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
-        path="/auth",
+        path="/",
     )
 
 
@@ -131,6 +131,16 @@ def login(payload: UserLogin, response: Response, db: Session = Depends(get_db))
         expires_at=refresh_expiry_datetime(),
     )
     _set_refresh_cookie(response, refresh_token)
+    # Ustaw access_token jako cookie httponly
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=REFRESH_COOKIE_SECURE,
+        samesite=REFRESH_COOKIE_SAMESITE,
+        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        path="/",
+    )
 
     return AuthResponse(
         user_id=user.user_id,
@@ -181,6 +191,16 @@ def refresh_tokens(request: Request, response: Response, db: Session = Depends(g
     )
 
     _set_refresh_cookie(response, new_refresh_token)
+    # Ustaw access_token jako cookie httponly
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=REFRESH_COOKIE_SECURE,
+        samesite=REFRESH_COOKIE_SAMESITE,
+        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        path="/",
+    )
 
     return AuthResponse(
         user_id=user.user_id,

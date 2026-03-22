@@ -1,5 +1,4 @@
-from fastapi import Depends, HTTPException
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi import Depends, HTTPException, Request
 from jose import ExpiredSignatureError, JWTError
 from sqlalchemy.orm import Session
 
@@ -9,33 +8,28 @@ from app.core.database import get_db
 from app.models.model_user import User
 
 
-bearer_scheme = HTTPBearer(auto_error=False)
-
-
 def get_current_user(
-    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+    request: Request,
     db: Session = Depends(get_db),
 ) -> User:
-    if credentials is None or not credentials.credentials:
+    access_token = request.cookies.get("access_token")
+    if not access_token:
         raise HTTPException(
             status_code=401,
-            detail="Missing access token",
-            headers={"WWW-Authenticate": "Bearer"},
+            detail="Missing access token cookie",
         )
 
     try:
-        payload = decode_access_token(credentials.credentials)
+        payload = decode_access_token(access_token)
     except ExpiredSignatureError as exc:
         raise HTTPException(
             status_code=401,
             detail="Access token expired",
-            headers={"WWW-Authenticate": "Bearer"},
         ) from exc
     except JWTError as exc:
         raise HTTPException(
             status_code=401,
             detail="Invalid access token",
-            headers={"WWW-Authenticate": "Bearer"},
         ) from exc
 
     user_id = payload.get("user_id")
@@ -44,7 +38,6 @@ def get_current_user(
         raise HTTPException(
             status_code=401,
             detail="Invalid access token payload",
-            headers={"WWW-Authenticate": "Bearer"},
         )
 
     user = get_user_by_id(db, int(user_id))
@@ -52,7 +45,6 @@ def get_current_user(
         raise HTTPException(
             status_code=401,
             detail="User not found",
-            headers={"WWW-Authenticate": "Bearer"},
         )
 
     user_role_value = user.role.name if user.role else str(user.role)
@@ -60,7 +52,6 @@ def get_current_user(
         raise HTTPException(
             status_code=401,
             detail="Token role mismatch",
-            headers={"WWW-Authenticate": "Bearer"},
         )
 
     return user

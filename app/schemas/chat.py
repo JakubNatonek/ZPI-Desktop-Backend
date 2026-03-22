@@ -36,7 +36,6 @@ class MessageStatusResponse(BaseModel):
 
 class UserPresenceResponse(BaseModel):
     user_id: int
-    is_online: bool
     last_seen_at: str | None = None
 
 

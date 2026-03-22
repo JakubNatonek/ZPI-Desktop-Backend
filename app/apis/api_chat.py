@@ -67,8 +67,8 @@ def _filter_users_by_query(query, search_term: str | None):
     pattern = trimmed + "%" if len(trimmed) >= MIN_SEARCH_QUERY_LENGTH else f"%{trimmed}%"
     return query.filter(
         or_(
-            User.imie.ilike(pattern),
-            User.nazwisko.ilike(pattern),
+            User.first_name.ilike(pattern),
+            User.last_name.ilike(pattern),
         )
     )
 
@@ -100,7 +100,6 @@ def set_online(
 ) -> UserPresenceResponse:
     """Mark the current user as online."""
     user = get_user_or_raise(db, current_user.user_id)
-    user.is_online = True
     db.commit()
     db.refresh(user)
     return build_presence_response(user)
@@ -118,7 +117,6 @@ def set_offline(
     """Mark the current user as offline and record current timestamp."""
     from datetime import datetime, timezone
     user = get_user_or_raise(db, current_user.user_id)
-    user.is_online = False
     user.last_seen_at = datetime.now(timezone.utc)
     db.commit()
     db.refresh(user)
@@ -282,13 +280,13 @@ def search_users(
 
     users = (
         filtered_query
-        .order_by(User.nazwisko.asc(), User.imie.asc())
+        .order_by(User.last_name.asc(), User.first_name.asc())
         .limit(limit)
         .all()
     )
     
     return [
-        UserNameResponse(user_id=u.user_id, imie=u.imie, nazwisko=u.nazwisko)
+        UserNameResponse(user_id=u.user_id, first_name=u.first_name, last_name=u.last_name)
         for u in users
     ]
 

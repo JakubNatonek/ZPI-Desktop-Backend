@@ -29,7 +29,6 @@ class User(Base):
     password_hash = Column(String, nullable=False)
     plain_password = Column(String, nullable=True)
     must_change_password = Column(Boolean, nullable=False, default=False)
-    is_online = Column(Boolean, nullable=False, default=False)
     last_seen_at = Column(DateTime(timezone=True), nullable=True)
 
     role_id = Column(Integer, ForeignKey("roles.id"), nullable=False)
