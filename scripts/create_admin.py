@@ -15,8 +15,8 @@ def create_admin():
                 password_hash="$2b$12$zi7AdboGsbPpUp4j3qFpv.WTir3I5odeMnqzyUW4DTaN956Jq3.p.",
                 plain_password=None,
                 must_change_password=False,
-                role_id=1,  # or fetch Role by name
-                department_id=1  # or fetch Department by name
+                role_id=1,
+                department_id=1 
             ))
             db.commit()
             print("Admin user created.")
