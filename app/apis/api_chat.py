@@ -15,7 +15,7 @@ from app.cruds.chat.crud_message import (
 )
 from app.cruds.chat.crud_message_send import save_message
 from app.models.model_user import User
-from app.schemas.chat import (
+from app.schemas.chat.chat import (
     ConversationListItemResponse,
     ConversationStartResponse,
     MessageResponse,
@@ -24,8 +24,8 @@ from app.schemas.chat import (
     TypingIndicatorResponse,
     UserPresenceResponse,
 )
-from app.schemas.chat_group import CreateGroupRequest, CreateGroupResponse
-from app.schemas.chat_send import SendMessageRequest
+from app.schemas.chat.chat_group import CreateGroupRequest, CreateGroupResponse
+from app.schemas.chat.chat_send import SendMessageRequest
 from app.schemas.user import UserNameResponse
 from app.services.chat_service import (
     ERROR_CANNOT_MARK_OWN_MESSAGE,

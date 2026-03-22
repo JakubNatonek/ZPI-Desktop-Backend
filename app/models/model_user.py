@@ -2,19 +2,8 @@
 from sqlalchemy import Boolean, Column, DateTime, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from app.core.database import Base
-
-
-
-class Role(Base):
-    __tablename__ = "roles"
-    id = Column(Integer, primary_key=True)
-    name = Column(String, unique=True, nullable=False)
-
-
-class Department(Base):
-    __tablename__ = "departments"
-    id = Column(Integer, primary_key=True)
-    name = Column(String, unique=True, nullable=False)
+from app.models.model_department import Department
+from app.models.model_role import Role
 
 
 

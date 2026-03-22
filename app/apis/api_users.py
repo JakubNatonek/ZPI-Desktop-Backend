@@ -7,7 +7,8 @@ from app.core.database import get_db
 from app.cruds.crud_login import get_all_users, get_user_by_id
 from app.cruds.crud_department_role import create_department, create_role
 from app.schemas.user import UserNameResponse
-from app.schemas.department_role import DepartmentCreate, RoleCreate, DepartmentResponse, RoleResponse
+from app.schemas.department import DepartmentCreate, DepartmentResponse
+from app.schemas.role import RoleCreate, RoleResponse
 from app.auth.current_user import get_current_user
 from app.cruds.chat.crud_conversation import get_or_create_direct_conversation
 
