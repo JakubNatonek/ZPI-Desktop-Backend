@@ -76,21 +76,21 @@ def create_user(payload: AdminUserCreate, db: Session = Depends(get_db)) -> User
 
     user = create_user_by_admin(
         db,
-        imie=payload.imie,
-        nazwisko=payload.nazwisko,
+        first_name=payload.first_name,
+        last_name=payload.last_name,
         email=payload.email,
-        rola=payload.rola,
-        dzial=payload.dzial,
+        role_name=payload.role,
+        department_name=payload.department,
     )
 
     return UserCreatedResponse(
         user_id=user.user_id,
         login=user.login,
         email=user.email,
-        imie=user.imie,
-        nazwisko=user.nazwisko,
-        rola=user.rola,
-        dzial=user.dzial,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        role=user.role.name if user.role else None,
+        department=user.department.name if user.department else None,
         one_time_password=user.plain_password,
     )
 
@@ -122,8 +122,8 @@ def login(payload: UserLogin, response: Response, db: Session = Depends(get_db))
     if user is None:
         raise HTTPException(status_code=401, detail="Invalid login or password")
 
-    access_token = create_access_token(user_id=user.user_id, role=user.rola)
-    refresh_token, refresh_jti = create_refresh_token(user_id=user.user_id, role=user.rola)
+    access_token = create_access_token(user_id=user.user_id, role=user.role.name if user.role else None)
+    refresh_token, refresh_jti = create_refresh_token(user_id=user.user_id, role=user.role.name if user.role else None)
     create_refresh_session(
         db,
         user_id=user.user_id,
@@ -169,8 +169,8 @@ def refresh_tokens(request: Request, response: Response, db: Session = Depends(g
     if user is None:
         raise HTTPException(status_code=401, detail="User not found")
 
-    access_token = create_access_token(user_id=user.user_id, role=user.rola)
-    new_refresh_token, new_refresh_jti = create_refresh_token(user_id=user.user_id, role=user.rola)
+    access_token = create_access_token(user_id=user.user_id, role=user.role.name if user.role else None)
+    new_refresh_token, new_refresh_jti = create_refresh_token(user_id=user.user_id, role=user.role.name if user.role else None)
 
     revoke_refresh_session(db, str(refresh_jti))
     create_refresh_session(
@@ -237,8 +237,8 @@ def me(current_user: User = Depends(get_current_user)) -> CurrentUserResponse:
         user_id=current_user.user_id,
         login=current_user.login,
         email=current_user.email,
-        role=current_user.rola,
-        dzial=current_user.dzial,
+        role=current_user.role.name if current_user.role else None,
+        department=current_user.department.name if current_user.department else None,
     )
 
 

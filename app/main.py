@@ -22,7 +22,7 @@ from scripts.create_admin import create_admin
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     init_database()
     # run_migrations() # this should not be done evry time the server is run
-    create_admin()
+    # create_admin()
     yield
 
 

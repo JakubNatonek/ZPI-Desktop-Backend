@@ -9,7 +9,7 @@ class Teacher(Base):
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"), unique=True, nullable=True, index=True)
-    tytul = Column(String, nullable=True)
+    title = Column(String, nullable=True)
     prop = Column(String, nullable=True)
 
     user = relationship("User", back_populates="teacher_profile")

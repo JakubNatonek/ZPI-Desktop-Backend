@@ -1,5 +1,5 @@
 from app.core.database import SessionLocal
-from app.models.model_user import User, RolaEnum, DzialEnum
+from app.models.model_user import User
 from sqlalchemy.orm import Session
 
 def create_admin():
@@ -8,15 +8,15 @@ def create_admin():
         admin = db.query(User).filter(User.email == "admin@admin.com").first()
         if not admin:
             db.add(User(
-                imie="admin",
-                nazwisko="admin",
+                first_name="admin",
+                last_name="admin",
                 login="admin",
                 email="admin@admin.com",
                 password_hash="$2b$12$zi7AdboGsbPpUp4j3qFpv.WTir3I5odeMnqzyUW4DTaN956Jq3.p.",
                 plain_password=None,
                 must_change_password=False,
-                rola=RolaEnum.ADMIN,
-                dzial=DzialEnum.ADMIN
+                role_id=1,  # or fetch Role by name
+                department_id=1  # or fetch Department by name
             ))
             db.commit()
             print("Admin user created.")

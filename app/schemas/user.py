@@ -1,61 +1,59 @@
+
 from pydantic import BaseModel, EmailStr, Field
-from app.models.model_user import DzialEnum, RolaEnum
 
 
 class AdminUserCreate(BaseModel):
-    """Dane do utworzenia nowego użytkownika przez administratora."""
-
-    imie: str 
-    nazwisko: str 
-    email: EmailStr 
-    rola: RolaEnum 
-    dzial: DzialEnum 
+    """Data for creating a new user by admin."""
+    first_name: str
+    last_name: str
+    email: EmailStr
+    role: str  # role name
+    department: str  # department name
 
 
 class UserCreatedResponse(BaseModel):
-    """Odpowiedź po utworzeniu użytkownika — zawiera wygenerowany login i hasło."""
-
+    """Response after user creation — contains generated login and password."""
     user_id: int
     login: str
     email: EmailStr
-    imie: str
-    nazwisko: str
-    rola: RolaEnum
-    dzial: DzialEnum
-    one_time_password: str 
+    first_name: str
+    last_name: str
+    role: str  # role name
+    department: str  # department name
+    one_time_password: str
+
 
 
 class UserCredentialsResponse(BaseModel):
     """Dane logowania użytkownika (login + jednorazowe hasło)."""
-
     user_id: int
     login: str
-    one_time_password: str 
+    one_time_password: str
+
 
 
 class UserLogin(BaseModel):
     """Dane logowania — login i hasło."""
+    login: str
+    password: str
 
-    login: str 
-    password: str 
 
 
 class ChangePasswordRequest(BaseModel):
     """Dane do zmiany hasła użytkownika."""
-
     new_password: str
     confirm_new_password: str
 
 
+
 class ChangePasswordResponse(BaseModel):
     """Odpowiedź po zmianie hasła."""
-
     message: str
+
 
 
 class AuthResponse(BaseModel):
     """Odpowiedź po zalogowaniu — token dostępu."""
-
     user_id: int
     login: str
     email: EmailStr
@@ -66,18 +64,17 @@ class AuthResponse(BaseModel):
 
 
 class CurrentUserResponse(BaseModel):
-    """Dane aktualnie zalogowanego użytkownika."""
-
+    """Current logged-in user data."""
     user_id: int
     login: str
     email: EmailStr
-    role: RolaEnum
-    dzial: DzialEnum
+    role: str  # role name
+    department: str  # department name
+
 
 
 class UserNameResponse(BaseModel):
-    """Podstawowe dane użytkownika do listowania i edycji."""
-
+    """Basic user data for listing and editing."""
     user_id: int
-    imie: str
-    nazwisko: str
+    first_name: str
+    last_name: str

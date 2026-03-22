@@ -18,7 +18,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 )
 def list_users(db: Session = Depends(get_db)) -> List[UserNameResponse]:
     users = get_all_users(db)
-    return [UserNameResponse(user_id=user.user_id, imie=user.imie, nazwisko=user.nazwisko) for user in users]
+    return [UserNameResponse(user_id=user.user_id, first_name=user.first_name, last_name=user.last_name) for user in users]
 
 
 @router.get(
@@ -34,7 +34,7 @@ def get_user_name(
     _ = current_user
     user = get_user_by_id(db, user_id)
     if not user:
-        raise HTTPException(status_code=404, detail="Użytkownik nie istnieje.")
-    return UserNameResponse(user_id=user.user_id, imie=user.imie, nazwisko=user.nazwisko)
+        raise HTTPException(status_code=404, detail="User does not exist.")
+    return UserNameResponse(user_id=user.user_id, first_name=user.first_name, last_name=user.last_name)
 
 

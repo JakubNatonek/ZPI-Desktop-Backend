@@ -7,7 +7,7 @@ class Subject(Base):
     __tablename__ = "subject"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    nazwa = Column(String, nullable=False)
+    name = Column(String, nullable=False)
     rodzaj = Column(String, nullable=False)
     rodzajshow = Column(String, nullable=True)
     prop_sal = Column(String, nullable=True)

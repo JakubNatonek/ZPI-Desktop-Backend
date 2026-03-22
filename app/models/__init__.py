@@ -11,7 +11,7 @@ from app.models.model_subject import Subject
 from app.models.model_refresh_token import RefreshTokenSession
 from app.models.model_room import Room
 from app.models.model_student import Student
-from app.models.model_user import DzialEnum, RolaEnum, User
+from app.models.model_user import User
 
 __all__ = [
 	"Base",
