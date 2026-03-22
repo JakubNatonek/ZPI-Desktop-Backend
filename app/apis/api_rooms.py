@@ -20,7 +20,7 @@ router = APIRouter(prefix="/rooms", tags=["rooms"])
 
 
 def _require_admin(current_user: User = Depends(get_current_user)) -> User:
-    role_value = current_user.rola.value if hasattr(current_user.rola, "value") else str(current_user.rola)
+    role_value = current_user.role.name if current_user.role else str(current_user.role)
     if role_value != "admin":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     return current_user

@@ -55,7 +55,7 @@ def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    user_role_value = user.rola.value if hasattr(user.rola, "value") else str(user.rola)
+    user_role_value = user.role.name if user.role else str(user.role)
     if user_role_value != str(role):
         raise HTTPException(
             status_code=401,
