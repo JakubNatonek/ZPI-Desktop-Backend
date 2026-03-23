@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 
 from app.core.database import SessionLocal
 from app.seed_data.seed_admin import seed_admin
+from app.seed_data.seed_language_name_for_category import seed_language_name_for_category
 from app.seed_data.seed_departments import seed_departments
 from app.seed_data.seed_language_abbreviations import seed_language_abbreviations
 from app.seed_data.seed_rapla_user_to_app_user import seed_rapla_user_to_app_user
@@ -18,6 +19,7 @@ def seed_all() -> None:
         seed_language_abbreviations(db)
         db.commit()
         seed_admin()
+        seed_language_name_for_category()
         seed_rapla_user_to_app_user()
         print("All seed data applied.")
     finally:

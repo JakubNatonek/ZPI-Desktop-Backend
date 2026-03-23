@@ -1,8 +1,15 @@
 from datetime import datetime
+from collections import defaultdict
 
 from sqlalchemy.orm import Session
 
 from app.models.rapla.model_rapla_category import RaplaCategory
+from app.cruds.rapla.crud_rapla_language_name_for_category import _delete_all_language_names_from_category
+from app.cruds.rapla.crud_rapla_language_name_for_category import get_language_name_links_by_category_id
+from app.cruds.rapla.crud_rapla_language_name import get_language_name_schema_by_id
+from app.schemas.rapla.schema_rapla_categories import RaplaCategories
+from app.schemas.rapla.schema_rapla_category import RaplaCategory as RaplaCategorySchema
+from app.schemas.rapla.schema_rapla_language_name import RaplaLanguageName as RaplaLanguageNameSchema
 
 
 ##
@@ -102,6 +109,56 @@ def create_rapla_category(
     return category
 
 
+def _format_rapla_datetime(value: datetime | None) -> str:
+    if value is None:
+        return ""
+    return value.isoformat().replace("+00:00", "Z")
+
+
+def _get_category_names_schema(db: Session, category_id: int | None) -> list[RaplaLanguageNameSchema]:
+    if category_id is None:
+        return []
+
+    links = get_language_name_links_by_category_id(db, category_id)
+    names: list[RaplaLanguageNameSchema] = []
+
+    for link in links:
+        name_schema = get_language_name_schema_by_id(db, link.language_name_id)
+        if name_schema is not None:
+            names.append(name_schema)
+
+    return names
+
+
+##
+# @brief Build hierarchical category schema for Rapla XML export.
+# @param db Active database session.
+# @return Root categories with recursively nested child categories.
+def get_rapla_categories_schema(db: Session) -> RaplaCategories:
+    categories = get_all_rapla_categories(db)
+    children_by_parent: defaultdict[int | None, list[RaplaCategory]] = defaultdict(list)
+
+    for category in categories:
+        children_by_parent[category.parent_id].append(category)
+
+    for parent_id in children_by_parent:
+        children_by_parent[parent_id].sort(key=lambda category: str(category.key or ""))
+
+    def build_node(category: RaplaCategory) -> RaplaCategorySchema:
+        child_nodes = [build_node(child) for child in children_by_parent.get(category.id, [])]
+        return RaplaCategorySchema(
+            uuid=str(category.uuid or ""),
+            created_at=_format_rapla_datetime(category.created_at),
+            last_changed=_format_rapla_datetime(category.last_changed),
+            key=str(category.key or ""),
+            names=_get_category_names_schema(db, category.id),
+            categories=child_nodes,
+        )
+
+    root_categories = [build_node(category) for category in children_by_parent.get(None, [])]
+    return RaplaCategories(categories=root_categories)
+
+
 ##
 # @brief Delete all child categories recursively for a given parent id.
 # @param db Active database session.
@@ -117,6 +174,7 @@ def delete_rapla_child_categories_by_parent_id(db: Session, parent_id: int) -> b
         return True
 
     for child in children:
+        _delete_all_language_names_from_category(db, child.id)
         delete_rapla_child_categories_by_parent_id(db, child.id)
         _delete_rapla_category_by_id(db, child.id)
 
@@ -138,6 +196,7 @@ def delete_rapla_child_categories_by_parent_uuid(db: Session, parent_uuid: str) 
         return True
 
     for child in children:
+        _delete_all_language_names_from_category(db, child.id)
         delete_rapla_child_categories_by_parent_uuid(db, child.uuid)
         _delete_rapla_category_by_uuid(db, child.uuid)
 
@@ -154,6 +213,7 @@ def delete_rapla_category_by_id(db: Session, category_id: int) -> bool:
     if category is None:
         return False
 
+    _delete_all_language_names_from_category(db, category_id)
     delete_rapla_child_categories_by_parent_id(db, category_id)
     db.delete(category)
     db.commit()
@@ -182,6 +242,7 @@ def delete_rapla_category_by_uuid(db: Session, uuid: str) -> bool:
     if category is None:
         return False
 
+    _delete_all_language_names_from_category(db, category.id)
     delete_rapla_child_categories_by_parent_uuid(db, uuid)
     db.delete(category)
     db.commit()

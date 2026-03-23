@@ -137,6 +137,17 @@ def _delete_orphaned_language_names(db: Session, language_name_ids: set[int]) ->
 # @param category_id Category identifier.
 # @return Total number of deleted rows across link and language-name tables.
 def delete_all_language_names_from_category(db: Session, category_id: int) -> int:
+	total_deleted = _delete_all_language_names_from_category(db, category_id)
+	db.commit()
+	return total_deleted
+
+##
+# @brief Delete all language-name links for a category and cleanup orphaned language-name rows.
+# @details Performs delete operations in the current transaction and does not commit.
+# @param db Active database session.
+# @param category_id Category identifier.
+# @return Total number of deleted rows across link and language-name tables.
+def _delete_all_language_names_from_category(db: Session, category_id: int) -> int:
 	links = _get_language_name_links_for_category(db, category_id)
 
 	if not links:
@@ -146,5 +157,4 @@ def delete_all_language_names_from_category(db: Session, category_id: int) -> in
 	deleted_links = _delete_language_name_links(db, links)
 	deleted_language_names = _delete_orphaned_language_names(db, language_name_ids)
 
-	db.commit()
 	return deleted_links + deleted_language_names

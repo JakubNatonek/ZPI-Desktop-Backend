@@ -8,7 +8,6 @@ from app.schemas.rapla.rapla_namespaces import ANNOTATION_NS
 class RaplaLanguageName:
 	language: str
 	name: str
-
 	def to_xml(self, parent: ET.Element) -> ET.Element:
 		name_el = ET.SubElement(
 			parent,

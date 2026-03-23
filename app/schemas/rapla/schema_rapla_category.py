@@ -12,8 +12,9 @@ class RaplaCategory:
     created_at: str
     last_changed: str
     key: str
-    names: list[RaplaLanguageName] = field(default_factory=lambda: cast(list[RaplaLanguageName], []))
     categories: list["RaplaCategory"] | None = None
+    names: list[RaplaLanguageName] = field(default_factory=lambda: cast(list[RaplaLanguageName], []))
+
 
     def to_xml(self, parent: ET.Element) -> ET.Element:
         category_el = ET.SubElement(

@@ -46,7 +46,7 @@ def get_rapla_users_schema(db: Session) -> RaplaUsers:
 				name=cast(str | None, user.name) or "",
 				email=cast(str | None, user.email) or "",
 				is_admin=bool(user.isadmin),
-				groups=get_rapla_user_groups_schema(db, cast(int, user.id)),
+				#groups=get_rapla_user_groups_schema(db, cast(int, user.id)),
 				xml_value=cast(str | None, user.xml_value),
 			)
 		)

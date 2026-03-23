@@ -5,6 +5,7 @@ from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.cruds.rapla.crud_rapla_categories import get_rapla_categories_schema
 from app.cruds.rapla.crud_rapla_users import get_rapla_users_schema
 from app.schemas.rapla.schema_rapla_file import RaplaFile
 
@@ -19,7 +20,8 @@ def generate_rapla_file(db: Session = Depends(get_db)) -> FileResponse:
 
 
 	users = get_rapla_users_schema(db)
-	data = RaplaFile(users=users)
+	categories = get_rapla_categories_schema(db)
+	data = RaplaFile(users=users, categories=categories)
 	data.save_to_file(str(output_path))
 
 	return FileResponse(

@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
 
+from app.models.rapla.model_language_abbreviations import RaplaLanguageAbbreviations
 from app.models.rapla.model_rapla_language_name import RaplaLanguageName
+from app.schemas.rapla.schema_rapla_language_name import RaplaLanguageName as RaplaLanguageNameSchema
 
 
 ##
@@ -18,6 +20,32 @@ def get_all_language_names(db: Session) -> list[RaplaLanguageName]:
 # @return Matching row or None when not found.
 def get_language_name_by_id(db: Session, language_name_id: int) -> RaplaLanguageName | None:
 	return db.query(RaplaLanguageName).filter(RaplaLanguageName.id == language_name_id).first()
+
+
+##
+# @brief Map language-name row by id to Rapla language-name schema.
+# @param db Active database session.
+# @param language_name_id Language name identifier.
+# @return Schema object with abbreviation language and name, or None when not found.
+def get_language_name_schema_by_id(db: Session, language_name_id: int) -> RaplaLanguageNameSchema | None:
+	row = (
+		db.query(RaplaLanguageName, RaplaLanguageAbbreviations)
+		.join(
+			RaplaLanguageAbbreviations,
+			RaplaLanguageName.id_abbreviations == RaplaLanguageAbbreviations.id,
+		)
+		.filter(RaplaLanguageName.id == language_name_id)
+		.first()
+	)
+
+	if row is None:
+		return None
+
+	language_name, abbreviation = row
+	return RaplaLanguageNameSchema(
+		language=str(abbreviation.language or ""),
+		name=str(language_name.name or ""),
+	)
 
 
 
