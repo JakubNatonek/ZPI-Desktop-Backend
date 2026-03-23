@@ -10,7 +10,7 @@ class RaplaUser(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
 
 # Rapla data
-    uuid = Column(String(100), nullable=False)
+    uuid = Column(String(100), nullable=False, unique=True)
     created_at = Column(DateTime(timezone=True), nullable=True)
     last_changed = Column(DateTime(timezone=True), nullable=True)
     username = Column(String(100))

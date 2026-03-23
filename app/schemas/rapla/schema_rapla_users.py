@@ -10,7 +10,6 @@ from app.schemas.rapla.schema_rapla_user import RaplaUser
 class RaplaUsers:
     users: list[RaplaUser] = field(default_factory=lambda: cast(list[RaplaUser], []))
 
-
     def to_xml(self, parent: ET.Element) -> ET.Element:
         users_el = ET.SubElement(parent, f"{{{RAPLA_NS}}}users")
         users_el.append(ET.Comment(" Users of the system "))

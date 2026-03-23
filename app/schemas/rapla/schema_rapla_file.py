@@ -6,14 +6,14 @@ from app.schemas.rapla.rapla_namespaces import (
     RAPLA_NS,
     RAPLA_VERSION,
 )
+from app.schemas.rapla.schema_rapla_categories import RaplaCategories
 from app.schemas.rapla.schema_rapla_users import RaplaUsers
 
 @dataclass
 class RaplaFile:
     version: str = RAPLA_VERSION
     users: RaplaUsers = field(default_factory=RaplaUsers)
-
-    # categories: list[any] = field(default_factory=lambda: cast(list[any], []))
+    categories: RaplaCategories = field(default_factory=RaplaCategories)
 
     # grammar: list[any] = field(default_factory=lambda: cast(list[any], []))
 
@@ -40,6 +40,7 @@ class RaplaFile:
                 "version": self.version,
             },
         )
+        self.categories.to_xml(root)
         self.users.to_xml(root)
         ET.indent(root, space="    ")
 

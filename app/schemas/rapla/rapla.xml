@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<rapla:data xmlns:rapla="http://rapla.sourceforge.net/rapla" version="1.2">
-    <rapla:users>
-        <!-- Users of the system -->
-        <rapla:user id="ue1025a8-c923-425e-bb21-6fddb8889c21" created-at="2026-03-22T21:14:03.768000Z" last-changed="2026-03-22T21:14:03.768000Z" username="admin" password="" name="" email="" isAdmin="true"></rapla:user>
-    </rapla:users>
-</rapla:data>

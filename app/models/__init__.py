@@ -12,6 +12,10 @@ from app.models.model_refresh_token import RefreshTokenSession
 from app.models.model_room import Room
 from app.models.model_student import Student
 from app.models.model_user import Department, Role, User
+from app.models.rapla.model_language_abbreviations import RaplaLanguageAbbreviations
+from app.models.rapla.model_rapla_category import RaplaCategory
+from app.models.rapla.model_rapla_language_name import RaplaLanguageName
+from app.models.rapla.model_language_name_for_category import RaplaLanguageNameForCategory
 from app.models.rapla.model_rapla_user import RaplaUser
 from app.models.rapla.model_rapla_user_to_app_user import RaplaUserToAppUser
 
@@ -31,6 +35,10 @@ __all__ = [
 	"Student",
 	"Group",
 	"Subject",
+	"RaplaLanguageAbbreviations",
+	"RaplaCategory",
+	"RaplaLanguageName",
+	"RaplaLanguageNameForCategory",
 	"RaplaUser",
 	"RaplaUserToAppUser",
 ]

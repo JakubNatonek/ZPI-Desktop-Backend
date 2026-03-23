@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import xml.etree.ElementTree as ET
 
 from app.schemas.rapla.rapla_namespaces import NSMAP, RAPLA_NS
+from app.schemas.rapla.schema_rapla_group_for_user import RaplaGroupForUser
 
 
 @dataclass
@@ -14,6 +15,7 @@ class RaplaUser:
     name: str = ""
     email: str = ""
     is_admin: bool = False
+    groups: list[RaplaGroupForUser] | None = None
     xml_value: str | None = None
 
     def to_xml(self, parent: ET.Element) -> ET.Element:
@@ -38,5 +40,8 @@ class RaplaUser:
             wrapper_el = ET.fromstring(wrapped_xml)
             for child in wrapper_el:
                 user_el.append(child)
+
+        for group in self.groups or []:
+            group.to_xml(user_el)
 
         return user_el

@@ -13,7 +13,12 @@ def seed_rapla_user_to_app_user(db: Session | None = None) -> None:
 
     try:
         app_admin = db.query(User).filter(User.email == "admin@admin.com").first()
-        rapla_admin = db.query(RaplaUser).filter(RaplaUser.uuid == "ue1025a8-c923-425e-bb21-6fddb8889c21").first()
+        rapla_admin = (
+            db.query(RaplaUser)
+            .filter(RaplaUser.username == "admin")
+            .filter(RaplaUser.email == "")
+            .first()
+        )
 
         if app_admin is None or rapla_admin is None:
             raise RuntimeError("Missing app admin or Rapla admin. Run user seeders first.")
@@ -21,6 +26,7 @@ def seed_rapla_user_to_app_user(db: Session | None = None) -> None:
         existing = (
             db.query(RaplaUserToAppUser)
             .filter(RaplaUserToAppUser.app_user_id == app_admin.user_id)
+            .filter(RaplaUserToAppUser.rapla_user_id == rapla_admin.id)
             .first()
         )
         if existing:

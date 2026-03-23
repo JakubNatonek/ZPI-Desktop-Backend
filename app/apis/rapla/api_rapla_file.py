@@ -14,8 +14,9 @@ router = APIRouter(prefix="/rapla", tags=["rapla"])
 
 @router.get("/file", summary="Generate and download Rapla XML")
 def generate_rapla_file(db: Session = Depends(get_db)) -> FileResponse:
-	output_path = Path(__file__).resolve().parents[1] / "data" / "rapla_files" / "data.xml"
+	output_path = Path(__file__).resolve().parents[3] / "data" / "rapla_files" / "data.xml"
 	output_path.parent.mkdir(parents=True, exist_ok=True)
+
 
 	users = get_rapla_users_schema(db)
 	data = RaplaFile(users=users)

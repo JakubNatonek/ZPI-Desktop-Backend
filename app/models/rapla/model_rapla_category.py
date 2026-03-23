@@ -1,12 +1,17 @@
-from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+
 from app.core.database import Base
 
-class Category(Base):
-    __tablename__ = "category"
 
-    id = Column(Integer, primary_key=True, index=True)
-    parent_id = Column(Integer)
-    category_key = Column(String(100), nullable=False)
-    label = Column(String(255))
-    definition = Column(Text)
-    parent_order = Column(Integer)
+class RaplaCategory(Base):
+   __tablename__ = "rapla_category"
+
+   # Internal data
+   id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+
+   # Rapla data
+   uuid = Column(String(100), nullable=False, unique=True)
+   created_at = Column(DateTime(timezone=True), nullable=True)
+   last_changed = Column(DateTime(timezone=True), nullable=True)
+   key = Column(String(255), nullable=False)
+   parent_id = Column(Integer, ForeignKey("rapla_category.id"), nullable=True)

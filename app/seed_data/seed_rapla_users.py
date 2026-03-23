@@ -1,14 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timezone
+from uuid import uuid4
 
 from sqlalchemy.orm import Session
 
 from app.core.database import SessionLocal
 from app.models.rapla.model_rapla_user import RaplaUser
-
-
-def _parse_rapla_datetime(value: str) -> datetime:
-    # Rapla timestamps come in UTC with trailing Z.
-    return datetime.fromisoformat(value.replace("Z", "+00:00"))
 
 
 def seed_rapla_users(db: Session | None = None) -> None:
@@ -17,18 +13,24 @@ def seed_rapla_users(db: Session | None = None) -> None:
         db = SessionLocal()
 
     try:
-        rapla_uuid = "ue1025a8-c923-425e-bb21-6fddb8889c21"
-        existing = db.query(RaplaUser).filter(RaplaUser.uuid == rapla_uuid).first()
+        existing = (
+            db.query(RaplaUser)
+            .filter(RaplaUser.username == "admin")
+            .filter(RaplaUser.email == "")
+            .first()
+        )
         if existing:
             if own_session:
                 print("Rapla users already seeded.")
             return
 
+        now = datetime.now(timezone.utc)
+
         db.add(
             RaplaUser(
-                uuid=rapla_uuid,
-                created_at=_parse_rapla_datetime("2026-03-22T21:14:03.768Z"),
-                last_changed=_parse_rapla_datetime("2026-03-22T21:14:03.768Z"),
+                uuid=str(uuid4()),
+                created_at=now,
+                last_changed=now,
                 username="admin",
                 password="",
                 name="",
