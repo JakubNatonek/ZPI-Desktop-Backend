@@ -25,6 +25,30 @@ class UserCreatedResponse(BaseModel):
     one_time_password: str
 
 
+class AdminUserListResponse(BaseModel):
+    user_id: int
+    first_name: str
+    last_name: str
+    login: str
+    email: EmailStr
+    role: str
+    department: str
+    must_change_password: bool
+
+
+class AdminUserUpdate(BaseModel):
+    first_name: str = Field(min_length=2, max_length=80)
+    last_name: str = Field(min_length=2, max_length=80)
+    login: str = Field(min_length=3, max_length=64)
+    email: EmailStr
+    role: str = Field(min_length=2, max_length=80)
+    department: str = Field(min_length=2, max_length=120)
+
+
+class AdminResetOneTimePasswordRequest(BaseModel):
+    one_time_password: str = Field(min_length=8, max_length=128)
+
+
 class RoleOptionResponse(BaseModel):
     id: int
     name: str

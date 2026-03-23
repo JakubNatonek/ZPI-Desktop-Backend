@@ -131,3 +131,42 @@ def update_user_password(db: Session, user: User, new_password: str) -> User:
 def get_all_users(db: Session) -> list[User]:
     """Get all users sorted by last name and first name."""
     return db.query(User).order_by(User.last_name.asc(), User.first_name.asc()).all()
+
+
+def update_user_by_admin(
+    db: Session,
+    user: User,
+    first_name: str,
+    last_name: str,
+    login: str,
+    email: str,
+    role: Role,
+    department: Department,
+) -> User:
+    user.first_name = first_name
+    user.last_name = last_name
+    user.login = login
+    user.email = email
+    user.role_id = role.id
+    user.department_id = department.id
+
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+def delete_user_by_admin(db: Session, user: User) -> None:
+    db.delete(user)
+    db.commit()
+
+
+def set_user_one_time_password(db: Session, user: User, one_time_password: str) -> User:
+    user.password_hash = hash_password(one_time_password)
+    user.plain_password = one_time_password
+    user.must_change_password = True
+
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
