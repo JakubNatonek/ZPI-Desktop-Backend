@@ -243,7 +243,8 @@ def logout(request: Request, response: Response, db: Session = Depends(get_db)) 
             # We still clear cookie even if token is malformed/expired.
             pass
 
-    response.delete_cookie(key=REFRESH_COOKIE_NAME, path="/auth")
+        response.delete_cookie(key=REFRESH_COOKIE_NAME, path="/")
+        response.delete_cookie(key="access_token", path="/")
     return {"message": "Logged out"}
 
 
