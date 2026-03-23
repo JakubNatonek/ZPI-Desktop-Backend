@@ -20,6 +20,7 @@ from app.cruds.crud_login import (
     create_user_by_admin,
     get_user_by_email,
     get_user_by_id,
+    get_user_by_login,
     update_user_password,
 )
 from app.cruds.crud_refresh_token import (
@@ -69,18 +70,34 @@ def _set_refresh_cookie(response: Response, refresh_token: str) -> None:
     status_code=201,
     summary="Utwórz nowego użytkownika",
 )
-def create_user(payload: AdminUserCreate, db: Session = Depends(get_db)) -> UserCreatedResponse:
-    existing_email = get_user_by_email(db, payload.email)
+def create_user(
+    payload: AdminUserCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> UserCreatedResponse:
+    role_value = current_user.role.name if current_user.role else str(current_user.role)
+    if role_value != "admin":
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    normalized_login = payload.login.strip().lower()
+    normalized_email = str(payload.email).strip().lower()
+
+    if get_user_by_login(db, normalized_login) is not None:
+        raise HTTPException(status_code=409, detail="User with this login already exists")
+
+    existing_email = get_user_by_email(db, normalized_email)
     if existing_email is not None:
         raise HTTPException(status_code=409, detail="User with this email already exists")
 
     user = create_user_by_admin(
         db,
-        first_name=payload.first_name,
-        last_name=payload.last_name,
-        email=payload.email,
-        role_name=payload.role,
-        department_name=payload.department,
+        first_name=payload.first_name.strip(),
+        last_name=payload.last_name.strip(),
+        login=normalized_login,
+        email=normalized_email,
+        one_time_password=payload.one_time_password,
+        role_name=payload.role.strip(),
+        department_name=payload.department.strip(),
     )
 
     return UserCreatedResponse(
@@ -100,7 +117,15 @@ def create_user(payload: AdminUserCreate, db: Session = Depends(get_db)) -> User
     response_model=UserCredentialsResponse,
     summary="Pobierz dane logowania użytkownika",
 )
-def get_credentials(user_id: int, db: Session = Depends(get_db)) -> UserCredentialsResponse:
+def get_credentials(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> UserCredentialsResponse:
+    role_value = current_user.role.name if current_user.role else str(current_user.role)
+    if role_value != "admin":
+        raise HTTPException(status_code=403, detail="Forbidden")
+
     user = get_user_by_id(db, user_id)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")

@@ -22,3 +22,11 @@ def create_role(db: Session, name: str) -> Role:
     db.commit()
     db.refresh(role)
     return role
+
+
+def get_departments(db: Session) -> list[Department]:
+    return db.query(Department).order_by(Department.name.asc()).all()
+
+
+def get_roles(db: Session) -> list[Role]:
+    return db.query(Role).order_by(Role.name.asc()).all()

@@ -66,13 +66,15 @@ def create_user_by_admin(
     email: str,
     role_name: str,
     department_name: str,
+    login: str | None = None,
+    one_time_password: str | None = None,
 ) -> User:
     """
     Create a user with auto-generated login and one-time password.
     role_name and department_name are strings matching names in the tables.
     """
-    login = _generate_login(db, first_name, last_name)
-    plain_password = _generate_password()
+    login = login or _generate_login(db, first_name, last_name)
+    plain_password = one_time_password or _generate_password()
     hashed = hash_password(plain_password)
 
     role = db.query(Role).filter(Role.name == role_name).first()

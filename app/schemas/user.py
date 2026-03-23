@@ -4,11 +4,13 @@ from pydantic import BaseModel, EmailStr, Field
 
 class AdminUserCreate(BaseModel):
     """Data for creating a new user by admin."""
-    first_name: str
-    last_name: str
+    first_name: str = Field(min_length=2, max_length=80)
+    last_name: str = Field(min_length=2, max_length=80)
+    login: str = Field(min_length=3, max_length=64)
     email: EmailStr
-    role: str  # role name
-    department: str  # department name
+    one_time_password: str = Field(min_length=8, max_length=128)
+    role: str = Field(min_length=2, max_length=80)  # role name
+    department: str = Field(min_length=2, max_length=120)  # department name
 
 
 class UserCreatedResponse(BaseModel):
@@ -21,6 +23,16 @@ class UserCreatedResponse(BaseModel):
     role: str  # role name
     department: str  # department name
     one_time_password: str
+
+
+class RoleOptionResponse(BaseModel):
+    id: int
+    name: str
+
+
+class DepartmentOptionResponse(BaseModel):
+    id: int
+    name: str
 
 
 
