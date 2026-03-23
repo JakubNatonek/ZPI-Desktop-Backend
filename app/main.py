@@ -14,15 +14,15 @@ from app.apis.api_users import router as users_router
 from app.apis.api_chat import router as chat_router
 from app.services.socket_events import create_socket_events
 from app.apis.api_rooms import router as rooms_router
-from scripts.migration_runner import run_migrations
-from scripts.create_admin import create_admin
+from app.apis.rapla.api_rapla_file import router as rapla_file_router
+from app.seed_data.seed_all import seed_all
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     init_database()
     # run_migrations() # this should not be done evry time the server is run
-    # create_admin()
+    seed_all()
     yield
 
 
@@ -73,6 +73,7 @@ app.include_router(login_router)
 app.include_router(users_router)
 app.include_router(chat_router)
 app.include_router(rooms_router)
+app.include_router(rapla_file_router)
 
 
 

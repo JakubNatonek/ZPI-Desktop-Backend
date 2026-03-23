@@ -11,14 +11,16 @@ from app.models.model_subject import Subject
 from app.models.model_refresh_token import RefreshTokenSession
 from app.models.model_room import Room
 from app.models.model_student import Student
-from app.models.model_user import User
+from app.models.model_user import Department, Role, User
+from app.models.rapla.model_rapla_user import RaplaUser
+from app.models.rapla.model_rapla_user_to_app_user import RaplaUserToAppUser
 
 __all__ = [
 	"Base",
 	"AlembicVersion",
 	"User",
-	"RolaEnum",
-	"DzialEnum",
+	"Role",
+	"Department",
 	"RefreshTokenSession",
 	"Conversation",
 	"ConversationTypeEnum",
@@ -29,4 +31,6 @@ __all__ = [
 	"Student",
 	"Group",
 	"Subject",
+	"RaplaUser",
+	"RaplaUserToAppUser",
 ]
