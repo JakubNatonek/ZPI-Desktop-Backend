@@ -155,6 +155,6 @@ def _delete_all_language_names_from_category(db: Session, category_id: int) -> i
 
 	language_name_ids = {link.language_name_id for link in links}
 	deleted_links = _delete_language_name_links(db, links)
-	deleted_language_names = _delete_orphaned_language_names(db, language_name_ids)
+	deleted_language_names = _delete_orphaned_language_names(db, language_name_ids )
 
 	return deleted_links + deleted_language_names

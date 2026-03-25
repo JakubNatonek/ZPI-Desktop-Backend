@@ -1,22 +1,7 @@
 
-from sqlalchemy import Boolean, Column, DateTime, Integer, String, ForeignKey
+from sqlalchemy import Boolean, Column, DateTime, Integer, String
 from sqlalchemy.orm import relationship
 from app.core.database import Base
-
-
-
-class Role(Base):
-    __tablename__ = "roles"
-    id = Column(Integer, primary_key=True)
-    name = Column(String, unique=True, nullable=False)
-
-
-class Department(Base):
-    __tablename__ = "departments"
-    id = Column(Integer, primary_key=True)
-    name = Column(String, unique=True, nullable=False)
-
-
 
 class User(Base):
     __tablename__ = "users"
@@ -31,11 +16,30 @@ class User(Base):
     must_change_password = Column(Boolean, nullable=False, default=False)
     last_seen_at = Column(DateTime(timezone=True), nullable=True)
 
-    role_id = Column(Integer, ForeignKey("roles.id"), nullable=False)
-    department_id = Column(Integer, ForeignKey("departments.id"), nullable=False)
+    # association-object lists (store rows)
+    roles_for_user = relationship(
+        "RolesForUser", 
+        back_populates="user", 
+        cascade="all, delete-orphan"
+    )
 
-    role = relationship("Role")
-    department = relationship("Department")
+    departments_for_user = relationship(
+        "DepartmentsForUser", 
+        back_populates="user", 
+        cascade="all, delete-orphan"
+    )
+
+    # convenience many-to-many access to Role / Department objects
+    roles = relationship(
+        "Role", 
+        secondary="roles_for_user", 
+        backref="users"
+    )
+    departments = relationship(
+        "Department", 
+        secondary="departments_for_user", 
+        backref="users"
+    )
 
     conversation_memberships = relationship(
         "ConversationMember",

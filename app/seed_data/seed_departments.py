@@ -2,41 +2,27 @@ from enum import Enum as PyEnum
 
 from sqlalchemy.orm import Session
 
-from app.core.database import SessionLocal
-from app.models.model_user import Department
+from app.cruds.crud_department import create_department
 
 
 class DzialEnum(str, PyEnum):
-    ADMIN = "admin"
-    INFORMATYKA = "informatyka"
-    MECHATRONIKA = "mechatronika"
-    ENERGETYKA = "energetyka"
+    ADMIN = "Admin"
+    NAUK_EKONOMICZNYCH = "Wydział Nauk Ekonomicznych"
+    NAUK_HUMANISTYCZNYCH = "Wydział Nauk Humanistycznych"
+    NAUK_O_KULTURZE_FIZYCZNEJ_I_BEZPIECZENSTWIE = (
+        "Wydział Nauk o Kulturze Fizycznej i Bezpieczeństwie"
+    )
+    NAUK_SPOLECZNYCH_I_SZTUKI = "Wydział Nauk Społecznych i Sztuki"
+    NAUK_INZYNIERYJNYCH = "Wydział Nauk Inżynieryjnych"
+    WYDZIAL_LEKARSKI_I_NAUK_O_ZDROWIU = "Wydział Lekarski i Nauk o Zdrowiu"
 
 
-def seed_departments(db: Session | None = None) -> None:
-    own_session = db is None
-    if db is None:
-        db = SessionLocal()
+def seed_departments(db: Session) -> None:
+    for dep in DzialEnum:
+        try:
+            create_department(db, dep.value)
+        except ValueError:
+            # already exists, ignore
+            continue
 
-    try:
-        for idx, dep in enumerate(DzialEnum, start=1):
-            existing_by_name = db.query(Department).filter_by(name=dep.value).first()
-            if existing_by_name:
-                continue
-
-            existing_by_id = db.query(Department).filter_by(id=idx).first()
-            if existing_by_id is None:
-                db.add(Department(id=idx, name=dep.value))
-            else:
-                db.add(Department(name=dep.value))
-
-        if own_session:
-            db.commit()
-            print("Departments seeded.")
-    finally:
-        if own_session:
-            db.close()
-
-
-if __name__ == "__main__":
-    seed_departments()
+    print("Departments seeded.")

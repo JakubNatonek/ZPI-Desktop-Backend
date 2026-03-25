@@ -1,5 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from collections import defaultdict
+from uuid import uuid4
+from typing import cast
 
 from sqlalchemy.orm import Session
 
@@ -76,26 +78,43 @@ def get_rapla_categories_by_parent_uuid(db: Session, parent_uuid: str) -> list[R
 
 
 ##
-# @brief Create a category if UUID is not already present.
+# @brief Create a category, avoiding duplicates.
+#
+# This function will return an existing category when a matching `uuid`
+# is provided 
+# already exists. When `uuid` is omitted, a new UUID will be generated.
+#
 # @param db Active database session.
-# @param uuid Rapla UUID.
-# @param created_at Creation datetime.
-# @param last_changed Last changed datetime.
 # @param key Category key.
+# @param uuid Optional Rapla UUID. If provided, will prefer lookup by UUID.
+# @param created_at Optional creation datetime (UTC). Defaults to now.
+# @param last_changed Optional last-changed datetime. Defaults to `created_at`.
 # @param parent_id Optional parent category id.
 # @return Existing or newly created category row.
 def create_rapla_category(
     db: Session,
-    uuid: str,
-    created_at: datetime | None,
-    last_changed: datetime | None,
     key: str,
+    uuid: str | None = None,
+    created_at: datetime | None = None,
+    last_changed: datetime | None = None,
     parent_id: int | None = None,
 ) -> RaplaCategory:
-    existing = get_rapla_category_by_uuid(db, uuid)
-    if existing is not None:
-        return existing
+    
+    if uuid is not None:
+        existing = get_rapla_category_by_uuid(db, uuid)
+        if existing is not None:
+            return existing
 
+    now = datetime.now(timezone.utc)
+    if created_at is None:
+        created_at = now
+    
+    if last_changed is None:
+        last_changed = created_at
+    
+    if uuid is None:
+        uuid = str(uuid4())
+        
     category = RaplaCategory(
         uuid=uuid,
         created_at=created_at,
@@ -123,7 +142,7 @@ def _get_category_names_schema(db: Session, category_id: int | None) -> list[Rap
     names: list[RaplaLanguageNameSchema] = []
 
     for link in links:
-        name_schema = get_language_name_schema_by_id(db, link.language_name_id)
+        name_schema = get_language_name_schema_by_id(db, cast(int, link.language_name_id))
         if name_schema is not None:
             names.append(name_schema)
 
@@ -139,19 +158,19 @@ def get_rapla_categories_schema(db: Session) -> RaplaCategories:
     children_by_parent: defaultdict[int | None, list[RaplaCategory]] = defaultdict(list)
 
     for category in categories:
-        children_by_parent[category.parent_id].append(category)
+        children_by_parent[cast(int, category.parent_id)].append(category)
 
     for parent_id in children_by_parent:
         children_by_parent[parent_id].sort(key=lambda category: str(category.key or ""))
 
     def build_node(category: RaplaCategory) -> RaplaCategorySchema:
-        child_nodes = [build_node(child) for child in children_by_parent.get(category.id, [])]
+        child_nodes = [build_node(child) for child in children_by_parent.get(cast(int, category.id), [])]
         return RaplaCategorySchema(
             uuid=str(category.uuid or ""),
-            created_at=_format_rapla_datetime(category.created_at),
-            last_changed=_format_rapla_datetime(category.last_changed),
+            created_at=_format_rapla_datetime( cast( datetime, category.created_at ) ),
+            last_changed=_format_rapla_datetime( cast( datetime, category.last_changed ) ),
             key=str(category.key or ""),
-            names=_get_category_names_schema(db, category.id),
+            names=_get_category_names_schema(db, cast( int, category.id ) ),
             categories=child_nodes,
         )
 
@@ -174,9 +193,9 @@ def delete_rapla_child_categories_by_parent_id(db: Session, parent_id: int) -> b
         return True
 
     for child in children:
-        _delete_all_language_names_from_category(db, child.id)
-        delete_rapla_child_categories_by_parent_id(db, child.id)
-        _delete_rapla_category_by_id(db, child.id)
+        _delete_all_language_names_from_category(db, cast( int, child.id ) )
+        delete_rapla_child_categories_by_parent_id(db, cast( int, child.id ) )
+        _delete_rapla_category_by_id(db, cast( int, child.id ) )
 
     return True
 
@@ -196,9 +215,9 @@ def delete_rapla_child_categories_by_parent_uuid(db: Session, parent_uuid: str) 
         return True
 
     for child in children:
-        _delete_all_language_names_from_category(db, child.id)
-        delete_rapla_child_categories_by_parent_uuid(db, child.uuid)
-        _delete_rapla_category_by_uuid(db, child.uuid)
+        _delete_all_language_names_from_category(db, cast( int, child.id ) )
+        delete_rapla_child_categories_by_parent_uuid(db, cast( str, child.uuid ) )
+        _delete_rapla_category_by_uuid(db, cast( str, child.uuid ) ) 
 
     return True
 
@@ -242,7 +261,7 @@ def delete_rapla_category_by_uuid(db: Session, uuid: str) -> bool:
     if category is None:
         return False
 
-    _delete_all_language_names_from_category(db, category.id)
+    _delete_all_language_names_from_category(db, cast( int, category.id ) )
     delete_rapla_child_categories_by_parent_uuid(db, uuid)
     db.delete(category)
     db.commit()

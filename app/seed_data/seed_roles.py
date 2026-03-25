@@ -2,8 +2,7 @@ from enum import Enum as PyEnum
 
 from sqlalchemy.orm import Session
 
-from app.core.database import SessionLocal
-from app.models.model_user import Role
+from app.cruds.crud_role import create_role
 
 
 class RolaEnum(str, PyEnum):
@@ -16,30 +15,12 @@ class RolaEnum(str, PyEnum):
     INNE = "inne"
 
 
-def seed_roles(db: Session | None = None) -> None:
-    own_session = db is None
-    if db is None:
-        db = SessionLocal()
+def seed_roles(db: Session) -> None:
+    for role in RolaEnum:
+        try:
+            create_role(db, role.value)
+        except ValueError:
+            # role already exists, ignore
+            continue
 
-    try:
-        for idx, role in enumerate(RolaEnum, start=1):
-            existing_by_name = db.query(Role).filter_by(name=role.value).first()
-            if existing_by_name:
-                continue
-
-            existing_by_id = db.query(Role).filter_by(id=idx).first()
-            if existing_by_id is None:
-                db.add(Role(id=idx, name=role.value))
-            else:
-                db.add(Role(name=role.value))
-
-        if own_session:
-            db.commit()
-            print("Roles seeded.")
-    finally:
-        if own_session:
-            db.close()
-
-
-if __name__ == "__main__":
-    seed_roles()
+    print("Roles seeded.")

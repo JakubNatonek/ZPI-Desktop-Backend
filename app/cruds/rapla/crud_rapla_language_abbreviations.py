@@ -20,12 +20,20 @@ def get_language_abbreviation_by_id(db: Session, abbreviation_id: int) -> RaplaL
 	return db.query(RaplaLanguageAbbreviations).filter(RaplaLanguageAbbreviations.id == abbreviation_id).first()
 
 
+def get_language_abbreviation_by_language(db: Session, language: str) -> RaplaLanguageAbbreviations | None:
+	return db.query(RaplaLanguageAbbreviations).filter(RaplaLanguageAbbreviations.language == language).first()
+
+
 ##
 # @brief Create a language abbreviation if it does not already exist.
 # @param db Active database session.
 # @param language Language code/value to create.
 # @return Existing or newly created row.
 def create_language_abbreviation(db: Session, language: str) -> RaplaLanguageAbbreviations:
+	existing = get_language_abbreviation_by_language(db, language)
+	if existing is not None:
+		raise ValueError(f"Language abbreviation already exists: {language}")
+
 	abbreviation = RaplaLanguageAbbreviations(language=language)
 	db.add(abbreviation)
 	db.commit()

@@ -1,7 +1,7 @@
 import os
 import time
 import importlib
-from pathlib import Path
+from urllib.parse import quote_plus
 
 from dotenv import load_dotenv
 import psycopg2
@@ -14,10 +14,22 @@ from sqlalchemy.orm import sessionmaker
 
 load_dotenv()
 
-SQLALCHEMY_DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://postgres:postgres@localhost:5432/zpi_db",
-)
+def build_database_url() -> str:
+    """Build database URL from environment variables with optional direct override."""
+    direct_url = os.getenv("DATABASE_URL")
+    if direct_url:
+        return direct_url
+
+    user = quote_plus(os.getenv("POSTGRES_USER", "postgres"))
+    password = quote_plus(os.getenv("POSTGRES_PASSWORD", "postgres"))
+    host = os.getenv("POSTGRES_HOST", "localhost")
+    port = os.getenv("POSTGRES_PORT", "5432")
+    database = os.getenv("POSTGRES_DB", "zpi_db")
+
+    return f"postgresql://{user}:{password}@{host}:{port}/{database}"
+
+
+SQLALCHEMY_DATABASE_URL = build_database_url()
 AUTO_CREATE_DATABASE = os.getenv("AUTO_CREATE_DATABASE", "true").lower() == "true"
 DB_INIT_MAX_RETRIES = int(os.getenv("DB_INIT_MAX_RETRIES", "1"))
 DB_INIT_RETRY_DELAY = float(os.getenv("DB_INIT_RETRY_DELAY", "2"))

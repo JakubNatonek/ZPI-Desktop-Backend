@@ -1,6 +1,6 @@
-from datetime import datetime
 from typing import cast
-
+from datetime import datetime, timezone
+from uuid import uuid4
 from sqlalchemy.orm import Session
 
 from app.models.rapla.model_rapla_user import RaplaUser as RaplaUserModel
@@ -8,16 +8,7 @@ from app.schemas.rapla.schema_rapla_group_for_user import RaplaGroupForUser as R
 from app.schemas.rapla.schema_rapla_user import RaplaUser
 from app.schemas.rapla.schema_rapla_users import RaplaUsers
 from app.cruds.rapla.crud_rapla_group_for_user import get_rapla_group_keys_by_user_id
-
-
-##
-# @brief Format a datetime value to Rapla-compatible ISO 8601 string.
-# @param value Datetime value or None.
-# @return ISO string with Z suffix, or empty string when input is None.
-def _format_rapla_datetime(value: datetime | None) -> str:
-	if value is None:
-		return ""
-	return value.isoformat().replace("+00:00", "Z")
+from app.cruds.rapla.rapla_format_datetime import format_rapla_datetime
 
 
 ##
@@ -39,8 +30,8 @@ def get_rapla_users_schema(db: Session) -> RaplaUsers:
 		schema_users.append(
 			RaplaUser(
 				uuid=cast(str, user.uuid),
-				created_at=_format_rapla_datetime(cast(datetime | None, user.created_at)),
-				last_changed=_format_rapla_datetime(cast(datetime | None, user.last_changed)),
+				created_at=format_rapla_datetime(cast(datetime | None, user.created_at)),
+				last_changed=format_rapla_datetime(cast(datetime | None, user.last_changed)),
 				username=cast(str | None, user.username) or "",
 				password=cast(str | None, user.password) or "",
 				name=cast(str | None, user.name) or "",
@@ -51,3 +42,58 @@ def get_rapla_users_schema(db: Session) -> RaplaUsers:
 			)
 		)
 	return RaplaUsers(users=schema_users)
+
+
+def create_rapla_user(
+	db: Session,
+	uuid: str | None = None,
+	username: str = "",
+	email: str = "",
+	password: str = "",
+	name: str = "",
+	isadmin: bool = False,
+	created_at: datetime | None = None,
+	last_changed: datetime | None = None,
+	xml_value: str | None = None,
+) -> RaplaUserModel:
+		existing_by_username = (
+			db.query(RaplaUserModel)
+			.filter(RaplaUserModel.username == username)
+			.first()
+		)
+		if existing_by_username:
+			raise ValueError(f"Rapla user with username already exists: {username}")
+
+		existing_by_email = (
+			db.query(RaplaUserModel)
+			.filter(RaplaUserModel.email == email)
+			.first()
+		)
+		if existing_by_email:
+			raise ValueError(f"Rapla user with email already exists: {email}")
+
+		now = datetime.now(timezone.utc)
+		if created_at is None:
+			created_at = now
+		
+		if last_changed is None:
+			last_changed = created_at
+		
+		if uuid is None:
+			uuid = str(uuid4())
+
+		user = RaplaUserModel(
+			uuid=uuid,
+			created_at=created_at,
+			last_changed=last_changed,
+			username=username,
+			password=password,
+			name=name,
+			email=email,
+			isadmin=isadmin,
+			xml_value=xml_value,
+		)
+		db.add(user)
+		db.commit()
+		db.refresh(user)
+		return user
