@@ -8,6 +8,7 @@ from app.models.model_alembic_version import AlembicVersion
 from app.models.model_group import Group
 from app.models.model_teacher import Teacher
 from app.models.model_subject import Subject
+from app.models.model_announcement import Announcement, AnnouncementSeen
 from app.models.model_refresh_token import RefreshTokenSession
 from app.models.model_room import Room
 from app.models.model_student import Student
@@ -21,6 +22,8 @@ __all__ = [
 	"RolaEnum",
 	"DzialEnum",
 	"RefreshTokenSession",
+	"Announcement",
+	"AnnouncementSeen",
 	"Conversation",
 	"ConversationTypeEnum",
 	"ConversationMember",
