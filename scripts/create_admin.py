@@ -12,7 +12,7 @@ def create_admin():
                 last_name="admin",
                 login="admin",
                 email="admin@admin.com",
-                password_hash="$2b$12$zi7AdboGsbPpUp4j3qFpv.WTir3I5odeMnqzyUW4DTaN956Jq3.p.",
+                password_hash="$2b$12$WBVbY5qn9EMmPJHCzTY1JenHu7vFrRC/NQn.8XSy8k2OEtPRvS8lO",
                 plain_password=None,
                 must_change_password=False,
                 role_id=1,
