@@ -1,0 +1,101 @@
+from datetime import datetime, timezone
+
+from sqlalchemy import func
+from sqlalchemy.orm import Session
+
+from app.models.model_thesis_proposal import ThesisProposal, ThesisProposalStatus
+from app.models.model_user import Role, User
+
+
+LECTURER_ROLE_NAMES = {"lecturer", "wykladowca", "cwiczenia", "laboratorium", "seminarium"}
+
+
+def _is_lecturer_user(user: User) -> bool:
+    role_name = (user.role.name if user.role else "").strip().lower()
+    return role_name in LECTURER_ROLE_NAMES
+
+
+def get_lecturers(db: Session) -> list[User]:
+    return (
+        db.query(User)
+        .join(Role, Role.id == User.role_id)
+        .filter(func.lower(Role.name).in_(LECTURER_ROLE_NAMES))
+        .order_by(User.last_name.asc(), User.first_name.asc())
+        .all()
+    )
+
+
+def create_thesis_proposal(
+    db: Session,
+    student_id: int,
+    lecturer_id: int,
+    topic: str,
+    justification: str,
+    student_average_grade: float,
+) -> ThesisProposal:
+    lecturer = db.query(User).filter(User.user_id == lecturer_id).first()
+    if lecturer is None:
+        raise ValueError("Selected lecturer does not exist")
+    if not _is_lecturer_user(lecturer):
+        raise ValueError("Selected user is not a lecturer")
+
+    proposal = ThesisProposal(
+        student_id=student_id,
+        lecturer_id=lecturer_id,
+        student_average_grade=student_average_grade,
+        topic=topic.strip(),
+        justification=justification.strip(),
+        status=ThesisProposalStatus.PENDING,
+    )
+    db.add(proposal)
+    db.commit()
+    db.refresh(proposal)
+    return proposal
+
+
+def get_proposals_for_lecturer(db: Session, lecturer_id: int) -> list[ThesisProposal]:
+    return (
+        db.query(ThesisProposal)
+        .filter(ThesisProposal.lecturer_id == lecturer_id)
+        .order_by(ThesisProposal.student_average_grade.desc(), ThesisProposal.submitted_at.desc())
+        .all()
+    )
+
+
+def count_approved_for_lecturer(db: Session, lecturer_id: int) -> int:
+    return (
+        db.query(ThesisProposal)
+        .filter(
+            ThesisProposal.lecturer_id == lecturer_id,
+            ThesisProposal.status == ThesisProposalStatus.APPROVED,
+        )
+        .count()
+    )
+
+
+def update_proposal_status(
+    db: Session,
+    proposal_id: int,
+    lecturer_id: int,
+    status: ThesisProposalStatus,
+) -> ThesisProposal | None:
+    proposal = (
+        db.query(ThesisProposal)
+        .filter(
+            ThesisProposal.id == proposal_id,
+            ThesisProposal.lecturer_id == lecturer_id,
+        )
+        .first()
+    )
+    if proposal is None:
+        return None
+
+    if proposal.status != ThesisProposalStatus.PENDING:
+        raise ValueError("Only pending proposals can be reviewed")
+
+    proposal.status = status
+    proposal.reviewed_at = datetime.now(timezone.utc)
+    db.add(proposal)
+    db.commit()
+    db.refresh(proposal)
+    return proposal

@@ -19,6 +19,7 @@ def seed_roles_and_departments():
         roles = [
             {'id': 1, 'name': 'admin'},
             {'id': 2, 'name': 'Wykładowca'},
+            {'id': 3, 'name': 'student'},
         ]
         for role in roles:
             exists = db.query(Role).filter_by(id=role['id']).first()
