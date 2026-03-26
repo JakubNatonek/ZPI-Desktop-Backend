@@ -18,7 +18,7 @@ def seed_rapla_departments(db: Session) -> None:
 
     for dep in DzialEnum:
         _, abbr = dep.value
-        key = f"department:{abbr.lower()}"
+        key = abbr
         try:
             category = _seed_rapla_departments(db, key=key, name=key, parent_id=cast(int, root.id))
         except Exception:
@@ -37,7 +37,10 @@ def seed_rapla_departments(db: Session) -> None:
             continue
 
 def _seed_rapla_departments(db: Session, key: str, name: str, parent_id: int | None = None) -> RaplaCategory:
-    category_department = create_rapla_category(db, key=key, parent_id=parent_id)
+    # avoid unique constraint errors by returning existing category if key exists
+    category_department = db.query(RaplaCategory).filter(RaplaCategory.key == key).first()
+    if category_department is None:
+        category_department = create_rapla_category(db, key=key, parent_id=parent_id)
 
     abbrev = get_language_abbreviation_by_language(db, "en")
     if abbrev is None:

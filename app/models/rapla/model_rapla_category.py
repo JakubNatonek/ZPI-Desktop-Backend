@@ -13,5 +13,5 @@ class RaplaCategory(Base):
    uuid = Column(String(100), nullable=False, unique=True)
    created_at = Column(DateTime(timezone=True), nullable=True)
    last_changed = Column(DateTime(timezone=True), nullable=True)
-   key = Column(String(255), nullable=False)
+   key = Column(String(255),unique=True, nullable=False)
    parent_id = Column(Integer, ForeignKey("rapla_category.id"), nullable=True)

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.cruds.crud_department import create_department
 
 
-class DzialEnum(str, PyEnum):
+class DzialEnum(PyEnum):
     ADMIN = ("Admin", "ADM")
     NAUK_EKONOMICZNYCH = ("Wydział Nauk Ekonomicznych", "WE")
     NAUK_HUMANISTYCZNYCH = ("Wydział Nauk Humanistycznych", "WH")

@@ -49,14 +49,6 @@ cors_origins = os.getenv(
     "http://localhost:8100,http://127.0.0.1:8100,http://localhost:4200,http://127.0.0.1:4200",
 )
 
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=[origin.strip() for origin in cors_origins.split(",") if origin.strip()],
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
-
 # Enable CORS for frontend development
 app.add_middleware(
     CORSMiddleware,

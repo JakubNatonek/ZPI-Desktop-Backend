@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.cruds.crude_room_type import create_room_type
 
 
-class RoomTypeEnum(str, PyEnum):
+class RoomTypeEnum(PyEnum):
     LAB = ("Laboratoryjna", "Lab")
     CWI = ("Ćwiczeniowa", "Cwi")
     WYK = ("Wykładowa", "Wyk")

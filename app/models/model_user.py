@@ -16,30 +16,7 @@ class User(Base):
     must_change_password = Column(Boolean, nullable=False, default=False)
     last_seen_at = Column(DateTime(timezone=True), nullable=True)
 
-    # association-object lists (store rows)
-    roles_for_user = relationship(
-        "RolesForUser", 
-        back_populates="user", 
-        cascade="all, delete-orphan"
-    )
 
-    departments_for_user = relationship(
-        "DepartmentsForUser", 
-        back_populates="user", 
-        cascade="all, delete-orphan"
-    )
-
-    # convenience many-to-many access to Role / Department objects
-    roles = relationship(
-        "Role", 
-        secondary="roles_for_user", 
-        backref="users"
-    )
-    departments = relationship(
-        "Department", 
-        secondary="departments_for_user", 
-        backref="users"
-    )
 
     conversation_memberships = relationship(
         "ConversationMember",

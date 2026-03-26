@@ -7,7 +7,9 @@ from sqlalchemy.orm import Session
 
 
 from app.auth.password_utils import hash_password, verify_password
-from app.models.model_user import User, Role, Department
+from app.models.model_user import User
+from app.models.model_role import Role
+from app.models.model_department import Department
 
 
 

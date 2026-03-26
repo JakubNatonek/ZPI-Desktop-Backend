@@ -17,7 +17,10 @@ def seed_rapla_user_groups(db: Session) -> None:
 
 
 def _seed_rapla_user_groups(db: Session, key: str, name: str, parent_id: int | None = None) -> RaplaCategory:
-    category = create_rapla_category(db, key=key, parent_id=parent_id)
+    # avoid unique constraint errors by returning existing category if key exists
+    category = db.query(RaplaCategory).filter(RaplaCategory.key == key).first()
+    if category is None:
+        category = create_rapla_category(db, key=key, parent_id=parent_id)
 
     abbrev = get_language_abbreviation_by_language(db, "en")
     if abbrev is None:

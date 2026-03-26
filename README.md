@@ -33,13 +33,15 @@ uvicorn app.main:app --reload
 deactivate
 ```
 
-## Uruchomienie docker
+## Uruchomienie Docker
 
 **Prepare environment:**
 
 ```powershell
 copy .env.example .env.docker
 ```
+
+Ustaw `POSTGRES_HOST = db` w pliku `.env.docker` jeśli używasz Docker Compose.
 
 **1. Starting (Build and start containers)**
 
@@ -76,8 +78,8 @@ copy .env.example .env
 ### Windows (PowerShell)
 
 ```powershell
-.\.venv\Scripts\Activate.ps1;
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload;
+\.venv\Scripts\Activate.ps1
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ### Linux/macOS
@@ -113,27 +115,27 @@ Linux/macOS:
 source .venv/bin/activate
 ```
 
-### 2. Upewnij się, ze ustawiony jest poprawny DATABASE_URL
+### 2. Upewnij się, że ustawiony jest poprawny `DATABASE_URL`
 
-Alembic pobiera polaczenie z `.env` (przez `alembic/env.py`).
+Alembic pobiera połączenie z `.env` (przez `alembic/env.py`).
 
-### 3. Wygeneruj nowa migracje po zmianie modeli
+### 3. Wygeneruj nową migrację po zmianie modeli
 
 ```powershell
 python -m alembic revision --autogenerate -m "opis zmiany"
 ```
 
-Przyklad:
+Przykład:
 
 ```powershell
 python -m alembic revision --autogenerate -m "add status to messages"
 ```
 
-### 4. Sprawdz wygenerowany plik
+### 4. Sprawdź wygenerowany plik
 
-Przed uruchomieniem migracji sprawdz `upgrade()` i `downgrade()` w nowym pliku w `alembic/versions`.
+Przed uruchomieniem migracji sprawdź `upgrade()` i `downgrade()` w nowym pliku w `alembic/versions`.
 
-### 5. Zastosuj migracje
+### 5. Zastosuj migrację
 
 ```powershell
 python -m alembic upgrade head
