@@ -63,3 +63,17 @@ def delete_rapla_group_for_user(db: Session, rapla_user_id: int, category_id: in
 	db.delete(group_link)
 	db.commit()
 	return True
+
+
+def delete_rapla_group_for_user_by_id(db: Session, rel_id: int) -> bool:
+	group_link = (
+		db.query(RaplaGroupForUser)
+		.filter(RaplaGroupForUser.id == rel_id)
+		.first()
+	)
+	if group_link is None:
+		return False
+
+	db.delete(group_link)
+	db.commit()
+	return True

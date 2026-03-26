@@ -53,3 +53,12 @@ def update_permission(db: Session, id: int, access: str | None = None, group: st
 def delete_permission(db: Session, permission: RaplaPermission) -> None:
     db.delete(permission)
     db.commit()
+
+
+def delete_permission_by_id(db: Session, permission_id: int) -> bool:
+    permission = get_permission_by_id(db, permission_id)
+    if permission is None:
+        return False
+    db.delete(permission)
+    db.commit()
+    return True

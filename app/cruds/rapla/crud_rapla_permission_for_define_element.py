@@ -41,6 +41,14 @@ def list_define_elements_for_permission(db: Session, permission_id: int) -> List
     ).filter(RaplaPermissionForDefineElement.permission_id == permission_id).all()
 
 
+def list_relations_for_define_element(db: Session, define_element_id: int) -> List[RaplaPermissionForDefineElement]:
+    q = db.query(RaplaPermissionForDefineElement).filter(
+        RaplaPermissionForDefineElement.define_element_id == define_element_id
+    ).order_by(RaplaPermissionForDefineElement.id.asc())
+
+    return q.all()
+
+
 def add_permission_to_define_element(db: Session, define_element_id: int, permission_id: int) -> RaplaPermissionForDefineElement:
     existing = get_relation(db, define_element_id, permission_id)
     if existing:
@@ -55,6 +63,13 @@ def add_permission_to_define_element(db: Session, define_element_id: int, permis
 
 def remove_permission_from_define_element(db: Session, define_element_id: int, permission_id: int) -> None:
     row = get_relation(db, define_element_id, permission_id)
+    if row:
+        db.delete(row)
+        db.commit()
+
+
+def remove_permission_relation_by_id(db: Session, rel_id: int) -> None:
+    row = get_relation_by_id(db, rel_id)
     if row:
         db.delete(row)
         db.commit()

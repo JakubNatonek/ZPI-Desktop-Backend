@@ -41,6 +41,14 @@ def list_define_elements_for_language_name(db: Session, language_name_id: int) -
     ).filter(RaplaLanguageNameForDefineElement.language_name_id == language_name_id).all()
 
 
+def list_relations_for_define_element(db: Session, define_element_id: int) -> List[RaplaLanguageNameForDefineElement]:
+    q = db.query(RaplaLanguageNameForDefineElement).filter(
+        RaplaLanguageNameForDefineElement.define_element_id == define_element_id
+    ).order_by(RaplaLanguageNameForDefineElement.id.asc())
+
+    return q.all()
+
+
 def add_language_name_to_define_element(db: Session, define_element_id: int, language_name_id: int) -> RaplaLanguageNameForDefineElement:
     existing = get_relation(db, define_element_id, language_name_id)
     if existing:
@@ -55,6 +63,13 @@ def add_language_name_to_define_element(db: Session, define_element_id: int, lan
 
 def remove_language_name_from_define_element(db: Session, define_element_id: int, language_name_id: int) -> None:
     row = get_relation(db, define_element_id, language_name_id)
+    if row:
+        db.delete(row)
+        db.commit()
+
+
+def remove_language_name_relation_by_id(db: Session, rel_id: int) -> None:
+    row = get_relation_by_id(db, rel_id)
     if row:
         db.delete(row)
         db.commit()
