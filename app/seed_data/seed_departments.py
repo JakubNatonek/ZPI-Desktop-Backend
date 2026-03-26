@@ -6,21 +6,23 @@ from app.cruds.crud_department import create_department
 
 
 class DzialEnum(str, PyEnum):
-    ADMIN = "Admin"
-    NAUK_EKONOMICZNYCH = "Wydział Nauk Ekonomicznych"
-    NAUK_HUMANISTYCZNYCH = "Wydział Nauk Humanistycznych"
+    ADMIN = ("Admin", "AD")
+    NAUK_EKONOMICZNYCH = ("Wydział Nauk Ekonomicznych", "WE")
+    NAUK_HUMANISTYCZNYCH = ("Wydział Nauk Humanistycznych", "WH")
     NAUK_O_KULTURZE_FIZYCZNEJ_I_BEZPIECZENSTWIE = (
-        "Wydział Nauk o Kulturze Fizycznej i Bezpieczeństwie"
+        "Wydział Nauk o Kulturze Fizycznej i Bezpieczeństwie", 
+        "WKFiB"
     )
-    NAUK_SPOLECZNYCH_I_SZTUKI = "Wydział Nauk Społecznych i Sztuki"
-    NAUK_INZYNIERYJNYCH = "Wydział Nauk Inżynieryjnych"
-    WYDZIAL_LEKARSKI_I_NAUK_O_ZDROWIU = "Wydział Lekarski i Nauk o Zdrowiu"
+    NAUK_SPOLECZNYCH_I_SZTUKI = ("Wydział Nauk Społecznych i Sztuki", "WSiS")
+    NAUK_INZYNIERYJNYCH = ("Wydział Nauk Inżynieryjnych", "WI")
+    WYDZIAL_LEKARSKI_I_NAUK_O_ZDROWIU = ("Wydział Lekarski i Nauk o Zdrowiu", "WLiZ")
 
 
 def seed_departments(db: Session) -> None:
     for dep in DzialEnum:
+        name, abbr = dep.value
         try:
-            create_department(db, dep.value)
+            create_department(db, name, abbr)
         except ValueError:
             # already exists, ignore
             continue

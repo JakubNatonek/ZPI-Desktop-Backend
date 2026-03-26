@@ -16,3 +16,4 @@ class Department(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String, unique=True, nullable=False)
+    abbreviation = Column(String, unique=True, nullable=False)

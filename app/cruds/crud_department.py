@@ -1,14 +1,66 @@
+from typing import Optional
 from sqlalchemy.orm import Session
 
 from app.models.model_department import Department
 
 
-def create_department(db: Session, name: str) -> Department:
-    existing = db.query(Department).filter(Department.name == name).first()
-    if existing:
-        raise ValueError(f"Department already exists: {name}")
-    department = Department(name=name)
+def get_all_departments(db: Session) -> list[Department]:
+    return db.query(Department).order_by(Department.id.asc()).all()
+
+
+def get_department_by_id(db: Session, department_id: int) -> Optional[Department]:
+    return db.query(Department).filter(Department.id == department_id).first()
+
+
+def get_department_by_abbreviation(db: Session, abbreviation: str) -> Optional[Department]:
+    return db.query(Department).filter(Department.abbreviation == abbreviation).first()
+
+
+def create_department(db: Session, name: str, abbreviation: str) -> Department:
+    # check name uniqueness
+    name_exists = db.query(Department).filter(Department.name == name).first()
+    if name_exists:
+        raise ValueError(f"Department name already exists: {name}")
+
+    # check abbreviation uniqueness
+    abbr_exists = db.query(Department).filter(Department.abbreviation == abbreviation).first()
+    if abbr_exists:
+        raise ValueError(f"Department abbreviation already exists: {abbreviation}")
+
+    department = Department(name=name, abbreviation=abbreviation)
     db.add(department)
     db.commit()
     db.refresh(department)
     return department
+
+
+def update_department(db: Session, department_id: int, name: Optional[str] = None, abbreviation: Optional[str] = None) -> Optional[Department]:
+    department = get_department_by_id(db, department_id)
+    if department is None:
+        return None
+
+    if name is not None and name != department.name:
+        conflict = db.query(Department).filter(Department.name == name, Department.id != department_id).first()
+        if conflict:
+            raise ValueError(f"Department name already exists: {name}")
+        department.name = name
+
+    if abbreviation is not None and abbreviation != department.abbreviation:
+        conflict = db.query(Department).filter(Department.abbreviation == abbreviation, Department.id != department_id).first()
+        if conflict:
+            raise ValueError(f"Department abbreviation already exists: {abbreviation}")
+        department.abbreviation = abbreviation
+
+    db.commit()
+    db.refresh(department)
+    return department
+
+
+def delete_department(db: Session, department_id: int) -> bool:
+    department = get_department_by_id(db, department_id)
+    if department is None:
+        return False
+
+    db.delete(department)
+    db.commit()
+    return True
