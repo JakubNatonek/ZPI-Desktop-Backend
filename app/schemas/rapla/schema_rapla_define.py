@@ -8,7 +8,7 @@ from app.schemas.rapla.schema_rapla_define_element import DefineElement
 @dataclass
 class Define:
     name: str = "" 
-    element: DefineElement = field(default_factory = DefineElement)
+    element: DefineElement = field(default_factory=lambda: DefineElement())
 
     def to_xml(self, parent: ET.Element) -> ET.Element:
         define = ET.SubElement(
