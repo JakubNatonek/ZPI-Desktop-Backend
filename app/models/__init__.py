@@ -12,6 +12,8 @@ from app.models.model_refresh_token import RefreshTokenSession
 from app.models.model_room import Room
 from app.models.model_student import Student
 from app.models.model_user import User
+from app.models.model_semestr import Semestr
+from app.models.model_dezyderata import Dezyderata
 
 __all__ = [
 	"Base",
@@ -29,4 +31,6 @@ __all__ = [
 	"Student",
 	"Group",
 	"Subject",
+	"Semestr",
+	"Dezyderata",
 ]
