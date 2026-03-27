@@ -17,6 +17,7 @@ from app.apis.api_rooms import router as rooms_router
 from app.apis.api_dezyderata import router as dezyderata_router
 from scripts.migration_runner import run_migrations
 from scripts.create_admin import create_admin
+from scripts.seed_data import seed_all
 
 
 @asynccontextmanager
@@ -24,6 +25,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     init_database()
     # run_migrations() # this should not be done evry time the server is run
     # create_admin()
+    # seed_all()  # Uncomment to seed database with sample data
     yield
 
 

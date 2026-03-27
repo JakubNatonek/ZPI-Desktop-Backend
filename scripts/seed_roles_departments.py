@@ -10,6 +10,8 @@ def seed_roles_and_departments():
             {'id': 1, 'name': 'admin'},
             {'id': 2, 'name': 'Informatyka'},
             {'id': 3, 'name': 'Fizyka'},
+            {'id': 4, 'name': 'Matematyka'},
+            {'id': 5, 'name': 'Elektronika'},
         ]
         for dep in departments:
             exists = db.query(Department).filter_by(id=dep['id']).first()
@@ -18,7 +20,8 @@ def seed_roles_and_departments():
         # Roles
         roles = [
             {'id': 1, 'name': 'admin'},
-            {'id': 2, 'name': 'Wykładowca'},
+            {'id': 2, 'name': 'wykładowca'},
+            {'id': 3, 'name': 'student'},
         ]
         for role in roles:
             exists = db.query(Role).filter_by(id=role['id']).first()
