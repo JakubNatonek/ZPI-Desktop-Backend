@@ -1,9 +1,10 @@
-from typing import cast
+from typing import cast, List
 
 from sqlalchemy.orm import Session
 
 from app.models.rapla.model_rapla_category import RaplaCategory
 from app.models.rapla.model_rapla_group_for_user import RaplaGroupForUser
+from app.schemas.rapla.schema_rapla_group_for_user import RaplaGroupForUser as RaplaGroupForUserSchema
 
 
 def get_rapla_group_links_by_user_id(db: Session, rapla_user_id: int) -> list[RaplaGroupForUser]:
@@ -77,3 +78,10 @@ def delete_rapla_group_for_user_by_id(db: Session, rel_id: int) -> bool:
 	db.delete(group_link)
 	db.commit()
 	return True
+
+
+def get_rapla_user_groups_schema(db: Session, rapla_user_id: int) -> List[RaplaGroupForUserSchema]:
+	keys = get_rapla_group_keys_by_user_id(db, rapla_user_id)
+	if not keys:
+		return []
+	return [RaplaGroupForUserSchema(key=k) for k in keys]

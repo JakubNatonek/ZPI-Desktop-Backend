@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from app.models.rapla.model_language_abbreviations import RaplaLanguageAbbreviations
+from app.models.rapla.model_rapla_language_abbreviations import RaplaLanguageAbbreviations
 
 
 ##

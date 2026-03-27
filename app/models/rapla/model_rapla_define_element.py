@@ -14,4 +14,4 @@ class RaplaDefineElement(Base):
    uuid = Column(String(100), nullable=False, unique=True)
    created_at = Column(DateTime(timezone=True), nullable=True)
    last_changed = Column(DateTime(timezone=True), nullable=True)
-   
+   last_changed_by = Column(String(255), nullable=False)

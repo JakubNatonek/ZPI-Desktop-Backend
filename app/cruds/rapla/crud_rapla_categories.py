@@ -12,7 +12,7 @@ from app.cruds.rapla.crud_rapla_language_name import get_language_name_schema_by
 from app.schemas.rapla.schema_rapla_categories import RaplaCategories
 from app.schemas.rapla.schema_rapla_category import RaplaCategory as RaplaCategorySchema
 from app.schemas.rapla.schema_rapla_language_name import RaplaLanguageName as RaplaLanguageNameSchema
-
+from app.cruds.rapla.rapla_format_datetime import format_rapla_datetime
 
 ##
 # @brief Return all categories ordered by key.
@@ -127,13 +127,6 @@ def create_rapla_category(
     db.refresh(category)
     return category
 
-
-def _format_rapla_datetime(value: datetime | None) -> str:
-    if value is None:
-        return ""
-    return value.isoformat().replace("+00:00", "Z")
-
-
 def _get_category_names_schema(db: Session, category_id: int | None) -> list[RaplaLanguageNameSchema]:
     if category_id is None:
         return []
@@ -167,8 +160,8 @@ def get_rapla_categories_schema(db: Session) -> RaplaCategories:
         child_nodes = [build_node(child) for child in children_by_parent.get(cast(int, category.id), [])]
         return RaplaCategorySchema(
             uuid=str(category.uuid or ""),
-            created_at=_format_rapla_datetime( cast( datetime, category.created_at ) ),
-            last_changed=_format_rapla_datetime( cast( datetime, category.last_changed ) ),
+            created_at=format_rapla_datetime( cast( datetime, category.created_at ) ),
+            last_changed=format_rapla_datetime( cast( datetime, category.last_changed ) ),
             key=str(category.key or ""),
             names=_get_category_names_schema(db, cast( int, category.id ) ),
             categories=child_nodes,

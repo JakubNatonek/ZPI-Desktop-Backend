@@ -14,6 +14,7 @@ class DefineElement:
     created_at: str
     last_changed: str
     last_changed_by: str
+    name: str
     names: list[RaplaLanguageName] = field(default_factory=lambda: cast(list[RaplaLanguageName], []))
     annotations: RaplaAnnotations = field(default_factory=lambda: RaplaAnnotations())
     optionals: list[RaplaOptional] = field(default_factory=lambda: cast(list[RaplaOptional], [])) # definition of fields for object (resorce / person)

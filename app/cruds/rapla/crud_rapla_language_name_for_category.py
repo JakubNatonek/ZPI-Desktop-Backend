@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
 
-from app.models.rapla.model_language_name_for_category import RaplaLanguageNameForCategory
+from typing import cast
+
+from app.models.rapla.model_rapla_language_name_for_category import RaplaLanguageNameForCategory
 from app.models.rapla.model_rapla_language_name import RaplaLanguageName
 
 
@@ -155,6 +157,6 @@ def _delete_all_language_names_from_category(db: Session, category_id: int) -> i
 
 	language_name_ids = {link.language_name_id for link in links}
 	deleted_links = _delete_language_name_links(db, links)
-	deleted_language_names = _delete_orphaned_language_names(db, language_name_ids )
+	deleted_language_names = _delete_orphaned_language_names(db, cast(set[int], language_name_ids ) )
 
 	return deleted_links + deleted_language_names

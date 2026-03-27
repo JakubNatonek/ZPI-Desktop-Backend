@@ -7,7 +7,7 @@ from app.models.rapla.model_rapla_user import RaplaUser as RaplaUserModel
 from app.schemas.rapla.schema_rapla_group_for_user import RaplaGroupForUser as RaplaGroupForUserSchema
 from app.schemas.rapla.schema_rapla_user import RaplaUser
 from app.schemas.rapla.schema_rapla_users import RaplaUsers
-from app.cruds.rapla.crud_rapla_group_for_user import get_rapla_group_keys_by_user_id
+from app.cruds.rapla.crud_rapla_group_for_user import get_rapla_user_groups_schema
 from app.cruds.rapla.rapla_format_datetime import format_rapla_datetime
 
 
@@ -37,7 +37,7 @@ def get_rapla_users_schema(db: Session) -> RaplaUsers:
 				name=cast(str | None, user.name) or "",
 				email=cast(str | None, user.email) or "",
 				is_admin=bool(user.isadmin),
-				#groups=get_rapla_user_groups_schema(db, cast(int, user.id)),
+				groups=get_rapla_user_groups_schema(db, cast(int, user.id)),
 				xml_value=cast(str | None, user.xml_value),
 			)
 		)

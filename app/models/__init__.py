@@ -23,8 +23,8 @@ from app.models.model_teacher import Teacher
 from app.models.model_user import User
 
 # -- Rapla models ---------------------------------------------------------
-from app.models.rapla.model_language_abbreviations import RaplaLanguageAbbreviations
-from app.models.rapla.model_language_name_for_category import RaplaLanguageNameForCategory
+from app.models.rapla.model_rapla_language_abbreviations import RaplaLanguageAbbreviations
+from app.models.rapla.model_rapla_language_name_for_category import RaplaLanguageNameForCategory
 from app.models.rapla.model_rapla_category import RaplaCategory
 from app.models.rapla.model_rapla_department_for_category import RaplaDepartmentForCategory
 from app.models.rapla.model_rapla_group_for_user import RaplaGroupForUser

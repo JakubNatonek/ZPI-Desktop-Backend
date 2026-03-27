@@ -36,21 +36,6 @@ def create_constraint(db: Session, name: str, value: Optional[str] = None) -> Ra
     return c
 
 
-def update_constraint(db: Session, constraint: RaplaConstraint, **fields) -> RaplaConstraint:
-    for k, v in fields.items():
-        if hasattr(constraint, k):
-            setattr(constraint, k, v)
-    db.add(constraint)
-    db.commit()
-    db.refresh(constraint)
-    return constraint
-
-
-def delete_constraint(db: Session, constraint: RaplaConstraint) -> None:
-    db.delete(constraint)
-    db.commit()
-
-
 def delete_constraint_by_id(db: Session, constraint_id: int) -> bool:
     c = get_constraint_by_id(db, constraint_id)
     if c is None:

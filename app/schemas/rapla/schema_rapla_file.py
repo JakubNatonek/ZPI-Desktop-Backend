@@ -8,14 +8,14 @@ from app.schemas.rapla.rapla_namespaces import (
 )
 from app.schemas.rapla.schema_rapla_categories import RaplaCategories
 from app.schemas.rapla.schema_rapla_users import RaplaUsers
+from app.schemas.rapla.schema_rapla_grammar import RaplaGrammar
 
 @dataclass
 class RaplaFile:
     version: str = RAPLA_VERSION
     users: RaplaUsers = field(default_factory=RaplaUsers)
     categories: RaplaCategories = field(default_factory=RaplaCategories)
-
-    # grammar: list[any] = field(default_factory=lambda: cast(list[any], []))
+    grammar: RaplaGrammar = field(default_factory=RaplaGrammar)
 
     # preferences: PreferencesSection = field(default_factory=PreferencesSection)
 
@@ -42,13 +42,14 @@ class RaplaFile:
         )
         self.categories.to_xml(root)
         self.users.to_xml(root)
+        self.grammar.to_xml(root)
         ET.indent(root, space="    ")
 
         xml_bytes = ET.tostring(
             root,
             encoding="utf-8",
             xml_declaration=True,
-            short_empty_elements=False, # It should be chenge propabli
+            # short_empty_elements=False, # It should be chenge propabli
         )
         return xml_bytes.decode("utf-8")
 
