@@ -2,7 +2,7 @@ from enum import Enum as PyEnum
 
 from sqlalchemy.orm import Session
 
-from app.cruds.crude_room_type import create_room_type
+from app.cruds.crud_room_type import create_room_type
 
 
 class RoomTypeEnum(PyEnum):
