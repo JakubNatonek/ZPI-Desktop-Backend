@@ -4,7 +4,7 @@ from app.core.database import Base
 
 
 class Semestr(Base):
-    __tablename__ = "semestr"
+    __tablename__ = "semesters"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     data_rozpoczecia = Column(Date, nullable=False)

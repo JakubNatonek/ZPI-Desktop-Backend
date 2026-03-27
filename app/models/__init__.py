@@ -14,6 +14,7 @@ from app.models.model_student import Student
 from app.models.model_user import User
 from app.models.model_semestr import Semestr
 from app.models.model_dezyderata import Dezyderata
+from app.models.model_day import Day
 
 __all__ = [
 	"Base",
@@ -33,4 +34,5 @@ __all__ = [
 	"Subject",
 	"Semestr",
 	"Dezyderata",
+	"Day",
 ]

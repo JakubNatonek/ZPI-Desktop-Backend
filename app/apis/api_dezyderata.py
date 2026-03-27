@@ -14,9 +14,10 @@ from app.cruds.crud_dezyderata import (
     get_dezyderaty,
     get_semestr_by_id,
     get_semestry,
+    get_valid_day_ids,
     map_dezyderata_to_response,
     map_semestr_to_response,
-    upsert_dezyderata,
+    replace_dezyderata_for_week,
 )
 from app.models.model_user import User
 from app.schemas.dezyderata import (
@@ -160,19 +161,34 @@ def get_dezyderata(
     return DezyderataResponse(**map_dezyderata_to_response(dezyderata))
 
 
-@router.post("", response_model=DezyderataResponse, status_code=status.HTTP_201_CREATED, summary="Utwórz lub zaktualizuj dezyderatę")
+@router.post("", response_model=DezyderataListResponse, status_code=status.HTTP_201_CREATED, summary="Utwórz lub zaktualizuj dezyderaty tygodniowe")
 def create_or_update_dezyderata(
     payload: DezyderataCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(_require_lecturer_or_admin),
-) -> DezyderataResponse:
+) -> DezyderataListResponse:
     # Sprawdź czy semestr istnieje
     semestr = get_semestr_by_id(db, payload.semestr_id)
     if semestr is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Semester not found")
 
-    created = upsert_dezyderata(db, current_user.user_id, payload)
-    return DezyderataResponse(**map_dezyderata_to_response(created))
+    if payload.data_do < payload.data_od:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="data_do cannot be earlier than data_od")
+
+    valid_day_ids = get_valid_day_ids(db)
+    if not valid_day_ids:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Days table is empty")
+
+    for entry in payload.entries:
+        if entry.day_id not in valid_day_ids:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=f"Invalid day_id: {entry.day_id}")
+        if entry.to_hour < entry.from_hour:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="to_hour cannot be earlier than from_hour")
+
+    created_items = replace_dezyderata_for_week(db, current_user.user_id, payload)
+    return DezyderataListResponse(
+        items=[DezyderataResponse(**map_dezyderata_to_response(item)) for item in created_items]
+    )
 
 
 @router.delete("/{dezyderata_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Usuń dezyderatę")

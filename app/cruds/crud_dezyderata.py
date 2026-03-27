@@ -1,11 +1,12 @@
 from datetime import date
-from typing import List, Optional
+from typing import List, Optional, Set
 
 from sqlalchemy.orm import Session
 
+from app.models.model_day import Day
 from app.models.model_dezyderata import Dezyderata
 from app.models.model_semestr import Semestr
-from app.schemas.dezyderata import DezyderataCreate, DezyderataUpdate, SemestrCreate
+from app.schemas.dezyderata import DezyderataCreate, SemestrCreate
 
 
 # ----- Semestr CRUD -----
@@ -44,6 +45,14 @@ def delete_semestr(db: Session, semestr: Semestr) -> None:
     db.commit()
 
 
+def get_days(db: Session) -> List[Day]:
+    return db.query(Day).order_by(Day.id.asc()).all()
+
+
+def get_valid_day_ids(db: Session) -> Set[int]:
+    return {day.id for day in get_days(db)}
+
+
 # ----- Dezyderata CRUD -----
 
 def get_dezyderaty(db: Session, user_id: Optional[int] = None, semestr_id: Optional[int] = None) -> List[Dezyderata]:
@@ -52,62 +61,41 @@ def get_dezyderaty(db: Session, user_id: Optional[int] = None, semestr_id: Optio
         query = query.filter(Dezyderata.user_id == user_id)
     if semestr_id is not None:
         query = query.filter(Dezyderata.semestr_id == semestr_id)
-    return query.order_by(Dezyderata.data_od.desc()).all()
+    return query.order_by(Dezyderata.data_od.desc(), Dezyderata.day_id.asc(), Dezyderata.from_hour.asc()).all()
 
 
 def get_dezyderata_by_id(db: Session, dezyderata_id: int) -> Optional[Dezyderata]:
     return db.query(Dezyderata).filter(Dezyderata.id == dezyderata_id).first()
 
 
-def get_dezyderata_by_user_and_dates(
-    db: Session,
-    user_id: int,
-    data_od: date,
-    data_do: date,
-    semestr_id: int
-) -> Optional[Dezyderata]:
-    return db.query(Dezyderata).filter(
+def replace_dezyderata_for_week(db: Session, user_id: int, payload: DezyderataCreate) -> List[Dezyderata]:
+    db.query(Dezyderata).filter(
         Dezyderata.user_id == user_id,
-        Dezyderata.data_od == data_od,
-        Dezyderata.data_do == data_do,
-        Dezyderata.semestr_id == semestr_id
-    ).first()
+        Dezyderata.data_od == payload.data_od,
+        Dezyderata.data_do == payload.data_do,
+        Dezyderata.semestr_id == payload.semestr_id,
+    ).delete(synchronize_session=False)
 
+    created_items: List[Dezyderata] = []
+    for entry in payload.entries:
+        created = Dezyderata(
+            user_id=user_id,
+            data_od=payload.data_od,
+            data_do=payload.data_do,
+            semestr_id=payload.semestr_id,
+            day_id=entry.day_id,
+            from_hour=entry.from_hour,
+            to_hour=entry.to_hour + 1,
+            is_available=entry.is_available,
+        )
+        db.add(created)
+        created_items.append(created)
 
-def create_dezyderata(db: Session, user_id: int, payload: DezyderataCreate) -> Dezyderata:
-    dezyderata = Dezyderata(
-        user_id=user_id,
-        data_od=payload.data_od,
-        data_do=payload.data_do,
-        godziny=payload.godziny,
-        semestr_id=payload.semestr_id
-    )
-    db.add(dezyderata)
     db.commit()
-    db.refresh(dezyderata)
-    return dezyderata
+    for item in created_items:
+        db.refresh(item)
 
-
-def update_dezyderata(db: Session, dezyderata: Dezyderata, payload: DezyderataUpdate) -> Dezyderata:
-    dezyderata.data_od = payload.data_od
-    dezyderata.data_do = payload.data_do
-    dezyderata.godziny = payload.godziny
-    dezyderata.semestr_id = payload.semestr_id
-    db.commit()
-    db.refresh(dezyderata)
-    return dezyderata
-
-
-def upsert_dezyderata(db: Session, user_id: int, payload: DezyderataCreate) -> Dezyderata:
-    existing = get_dezyderata_by_user_and_dates(
-        db, user_id, payload.data_od, payload.data_do, payload.semestr_id
-    )
-    if existing:
-        existing.godziny = payload.godziny
-        db.commit()
-        db.refresh(existing)
-        return existing
-    return create_dezyderata(db, user_id, payload)
+    return created_items
 
 
 def delete_dezyderata(db: Session, dezyderata: Dezyderata) -> None:
@@ -121,8 +109,12 @@ def map_dezyderata_to_response(dezyderata: Dezyderata) -> dict:
         "user_id": dezyderata.user_id,
         "data_od": dezyderata.data_od,
         "data_do": dezyderata.data_do,
-        "godziny": dezyderata.godziny,
         "semestr_id": dezyderata.semestr_id,
+        "day_id": dezyderata.day_id,
+        "from_hour": dezyderata.from_hour,
+        "to_hour": dezyderata.to_hour,
+        "is_available": dezyderata.is_available,
+        "day_name": dezyderata.day.name if dezyderata.day else None,
         "semestr_nazwa": dezyderata.semestr.nazwa if dezyderata.semestr else None
     }
 

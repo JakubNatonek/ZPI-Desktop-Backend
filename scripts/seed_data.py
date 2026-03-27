@@ -11,6 +11,7 @@ from app.models.model_group import Group
 from app.models.model_subject import Subject
 from app.models.model_room import Room
 from app.models.model_semestr import Semestr
+from app.models.model_day import Day
 
 
 def seed_roles():
@@ -19,8 +20,8 @@ def seed_roles():
     try:
         roles = [
             {"id": 1, "name": "admin"},
-            {"id": 2, "name": "Wykładowca"},
-            {"id": 3, "name": "Student"},
+            {"id": 2, "name": "wykładowca"},
+            {"id": 3, "name": "student"},
         ]
         for role in roles:
             exists = db.query(Role).filter_by(id=role["id"]).first()
@@ -127,16 +128,50 @@ def seed_semesters():
     db: Session = SessionLocal()
     try:
         semesters = [
-            {"id": 1, "nazwa": "Semestr zimowy 2025/2026", "data_rozpoczecia": date(2025, 10, 1), "data_zakonczenia": date(2026, 2, 15)},
-            {"id": 2, "nazwa": "Semestr letni 2025/2026", "data_rozpoczecia": date(2026, 2, 17), "data_zakonczenia": date(2026, 6, 30)},
-            {"id": 3, "nazwa": "Semestr zimowy 2026/2027", "data_rozpoczecia": date(2026, 10, 1), "data_zakonczenia": date(2027, 2, 15)},
+            {"nazwa": "Semestr zimowy 2025/2026", "data_rozpoczecia": date(2025, 10, 1), "data_zakonczenia": date(2026, 2, 15)},
+            {"nazwa": "Semestr letni 2025/2026", "data_rozpoczecia": date(2026, 2, 17), "data_zakonczenia": date(2026, 6, 30)},
+            {"nazwa": "Semestr zimowy 2026/2027", "data_rozpoczecia": date(2026, 10, 1), "data_zakonczenia": date(2027, 2, 15)},
         ]
+
+        created_count = 0
         for sem in semesters:
-            exists = db.query(Semestr).filter_by(id=sem["id"]).first()
+            exists = db.query(Semestr).filter_by(
+                nazwa=sem["nazwa"],
+                data_rozpoczecia=sem["data_rozpoczecia"],
+                data_zakonczenia=sem["data_zakonczenia"],
+            ).first()
             if not exists:
                 db.add(Semestr(**sem))
+                created_count += 1
         db.commit()
-        print("Semesters seeded.")
+        print(f"Semesters seeded. Added: {created_count}")
+    finally:
+        db.close()
+
+
+def seed_days():
+    """Seed days table with week day IDs used by availability preferences."""
+    db: Session = SessionLocal()
+    try:
+        days = [
+            {"id": 1, "name": "monday"},
+            {"id": 2, "name": "tuesday"},
+            {"id": 3, "name": "wednesday"},
+            {"id": 4, "name": "thursday"},
+            {"id": 5, "name": "friday"},
+            {"id": 6, "name": "saturday"},
+            {"id": 7, "name": "sunday"},
+        ]
+
+        created_count = 0
+        for day in days:
+            exists = db.query(Day).filter_by(id=day["id"]).first()
+            if not exists:
+                db.add(Day(**day))
+                created_count += 1
+
+        db.commit()
+        print(f"Days seeded. Added: {created_count}")
     finally:
         db.close()
 
@@ -225,6 +260,7 @@ def seed_all():
     seed_rooms()
     seed_subjects()
     seed_semesters()
+    seed_days()
     seed_users_and_profiles()
     print("Database seeding completed!")
 

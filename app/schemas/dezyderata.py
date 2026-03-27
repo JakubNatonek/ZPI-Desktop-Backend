@@ -27,24 +27,31 @@ class SemestrListResponse(BaseModel):
 
 
 # Dezyderata schemas
-class DezyderataBase(BaseModel):
+class DezyderataEntryCreate(BaseModel):
+    day_id: int = Field(ge=1, le=7)
+    from_hour: int = Field(ge=0, le=23)
+    to_hour: int = Field(ge=0, le=23)
+    is_available: bool
+
+
+class DezyderataCreate(BaseModel):
     data_od: date
     data_do: date
-    godziny: str  # JSON string z listą slotów, np. "2026-03-27-14,2026-03-27-15"
     semestr_id: int
+    entries: List[DezyderataEntryCreate] = Field(default_factory=list)
 
 
-class DezyderataCreate(DezyderataBase):
-    pass
-
-
-class DezyderataUpdate(DezyderataBase):
-    pass
-
-
-class DezyderataResponse(DezyderataBase):
+class DezyderataResponse(BaseModel):
     id: int
     user_id: int
+    data_od: date
+    data_do: date
+    semestr_id: int
+    day_id: int
+    from_hour: int
+    to_hour: int
+    is_available: bool
+    day_name: Optional[str] = None
     semestr_nazwa: Optional[str] = None
 
     class Config:
@@ -60,8 +67,11 @@ class DezyderataWithSemestrResponse(BaseModel):
     user_id: int
     data_od: date
     data_do: date
-    godziny: str
     semestr_id: int
+    day_id: int
+    from_hour: int
+    to_hour: int
+    is_available: bool
     semestr: SemestrResponse
 
     class Config:
