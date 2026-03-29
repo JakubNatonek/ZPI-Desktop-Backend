@@ -1,5 +1,5 @@
 
-from sqlalchemy import Boolean, Column, DateTime, Integer, String, ForeignKey
+from sqlalchemy import Boolean, Column, DateTime, Integer, String, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 from app.models.model_department import Department
@@ -15,6 +15,7 @@ class User(Base):
     last_name = Column(String, nullable=False)
     login = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
+    public_key = Column(Text, nullable=True)
     password_hash = Column(String, nullable=False)
     plain_password = Column(String, nullable=True)
     must_change_password = Column(Boolean, nullable=False, default=False)

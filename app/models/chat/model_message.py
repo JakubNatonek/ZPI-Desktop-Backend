@@ -26,7 +26,10 @@ class Message(Base):
         nullable=False,
         index=True,
     )
-    content = Column(String, nullable=False)
+    content = Column(String, nullable=True)
+    ciphertext = Column(String, nullable=True)
+    iv = Column(String, nullable=True)
+    wrapped_key = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False, default=_utcnow)
     delivered_at = Column(DateTime(timezone=True), nullable=True)
     is_read = Column(Boolean, nullable=False, default=False)

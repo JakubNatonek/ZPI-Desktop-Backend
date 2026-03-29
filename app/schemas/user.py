@@ -1,5 +1,6 @@
 
 from pydantic import BaseModel, EmailStr, Field
+from typing import Optional
 
 
 class AdminUserCreate(BaseModel):
@@ -78,3 +79,14 @@ class UserNameResponse(BaseModel):
     user_id: int
     first_name: str
     last_name: str
+
+
+class PublicKeyResponse(BaseModel):
+    """Public key response for a user."""
+    user_id: int
+    public_key: Optional[str] = None
+
+
+class PublicKeyUpdate(BaseModel):
+    """Payload for updating a user's public key."""
+    public_key: str

@@ -12,6 +12,7 @@ from app.core.database import init_database
 from app.apis.api_login import router as login_router
 from app.apis.api_users import router as users_router
 from app.apis.api_chat import router as chat_router
+from app.apis.api_messages import router as messages_router
 from app.services.socket_events import create_socket_events
 from app.apis.api_rooms import router as rooms_router
 from scripts.migration_runner import run_migrations
@@ -73,6 +74,7 @@ app.include_router(login_router)
 app.include_router(users_router)
 app.include_router(chat_router)
 app.include_router(rooms_router)
+app.include_router(messages_router)
 
 
 
