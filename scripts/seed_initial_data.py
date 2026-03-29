@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 
 from app.core.database import SessionLocal
 from app.models.model_group import Group
+from app.models.model_grade import GradeRecord
 from app.models.model_student import Student
 from app.models.model_teacher import Teacher
 from app.models.model_user import Department, Role, User
@@ -86,6 +87,82 @@ def _seed_teacher_profile(db: Session, user_id: int) -> None:
     )
 
 
+def _seed_grade_records(db: Session, student_id: int, lecturer_id: int) -> None:
+    existing = (
+        db.query(GradeRecord)
+        .filter(
+            GradeRecord.student_id == student_id,
+            GradeRecord.lecturer_id == lecturer_id,
+        )
+        .first()
+    )
+    if existing:
+        return
+
+    records = [
+        {
+            "semester": 6,
+            "subject_name": "Programowanie Mobilne",
+            "component_label": "Ocena koncowa",
+            "component_info": "",
+            "grade_value": 4.5,
+            "is_final": True,
+            "sort_order": 0,
+        },
+        {
+            "semester": 6,
+            "subject_name": "Programowanie Mobilne",
+            "component_label": "Kolokwium 1",
+            "component_info": "2026-03-08",
+            "grade_value": 4.0,
+            "is_final": False,
+            "sort_order": 1,
+        },
+        {
+            "semester": 6,
+            "subject_name": "Programowanie Mobilne",
+            "component_label": "Projekt",
+            "component_info": "Aplikacja Ionic",
+            "grade_value": 5.0,
+            "is_final": False,
+            "sort_order": 2,
+        },
+        {
+            "semester": 5,
+            "subject_name": "Bazy Danych",
+            "component_label": "Ocena koncowa",
+            "component_info": "",
+            "grade_value": 4.0,
+            "is_final": True,
+            "sort_order": 0,
+        },
+        {
+            "semester": 5,
+            "subject_name": "Bazy Danych",
+            "component_label": "Laboratorium",
+            "component_info": "Projekt ERD",
+            "grade_value": 4.0,
+            "is_final": False,
+            "sort_order": 1,
+        },
+    ]
+
+    for record in records:
+        db.add(
+            GradeRecord(
+                student_id=student_id,
+                lecturer_id=lecturer_id,
+                semester=record["semester"],
+                subject_name=record["subject_name"],
+                component_label=record["component_label"],
+                component_info=record["component_info"],
+                grade_value=record["grade_value"],
+                is_final=record["is_final"],
+                sort_order=record["sort_order"],
+            )
+        )
+
+
 def seed_initial_data() -> None:
     db: Session = SessionLocal()
     try:
@@ -142,6 +219,7 @@ def seed_initial_data() -> None:
         _ = admin
         _seed_student_profile(db, student.user_id, default_group.id)
         _seed_teacher_profile(db, lecturer.user_id)
+        _seed_grade_records(db, student.user_id, lecturer.user_id)
 
         db.commit()
         print("Initial data seeded.")

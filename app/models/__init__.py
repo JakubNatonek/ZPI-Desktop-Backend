@@ -6,6 +6,7 @@ from app.models.chat.model_conversation_member import ConversationMember
 from app.models.chat.model_message import Message
 from app.models.model_alembic_version import AlembicVersion
 from app.models.model_group import Group
+from app.models.model_grade import GradeRecord
 from app.models.model_teacher import Teacher
 from app.models.model_subject import Subject
 from app.models.model_announcement import Announcement, AnnouncementSeen
@@ -35,4 +36,5 @@ __all__ = [
 	"ThesisProposalStatus",
 	"Group",
 	"Subject",
+	"GradeRecord",
 ]

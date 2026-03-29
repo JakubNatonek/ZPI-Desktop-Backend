@@ -14,6 +14,7 @@ from app.apis.api_users import router as users_router
 from app.apis.api_chat import router as chat_router
 from app.apis.api_announcements import router as announcements_router
 from app.apis.api_thesis import router as thesis_router
+from app.apis.api_grades import router as grades_router
 from app.services.socket_events import create_socket_events
 from app.apis.api_rooms import router as rooms_router
 from scripts.migration_runner import run_migrations
@@ -77,6 +78,7 @@ app.include_router(chat_router)
 app.include_router(announcements_router)
 app.include_router(rooms_router)
 app.include_router(thesis_router)
+app.include_router(grades_router)
 
 
 
