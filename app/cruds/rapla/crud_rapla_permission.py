@@ -14,6 +14,14 @@ def get_permission_by_group(db: Session, group: str) -> Optional[RaplaPermission
     return db.query(RaplaPermission).filter(RaplaPermission.group == group).first()
 
 
+def get_permission_by_access_and_group(db: Session, access: str, group: str) -> Optional[RaplaPermission]:
+    return (
+        db.query(RaplaPermission)
+        .filter(RaplaPermission.group == group, RaplaPermission.access == access)
+        .first()
+    )
+
+
 def list_permissions(db: Session, skip: Optional[int] = None, limit: Optional[int] = None) -> List[RaplaPermission]:
     q = db.query(RaplaPermission).order_by(RaplaPermission.group.asc())
     if skip is not None:
@@ -24,7 +32,9 @@ def list_permissions(db: Session, skip: Optional[int] = None, limit: Optional[in
 
 
 def create_permission(db: Session, access: str, group: str) -> RaplaPermission:
-    existing = get_permission_by_group(db, group)
+    # Prefer exact match on both access and group to avoid collapsing
+    # different access values that share the same empty group.
+    existing = get_permission_by_access_and_group(db, access, group)
     if existing:
         return existing
 

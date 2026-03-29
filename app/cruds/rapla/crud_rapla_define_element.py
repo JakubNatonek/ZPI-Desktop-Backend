@@ -63,9 +63,6 @@ def create_define_element(db: Session,
     if last_changed is None:
         last_changed = created_at
 
-    if last_changed_by is None:
-        last_changed_by = "system"
-
     if uuid is None:
         uuid = str(uuid4())
 

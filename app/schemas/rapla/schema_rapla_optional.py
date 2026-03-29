@@ -11,9 +11,11 @@ class RaplaOptional:
 	optional_element: OptionalElement
 
 	def to_xml(self, parent: ET.Element) -> ET.Element:
-		permission = ET.SubElement(
+		otional = ET.SubElement(
 			parent,
 			f"{{{RELAXNG_NS}}}optional",
 		)
 
-		return permission
+		self.optional_element.to_xml(otional)
+
+		return otional

@@ -28,6 +28,7 @@ class DefineElement:
                 "created-at": self.created_at,
                 "last-changed": self.last_changed,
                 "id": self.uuid,
+                "name": self.name,
             },
         )
 
