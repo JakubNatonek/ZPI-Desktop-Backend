@@ -17,14 +17,14 @@ from app.apis.api_thesis import router as thesis_router
 from app.services.socket_events import create_socket_events
 from app.apis.api_rooms import router as rooms_router
 from scripts.migration_runner import run_migrations
-from scripts.create_admin import create_admin
+from scripts.seed_initial_data import seed_initial_data
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     init_database()
     # run_migrations() # this should not be done evry time the server is run
-    # create_admin()
+    seed_initial_data()
     yield
 
 
