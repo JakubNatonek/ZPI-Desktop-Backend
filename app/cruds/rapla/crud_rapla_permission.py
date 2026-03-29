@@ -1,8 +1,9 @@
-from typing import List, Optional
+from typing import List, Optional, cast
 
 from sqlalchemy.orm import Session
 
 from app.models.rapla.model_rapla_permission import RaplaPermission
+from app.schemas.rapla.schema_rapla_permision import RaplaPermission as RaplaPermissionSchema
 
 
 def get_permission_by_id(db: Session, permission_id: int) -> Optional[RaplaPermission]:
@@ -62,3 +63,18 @@ def delete_permission_by_id(db: Session, permission_id: int) -> bool:
     db.delete(permission)
     db.commit()
     return True
+
+
+def get_permission_schema_by_id(db: Session, permission_id: int) -> Optional[RaplaPermissionSchema]:
+    p = get_permission_by_id(db, permission_id)
+    if p is None:
+        return None
+    return RaplaPermissionSchema(group=cast(Optional[str], p.group), access=cast(str, p.access or ""))
+
+def create_permission_from_schema(db: Session, schema: RaplaPermissionSchema) -> RaplaPermission:
+    group = schema.group or ""
+    return create_permission(db, access=schema.access, group=group)
+
+
+def update_permission_from_schema(db: Session, permission_id: int, schema: RaplaPermissionSchema) -> RaplaPermission:
+    return update_permission(db, permission_id, access=schema.access or None, group=schema.group or None)

@@ -8,7 +8,7 @@ from app.schemas.rapla.schema_rapla_group_for_user import RaplaGroupForUser as R
 from app.schemas.rapla.schema_rapla_user import RaplaUser
 from app.schemas.rapla.schema_rapla_users import RaplaUsers
 from app.cruds.rapla.crud_rapla_group_for_user import get_rapla_user_groups_schema
-from app.cruds.rapla.rapla_format_datetime import format_rapla_datetime
+from app.cruds.rapla.rapla_format_datetime import format_rapla_datetime , parse_rapla_datetime
 
 
 ##
@@ -97,3 +97,51 @@ def create_rapla_user(
 		db.commit()
 		db.refresh(user)
 		return user
+
+
+def create_rapla_user_from_schema(db: Session, user: RaplaUser) -> RaplaUserModel:
+	"""Create a RaplaUserModel from a `RaplaUser` schema object.
+
+	Reuses the existing `create_rapla_user` helper to ensure defaults and
+	uniqueness checks are applied consistently.
+	"""
+	return create_rapla_user(
+		db=db,
+		uuid=user.uuid or None,
+		username=user.username or "",
+		email=user.email or "",
+		password=user.password or "",
+		name=user.name or "",
+		isadmin=bool(user.is_admin),
+		created_at= parse_rapla_datetime(user.created_at) or None,
+		last_changed =  parse_rapla_datetime(user.last_changed) or None,
+		xml_value=user.xml_value,
+	)
+
+
+def update_rapla_user_from_schema(db: Session, user: RaplaUser) -> RaplaUserModel:
+	"""Update an existing RaplaUserModel from a `RaplaUser` schema object.
+
+	Requires `user.uuid` to locate the existing DB row. Updates common fields
+	and refreshes the `last_changed` timestamp.
+	"""
+	if not user.uuid:
+		raise ValueError("User schema must include uuid to update")
+
+	existing = db.query(RaplaUserModel).filter(RaplaUserModel.uuid == user.uuid).first()
+	if existing is None:
+		raise ValueError(f"Rapla user not found: {user.uuid}")
+
+	existing.username = user.username or existing.username
+	existing.password = user.password or existing.password
+	existing.name = user.name or existing.name
+	existing.email = user.email or existing.email
+	existing.isadmin = bool(user.is_admin)
+	existing.xml_value = user.xml_value if user.xml_value is not None else existing.xml_value
+
+	existing.last_changed = user.last_changed or existing.last_changed
+
+	db.add(existing)
+	db.commit()
+	db.refresh(existing)
+	return existing

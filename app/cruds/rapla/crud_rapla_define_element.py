@@ -24,6 +24,7 @@ from app.cruds.rapla.crud_rapla_optional_element import get_optional_element_ful
 from app.cruds.rapla.rapla_format_datetime import format_rapla_datetime
 from app.schemas.rapla.schema_rapla_permision import RaplaPermission as RaplaPermissionSchema
 from app.cruds.rapla.crud_rapla_permission_for_define_element import list_permissions_for_define_element
+from app.cruds.rapla.crud_rapla_permission import get_permission_schema_by_id
 
 
 def get_define_element_by_id(db: Session, element_id: int) -> Optional[RaplaDefineElement]:
@@ -147,7 +148,9 @@ def get_define_element_full_schema_by_id(db: Session, element_id: int) -> Define
     except Exception:
         perm_rows = []
     for pr in perm_rows:
-        permissions.append(RaplaPermissionSchema(access=cast(str, pr.access or ""), group=cast(str, pr.group or "")))
+        perm_schema = get_permission_schema_by_id(db, cast(int, pr.id))
+        if perm_schema is not None:
+            permissions.append(perm_schema)
 
     return DefineElementSchema(
         uuid = cast(str, el.uuid),

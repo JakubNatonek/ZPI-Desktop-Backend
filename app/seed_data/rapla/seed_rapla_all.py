@@ -5,6 +5,7 @@ from app.seed_data.rapla.seed_rapla_user_to_app_user import seed_rapla_user_to_a
 from app.seed_data.rapla.seed_rapla_users import seed_rapla_users
 from app.seed_data.rapla.seed_rapla_user_groups import seed_rapla_user_groups
 from app.seed_data.rapla.seed_rapla_departments import seed_rapla_departments
+from app.seed_data.rapla.seed_rapla_titles import seed_rapla_titles
 
 
 def seed_rapla_all(db: Session, admin_id: int) -> None:
@@ -15,6 +16,6 @@ def seed_rapla_all(db: Session, admin_id: int) -> None:
     seed_language_abbreviations(db)
     seed_rapla_user_groups(db)
     seed_rapla_departments(db)
-
+    seed_rapla_titles(db)
 
     print("All seed data applied.")
