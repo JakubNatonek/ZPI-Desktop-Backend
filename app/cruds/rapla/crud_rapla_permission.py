@@ -31,12 +31,7 @@ def list_permissions(db: Session, skip: Optional[int] = None, limit: Optional[in
     return q.all()
 
 
-def create_permission(db: Session, access: str, group: str) -> RaplaPermission:
-    # Prefer exact match on both access and group to avoid collapsing
-    # different access values that share the same empty group.
-    existing = get_permission_by_access_and_group(db, access, group)
-    if existing:
-        return existing
+def create_permission(db: Session, access: str, group: Optional[str] = None) -> RaplaPermission:
 
     p = RaplaPermission(access=access, group=group)
     db.add(p)

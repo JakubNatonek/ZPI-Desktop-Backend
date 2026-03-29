@@ -27,15 +27,36 @@ class TytulEnum(PyEnum):
     PROF_DR_HAB_INZ = "prof. dr. hab. inż."
 
 def seed_rapla_titles(db: Session) -> None:
-    root = _seed_rapla_titles(db, "Tytuł", "tytul")
+    # Create root category for titles. key="tytul", name="Tytuł"
+    root = _seed_rapla_titles(db, key="tytul", name="Tytuł")
 
     for title in TytulEnum:
         try:
-            t = create_title(db, title.value)
-            category_title = _seed_rapla_titles(db, key = title.value, name = title.value, parent_id = cast(int, root.id))
-            add_rapla_title_to_category(db,  cast(int, category_title.id),  cast(int, t.id))
-        except ValueError:
-            # role already exists, ignore
+            # Create internal title (idempotent)
+            try:
+                t = create_title(db, title.value)
+            except ValueError:
+                # Title already exists; fetch existing one
+                from app.cruds.crud_title import get_title_by_name
+
+                t = get_title_by_name(db, title.value)
+                if t is None:
+                    # Should not happen, re-raise
+                    raise
+
+            # Create a Rapla category for this title under the root (idempotent)
+            category_title = _seed_rapla_titles(db, key=title.value, name=title.value, parent_id=cast(int, root.id))
+
+            # Link Rapla category <-> internal title (idempotent)
+            try:
+                add_rapla_title_to_category(db, cast(int, category_title.id), cast(int, t.id))
+            except Exception as e:
+                # Log and continue — linking failure shouldn't stop whole seeder
+                print(f"Warning: failed to link title '{title.value}' to category: {e}")
+                continue
+
+        except Exception as e:
+            print(f"Error seeding title '{title.value}': {e}")
             continue
 
     print("Titles seeded.")

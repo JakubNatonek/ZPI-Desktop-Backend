@@ -95,7 +95,7 @@ def seed_define_nauczyciel(db: Session, rapla_admin_uuid: str) -> None:
         pass
 
     # tytul: category + constraints
-    tytul = create_optional_element(db, "tytul", default_value="")
+    tytul = create_optional_element(db, "tytul")
     dt_cat = create_data_type(db, "rapla:category")
     try:
         add_data_type_to_optional_element(db, cast(int, tytul.id), cast(int, dt_cat.id))
@@ -141,13 +141,13 @@ def seed_define_nauczyciel(db: Session, rapla_admin_uuid: str) -> None:
             pass
 
     # Permissions: read_type and allocate_conflicts (no group attribute in XML)
-    p1 = create_permission(db, access="read_type", group="")
+    p1 = create_permission(db, access="read_type")
     try:
         add_permission_to_define_element(db, cast(int, define.id), cast(int, p1.id))
     except Exception:
         pass
 
-    p2 = create_permission(db, access="allocate_conflicts", group="")
+    p2 = create_permission(db, access="allocate_conflicts")
     try:
         add_permission_to_define_element(db, cast(int, define.id), cast(int, p2.id))
     except Exception:

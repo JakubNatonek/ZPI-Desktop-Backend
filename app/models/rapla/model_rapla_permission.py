@@ -10,4 +10,4 @@ class RaplaPermission(Base):
 
     # Rapla data
     access = Column(String(255))
-    group = Column(String(255))
+    group = Column(String(255), nullable=True)
