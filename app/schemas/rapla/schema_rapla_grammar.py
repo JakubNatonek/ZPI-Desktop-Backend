@@ -32,6 +32,8 @@ class RaplaGrammar:
         grammar_el = ET.SubElement(parent, f"{{{RELAXNG_NS}}}grammar")
         for define_el in self.defines:
             define_el.to_xml(grammar_el)
+
+        self.start_element_to_xml(grammar_el)
         return grammar_el
 
     
