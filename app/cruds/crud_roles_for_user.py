@@ -28,7 +28,10 @@ def remove_role_from_user(db: Session, user_id: int, role_id: int) -> None:
 
 
 def get_roles_for_user(db: Session, user_id: int) -> List[Role]:
-    user = db.query(User).filter(User.user_id == user_id).first()
-    if user is None:
-        return []
-    return user.roles
+    # Return Role rows for the given user by joining the association table.
+    return (
+        db.query(Role)
+        .join(RolesForUser, RolesForUser.role_id == Role.id)
+        .filter(RolesForUser.user_id == user_id)
+        .all()
+    )

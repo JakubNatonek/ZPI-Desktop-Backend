@@ -1,5 +1,4 @@
 from typing import cast
-from datetime import datetime
 
 from sqlalchemy.orm import Session
 
@@ -97,14 +96,13 @@ def seed_define_nauczyciel(db: Session, rapla_admin_uuid: str) -> None:
     # tytul: category + constraints
     tytul = create_optional_element(db, "tytul")
     dt_cat = create_data_type(db, "rapla:category")
+    # constraints (use 'tytul' key per expected XML)
+    c_root = create_constraint(db, "root-category", "category[key='tytul']")
+    c_multi = create_constraint(db, "multi-select", "false")
     try:
         add_data_type_to_optional_element(db, cast(int, tytul.id), cast(int, dt_cat.id))
     except Exception:
         pass
-
-    # constraints (use 'tytul' key per expected XML)
-    c_root = create_constraint(db, "root-category", "category[key='tytul']")
-    c_multi = create_constraint(db, "multi-select", "false")
     try:
         add_constraint_to_optional_element(db, cast(int, tytul.id), cast(int, c_root.id))
     except Exception:
@@ -116,6 +114,31 @@ def seed_define_nauczyciel(db: Session, rapla_admin_uuid: str) -> None:
 
     try:
         add_optional_to_define(db, cast(int, tytul.id), cast(int, define.id))
+    except Exception:
+        pass
+
+    # wydział: category + constrains
+
+    department = create_optional_element(db, "wydzial")
+    dt_cat_d = create_data_type(db, "rapla:category")
+    # constraints (use 'kod_budynku' key per expected XML)
+    c_root_d = create_constraint(db, "root-category", "category[key='kod_budynku']")
+    c_multi_d = create_constraint(db, "multi-select", "true")
+    try:
+        add_data_type_to_optional_element(db, cast(int, department.id), cast(int, dt_cat_d.id))
+    except Exception:
+        pass
+    try:
+        add_constraint_to_optional_element(db, cast(int, department.id), cast(int, c_root_d.id))
+    except Exception:
+        pass
+    try:
+        add_constraint_to_optional_element(db, cast(int, department.id), cast(int, c_multi_d.id))
+    except Exception:
+        pass
+
+    try:
+        add_optional_to_define(db, cast(int, department.id), cast(int, define.id))
     except Exception:
         pass
 
@@ -137,6 +160,12 @@ def seed_define_nauczyciel(db: Session, rapla_admin_uuid: str) -> None:
         ln_tyt = create_language_name(db, cast(int, abbrev.id), "Tytuł")
         try:
             add_language_name_to_optional_element(db, cast(int, tytul.id), cast(int, ln_tyt.id))
+        except Exception:
+            pass
+
+        ln_dep = create_language_name(db, cast(int, abbrev.id), "Wydział")
+        try:
+            add_language_name_to_optional_element(db, cast(int, department.id), cast(int, ln_dep.id))
         except Exception:
             pass
 

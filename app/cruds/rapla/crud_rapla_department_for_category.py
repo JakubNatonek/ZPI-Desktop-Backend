@@ -2,7 +2,7 @@ from typing import Optional, List
 from sqlalchemy.orm import Session
 
 from app.models.rapla.model_rapla_department_for_category import RaplaDepartmentForCategory
-
+from app.models.rapla.model_rapla_category import RaplaCategory
 
 def get_all_department_category_mappings(db: Session) -> List[RaplaDepartmentForCategory]:
     return db.query(RaplaDepartmentForCategory).order_by(RaplaDepartmentForCategory.id.asc()).all()
@@ -18,6 +18,15 @@ def get_department_category_mappings_by_category(db: Session, category_id: int) 
 
 def get_department_category_mappings_by_department(db: Session, department_id: int) -> List[RaplaDepartmentForCategory]:
     return db.query(RaplaDepartmentForCategory).filter(RaplaDepartmentForCategory.id_department == department_id).all()
+
+def get_department_category_by_department_id(db: Session, department_id: int) -> RaplaCategory:
+    """Return RaplaCategory rows associated with the given department id."""
+    return (
+        db.query(RaplaCategory)
+        .join(RaplaDepartmentForCategory, RaplaCategory.id == RaplaDepartmentForCategory.id_category)
+        .filter(RaplaDepartmentForCategory.id_department == department_id)
+        .first()
+    )
 
 
 def get_department_category_mapping(db: Session, category_id: int, department_id: int) -> Optional[RaplaDepartmentForCategory]:

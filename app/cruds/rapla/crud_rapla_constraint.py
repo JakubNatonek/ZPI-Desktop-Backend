@@ -25,9 +25,6 @@ def list_constraints(db: Session, skip: Optional[int] = None, limit: Optional[in
 
 
 def create_constraint(db: Session, name: str, value: Optional[str] = None) -> RaplaConstraint:
-    existing = get_constraint_by_name(db, name)
-    if existing is not None:
-        return existing
 
     c = RaplaConstraint(name=name, value=value)
     db.add(c)

@@ -18,10 +18,12 @@ def seed_all() -> None:
         seed_roles(db)
         seed_room_types(db)
         admin_id: int = seed_admin(db)
-        seed_users(db)
+    
 
         #for rapla
         seed_rapla_all(db, admin_id)
+
+        seed_users(db)
 
         print("All rapla seed data applied.")
     finally:

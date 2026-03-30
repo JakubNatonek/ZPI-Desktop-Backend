@@ -1,8 +1,7 @@
-from typing import Optional, cast
+from typing import Optional
 from sqlalchemy.orm import Session
 
 from app.models.model_user import User
-
 
 def get_all_users(db: Session) -> list[User]:
     return db.query(User).order_by(User.user_id.asc()).all()
@@ -130,3 +129,4 @@ def delete_user(db: Session, user_id: int) -> bool:
     db.delete(user)
     db.commit()
     return True
+

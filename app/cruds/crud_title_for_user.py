@@ -23,6 +23,12 @@ def list_title_for_user_relations(db: Session, skip: Optional[int] = None, limit
         q = q.limit(limit)
     return q.all()
 
+def get_title_for_user(db: Session, user_id: int) -> TitleModel:
+    return db.query(TitleModel).join(
+        TitleForUser,
+        TitleModel.id == TitleForUser.title_id,
+    ).filter(TitleForUser.user_id == user_id).first()
+
 
 def list_titles_for_user(db: Session, user_id: int) -> List[TitleModel]:
     return db.query(TitleModel).join(

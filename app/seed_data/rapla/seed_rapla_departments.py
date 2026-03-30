@@ -14,7 +14,7 @@ from app.cruds.rapla.crud_rapla_department_for_category import create_department
 
 
 def seed_rapla_departments(db: Session) -> None:
-    root = _seed_rapla_departments(db, "Kod_budynku", "kod_budynku")
+    root = _seed_rapla_departments(db, "kod_budynku", "Kod_budynku")
 
     for dep in DzialEnum:
         _, abbr = dep.value

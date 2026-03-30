@@ -45,19 +45,22 @@ SessionLocal = sessionmaker(
 Base = declarative_base()
 
 #IF DB not exist creates db from dir ./models
-def ensure_database_exists() -> None:
-    """Create the PostgreSQL database if it does not exist yet."""
+def ensure_database_exists() -> bool:
+    """Create the PostgreSQL database if it does not exist yet.
+
+    Returns True when the database was created by this call, False otherwise.
+    """
     if not AUTO_CREATE_DATABASE:
-        return
+        return False
 
     url = make_url(SQLALCHEMY_DATABASE_URL)
 
     if not url.drivername.startswith("postgresql"):
-        return
+        return False
 
     database_name = url.database
     if not database_name:
-        return
+        return False
 
     maintenance_db = os.getenv("POSTGRES_MAINTENANCE_DB", "postgres")
 
@@ -70,6 +73,7 @@ def ensure_database_exists() -> None:
     )
     connection.autocommit = True
 
+    created = False
     try:
         with connection.cursor() as cursor:
             cursor.execute("SELECT 1 FROM pg_database WHERE datname = %s", (database_name,))
@@ -77,21 +81,32 @@ def ensure_database_exists() -> None:
 
             if not exists:
                 cursor.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(database_name)))
+                created = True
     finally:
         connection.close()
+
+    return created
 
 
 def init_database() -> None:
     """Ensure the database exists and create all ORM tables."""
     last_error = None
-
     for attempt in range(1, DB_INIT_MAX_RETRIES + 1):
         try:
-            ensure_database_exists()
+            # ensure database exists; capture whether it was created now
+            db_created = ensure_database_exists()
 
+            # import models and create tables
             importlib.import_module("app.models")
 
             Base.metadata.create_all(bind=engine)
+
+            # Run seeding only when the database was created by this process
+            if db_created:
+                from app.seed_data.seed_all import seed_all
+
+                seed_all()
+
             return
         except psycopg2.OperationalError as exc:
             last_error = exc

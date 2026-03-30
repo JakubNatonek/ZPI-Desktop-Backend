@@ -13,6 +13,12 @@ def get_permission_by_id(db: Session, permission_id: int) -> Optional[RaplaPermi
 def get_permission_by_group(db: Session, group: str) -> Optional[RaplaPermission]:
     return db.query(RaplaPermission).filter(RaplaPermission.group == group).first()
 
+def get_permission_by_access(db: Session, access: str) -> Optional[RaplaPermission]:
+    return (
+        db.query(RaplaPermission)
+        .filter(RaplaPermission.access == access)
+        .first()
+    )
 
 def get_permission_by_access_and_group(db: Session, access: str, group: str) -> Optional[RaplaPermission]:
     return (
@@ -75,6 +81,9 @@ def get_permission_schema_by_id(db: Session, permission_id: int) -> Optional[Rap
     if p is None:
         return None
     return RaplaPermissionSchema(group=cast(Optional[str], p.group), access=cast(str, p.access or ""))
+
+def get_permission_schema_by_model(db: Session, permission: RaplaPermission) -> Optional[RaplaPermissionSchema]:
+    return RaplaPermissionSchema(group=cast(Optional[str], permission.group), access=cast(str, permission.access))
 
 def create_permission_from_schema(db: Session, schema: RaplaPermissionSchema) -> RaplaPermission:
     group = schema.group or ""

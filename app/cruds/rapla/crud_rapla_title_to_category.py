@@ -22,7 +22,11 @@ def get_rapla_title_to_category_relation_by_category_id(db: Session, category_id
         RaplaTitleToCategory.id_category == category_id,
     ).first()
 
-
+def get_rapla_categories_for_title(db: Session, title_id: int) -> RaplaCategory:
+    return db.query(RaplaCategory).join(
+        RaplaTitleToCategory,
+        RaplaCategory.id == RaplaTitleToCategory.id_category,
+    ).filter(RaplaTitleToCategory.id_title == title_id).first()
 
 def list_rapla_title_to_category_relations(db: Session, skip: Optional[int] = None, limit: Optional[int] = None) -> List[RaplaTitleToCategory]:
     q = db.query(RaplaTitleToCategory).order_by(RaplaTitleToCategory.id.asc())

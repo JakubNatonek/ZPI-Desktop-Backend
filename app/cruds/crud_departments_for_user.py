@@ -28,7 +28,11 @@ def remove_department_from_user(db: Session, user_id: int, department_id: int) -
 
 
 def get_departments_for_user(db: Session, user_id: int) -> List[Department]:
-    user = db.query(User).filter(User.user_id == user_id).first()
-    if user is None:
-        return []
-    return user.departments
+    # Query departments via the association table instead of relying on
+    # a relationship attribute on User (which may not be defined).
+    return (
+        db.query(Department)
+        .join(DepartmentsForUser, DepartmentsForUser.department_id == Department.id)
+        .filter(DepartmentsForUser.user_id == user_id)
+        .all()
+    )
