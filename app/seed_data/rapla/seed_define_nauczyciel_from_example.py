@@ -102,7 +102,7 @@ def seed_define_nauczyciel(db: Session, rapla_admin_uuid: str) -> None:
     except Exception:
         pass
 
-    # constraints (use 'tytul_naukowy' key per expected XML)
+    # constraints (use 'tytul' key per expected XML)
     c_root = create_constraint(db, "root-category", "category[key='tytul']")
     c_multi = create_constraint(db, "multi-select", "false")
     try:
