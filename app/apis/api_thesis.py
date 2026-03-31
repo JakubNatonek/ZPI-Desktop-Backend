@@ -10,12 +10,14 @@ from app.cruds.crud_thesis import (
     get_proposals_for_lecturer,
     update_proposal_status,
 )
+from app.cruds.crud_thesis_settings import get_or_create_thesis_settings, get_thesis_schedule_flags
 from app.models.model_thesis_proposal import ThesisProposal, ThesisProposalStatus
 from app.models.model_user import User
 from app.schemas.thesis import (
     LecturerResponse,
     ThesisProposalCreateRequest,
     ThesisProposalResponse,
+    ThesisScheduleAvailabilityResponse,
     ThesisProposalStatusUpdateRequest,
 )
 
@@ -63,6 +65,72 @@ def _to_response(proposal: ThesisProposal) -> ThesisProposalResponse:
     )
 
 
+def _get_schedule_flags(db: Session) -> dict[str, bool]:
+    settings = get_or_create_thesis_settings(db)
+    return get_thesis_schedule_flags(settings)
+
+
+def _to_schedule_response(flags: dict[str, bool], current_user: User, db: Session) -> ThesisScheduleAvailabilityResponse:
+    settings = get_or_create_thesis_settings(db)
+    is_admin = (current_user.role.name if current_user.role else "").strip().lower() == "admin"
+    return ThesisScheduleAvailabilityResponse(
+        tab_visible_from=settings.tab_visible_from,
+        tab_visible_to=settings.tab_visible_to,
+        topic_submission_from=settings.topic_submission_from,
+        topic_submission_to=settings.topic_submission_to,
+        proposal_selection_from=settings.proposal_selection_from,
+        proposal_selection_deadline=settings.proposal_selection_deadline,
+        can_view_tab=True if is_admin else flags["tab_visible_now"],
+        can_submit_topics=True if is_admin else flags["tab_visible_now"] and flags["topic_submission_open"],
+        can_select_proposals=True if is_admin else flags["tab_visible_now"] and flags["proposal_selection_open"],
+    )
+
+
+def _ensure_tab_visible(db: Session) -> None:
+    if not _get_schedule_flags(db)["tab_visible_now"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Zakładka prac dyplomowych jest obecnie niedostępna",
+        )
+
+
+def _ensure_submission_open(db: Session) -> None:
+    flags = _get_schedule_flags(db)
+    if not flags["tab_visible_now"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Zakładka prac dyplomowych jest obecnie niedostępna",
+        )
+    if not flags["topic_submission_open"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Termin składania tematów prac dyplomowych jest obecnie zamknięty",
+        )
+
+
+def _ensure_selection_open(db: Session) -> None:
+    flags = _get_schedule_flags(db)
+    if not flags["tab_visible_now"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Zakładka prac dyplomowych jest obecnie niedostępna",
+        )
+    if not flags["proposal_selection_open"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Termin wyboru proponowanych prac dyplomowych już upłynął",
+        )
+
+
+@router.get("/settings", response_model=ThesisScheduleAvailabilityResponse, summary="Pobierz dostępność modułu prac dyplomowych")
+def get_schedule_availability(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ThesisScheduleAvailabilityResponse:
+    flags = _get_schedule_flags(db)
+    return _to_schedule_response(flags, current_user, db)
+
+
 @router.get("/lecturers", response_model=list[LecturerResponse], summary="List lecturers")
 def list_lecturers(
     db: Session = Depends(get_db),
@@ -70,6 +138,8 @@ def list_lecturers(
 ) -> list[LecturerResponse]:
     if not _is_student(current_user):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only students can list lecturers")
+
+    _ensure_tab_visible(db)
 
     lecturers = get_lecturers(db)
     return [
@@ -91,6 +161,8 @@ def submit_proposal(
 ) -> ThesisProposalResponse:
     if not _is_student(current_user):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only students can submit proposals")
+
+    _ensure_submission_open(db)
 
     try:
         proposal = create_thesis_proposal(
@@ -115,6 +187,8 @@ def list_lecturer_proposals(
     if not _is_lecturer(current_user):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only lecturers can view proposals")
 
+    _ensure_tab_visible(db)
+
     proposals = get_proposals_for_lecturer(db, current_user.user_id)
     return [_to_response(proposal) for proposal in proposals]
 
@@ -132,6 +206,8 @@ def review_proposal(
 ) -> ThesisProposalResponse:
     if not _is_lecturer(current_user):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only lecturers can review proposals")
+
+    _ensure_selection_open(db)
 
     if payload.status == ThesisProposalStatus.APPROVED:
         approved_count = count_approved_for_lecturer(db, current_user.user_id)

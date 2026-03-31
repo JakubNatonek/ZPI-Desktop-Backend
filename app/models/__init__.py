@@ -14,6 +14,7 @@ from app.models.model_refresh_token import RefreshTokenSession
 from app.models.model_room import Room
 from app.models.model_student import Student
 from app.models.model_thesis_proposal import ThesisProposal, ThesisProposalStatus
+from app.models.model_thesis_settings import ThesisScheduleSettings
 from app.models.model_user import User
 
 __all__ = [
@@ -34,6 +35,7 @@ __all__ = [
 	"Student",
 	"ThesisProposal",
 	"ThesisProposalStatus",
+	"ThesisScheduleSettings",
 	"Group",
 	"Subject",
 	"GradeRecord",

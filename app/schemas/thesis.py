@@ -41,3 +41,15 @@ class ThesisProposalResponse(BaseModel):
     status: ThesisStatus
     submitted_at: datetime
     reviewed_at: datetime | None = None
+
+
+class ThesisScheduleAvailabilityResponse(BaseModel):
+    tab_visible_from: datetime | None = None
+    tab_visible_to: datetime | None = None
+    topic_submission_from: datetime | None = None
+    topic_submission_to: datetime | None = None
+    proposal_selection_from: datetime | None = None
+    proposal_selection_deadline: datetime | None = None
+    can_view_tab: bool
+    can_submit_topics: bool
+    can_select_proposals: bool
