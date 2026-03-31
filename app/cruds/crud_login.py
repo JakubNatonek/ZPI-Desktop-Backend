@@ -1,5 +1,6 @@
 import random
 import string
+import unicodedata
 
 from typing import Optional
 
@@ -8,6 +9,56 @@ from sqlalchemy.orm import Session
 
 from app.auth.password_utils import hash_password, verify_password
 from app.models.model_user import User, Role, Department
+
+
+POLISH_CHAR_TRANSLATION = str.maketrans({
+    "ą": "a",
+    "ć": "c",
+    "ę": "e",
+    "ł": "l",
+    "ń": "n",
+    "ó": "o",
+    "ś": "s",
+    "ź": "z",
+    "ż": "z",
+    "Ą": "A",
+    "Ć": "C",
+    "Ę": "E",
+    "Ł": "L",
+    "Ń": "N",
+    "Ó": "O",
+    "Ś": "S",
+    "Ź": "Z",
+    "Ż": "Z",
+})
+
+
+def _normalize_lookup_value(value: str) -> str:
+    normalized = unicodedata.normalize("NFKD", (value or "").translate(POLISH_CHAR_TRANSLATION))
+    ascii_value = normalized.encode("ascii", "ignore").decode("ascii")
+    return ascii_value.strip().lower()
+
+
+def _find_role_by_name(db: Session, role_name: str) -> Optional[Role]:
+    requested_name = _normalize_lookup_value(role_name)
+    if not requested_name:
+        return None
+
+    for role in db.query(Role).all():
+        if _normalize_lookup_value(role.name) == requested_name:
+            return role
+    return None
+
+
+def _find_department_by_name(db: Session, department_name: str) -> Optional[Department]:
+    requested_name = _normalize_lookup_value(department_name)
+    if not requested_name:
+        return None
+
+    for department in db.query(Department).all():
+        if _normalize_lookup_value(department.name) == requested_name:
+            return department
+    return None
 
 
 
@@ -71,12 +122,25 @@ def create_user_by_admin(
     Create a user with auto-generated login and one-time password.
     role_name and department_name are strings matching names in the tables.
     """
+    first_name = first_name.strip()
+    last_name = last_name.strip()
+    email = email.strip()
+    role_name = role_name.strip()
+    department_name = department_name.strip()
+
+    if not first_name:
+        raise ValueError("First name cannot be empty")
+    if not last_name:
+        raise ValueError("Last name cannot be empty")
+    if not email:
+        raise ValueError("Email cannot be empty")
+
     login = _generate_login(db, first_name, last_name)
     plain_password = _generate_password()
     hashed = hash_password(plain_password)
 
-    role = db.query(Role).filter(Role.name == role_name).first()
-    department = db.query(Department).filter(Department.name == department_name).first()
+    role = _find_role_by_name(db, role_name)
+    department = _find_department_by_name(db, department_name)
     if not role:
         raise ValueError(f"Role not found: {role_name}")
     if not department:

@@ -51,6 +51,12 @@ REFRESH_COOKIE_SECURE = os.getenv("REFRESH_COOKIE_SECURE", "false").lower() == "
 REFRESH_COOKIE_SAMESITE = os.getenv("REFRESH_COOKIE_SAMESITE", "lax")
 
 
+def _require_admin(current_user: User) -> None:
+    role_value = (current_user.role.name if current_user.role else "").strip().lower()
+    if role_value != "admin":
+        raise HTTPException(status_code=403, detail="Administrator access required")
+
+
 def _set_refresh_cookie(response: Response, refresh_token: str) -> None:
     response.set_cookie(
         key=REFRESH_COOKIE_NAME,
@@ -69,19 +75,23 @@ def _set_refresh_cookie(response: Response, refresh_token: str) -> None:
     status_code=201,
     summary="Utwórz nowego użytkownika",
 )
-def create_user(payload: AdminUserCreate, db: Session = Depends(get_db)) -> UserCreatedResponse:
+def create_user(payload: AdminUserCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)) -> UserCreatedResponse:
+    _require_admin(current_user)
     existing_email = get_user_by_email(db, payload.email)
     if existing_email is not None:
         raise HTTPException(status_code=409, detail="User with this email already exists")
 
-    user = create_user_by_admin(
-        db,
-        first_name=payload.first_name,
-        last_name=payload.last_name,
-        email=payload.email,
-        role_name=payload.role,
-        department_name=payload.department,
-    )
+    try:
+        user = create_user_by_admin(
+            db,
+            first_name=payload.first_name,
+            last_name=payload.last_name,
+            email=payload.email,
+            role_name=payload.role,
+            department_name=payload.department,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     return UserCreatedResponse(
         user_id=user.user_id,
@@ -100,7 +110,8 @@ def create_user(payload: AdminUserCreate, db: Session = Depends(get_db)) -> User
     response_model=UserCredentialsResponse,
     summary="Pobierz dane logowania użytkownika",
 )
-def get_credentials(user_id: int, db: Session = Depends(get_db)) -> UserCredentialsResponse:
+def get_credentials(user_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)) -> UserCredentialsResponse:
+    _require_admin(current_user)
     user = get_user_by_id(db, user_id)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
