@@ -1,6 +1,5 @@
 import random
 import string
-import unicodedata
 
 from typing import Optional
 
@@ -8,55 +7,28 @@ from sqlalchemy.orm import Session
 
 
 from app.auth.password_utils import hash_password, verify_password
+from app.core.text_normalization import normalize_lookup_value
 from app.models.model_user import User, Role, Department
 
 
-POLISH_CHAR_TRANSLATION = str.maketrans({
-    "ą": "a",
-    "ć": "c",
-    "ę": "e",
-    "ł": "l",
-    "ń": "n",
-    "ó": "o",
-    "ś": "s",
-    "ź": "z",
-    "ż": "z",
-    "Ą": "A",
-    "Ć": "C",
-    "Ę": "E",
-    "Ł": "L",
-    "Ń": "N",
-    "Ó": "O",
-    "Ś": "S",
-    "Ź": "Z",
-    "Ż": "Z",
-})
-
-
-def _normalize_lookup_value(value: str) -> str:
-    normalized = unicodedata.normalize("NFKD", (value or "").translate(POLISH_CHAR_TRANSLATION))
-    ascii_value = normalized.encode("ascii", "ignore").decode("ascii")
-    return ascii_value.strip().lower()
-
-
 def _find_role_by_name(db: Session, role_name: str) -> Optional[Role]:
-    requested_name = _normalize_lookup_value(role_name)
+    requested_name = normalize_lookup_value(role_name)
     if not requested_name:
         return None
 
     for role in db.query(Role).all():
-        if _normalize_lookup_value(role.name) == requested_name:
+        if normalize_lookup_value(role.name) == requested_name:
             return role
     return None
 
 
 def _find_department_by_name(db: Session, department_name: str) -> Optional[Department]:
-    requested_name = _normalize_lookup_value(department_name)
+    requested_name = normalize_lookup_value(department_name)
     if not requested_name:
         return None
 
     for department in db.query(Department).all():
-        if _normalize_lookup_value(department.name) == requested_name:
+        if normalize_lookup_value(department.name) == requested_name:
             return department
     return None
 

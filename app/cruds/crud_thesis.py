@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from app.core.text_normalization import normalize_lookup_value
 from app.models.model_thesis_proposal import ThesisProposal, ThesisProposalStatus
 from app.models.model_user import Role, User
 
@@ -11,18 +12,18 @@ LECTURER_ROLE_NAMES = {"lecturer", "wykladowca", "cwiczenia", "laboratorium", "s
 
 
 def _is_lecturer_user(user: User) -> bool:
-    role_name = (user.role.name if user.role else "").strip().lower()
+    role_name = normalize_lookup_value(user.role.name if user.role else "")
     return role_name in LECTURER_ROLE_NAMES
 
 
 def get_lecturers(db: Session) -> list[User]:
-    return (
+    users = (
         db.query(User)
         .join(Role, Role.id == User.role_id)
-        .filter(func.lower(Role.name).in_(LECTURER_ROLE_NAMES))
         .order_by(User.last_name.asc(), User.first_name.asc())
         .all()
     )
+    return [user for user in users if _is_lecturer_user(user)]
 
 
 def create_thesis_proposal(
