@@ -105,11 +105,7 @@ def create_user_as_admin(
     db: Session = Depends(get_db),
     _: User = Depends(_require_admin),
 ) -> UserCreatedResponse:
-    normalized_login = payload.login.strip().lower()
     normalized_email = str(payload.email).strip().lower()
-
-    if get_user_by_login(db, normalized_login) is not None:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User with this login already exists")
 
     if get_user_by_email(db, normalized_email) is not None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User with this email already exists")
@@ -119,7 +115,6 @@ def create_user_as_admin(
             db,
             first_name=payload.first_name.strip(),
             last_name=payload.last_name.strip(),
-            login=normalized_login,
             email=normalized_email,
             one_time_password=payload.one_time_password,
             role_name=payload.role.strip(),
@@ -130,6 +125,7 @@ def create_user_as_admin(
 
     return UserCreatedResponse(
         user_id=user.user_id,
+        album_number=user.album_number,
         login=user.login,
         email=user.email,
         first_name=user.first_name,
@@ -184,6 +180,7 @@ def admin_list_users(
             user_id=user.user_id,
             first_name=user.first_name,
             last_name=user.last_name,
+            album_number=user.album_number,
             login=user.login,
             email=user.email,
             role=user.role.name if user.role else "",
@@ -246,6 +243,7 @@ def admin_update_user(
         user_id=updated.user_id,
         first_name=updated.first_name,
         last_name=updated.last_name,
+        album_number=updated.album_number,
         login=updated.login,
         email=updated.email,
         role=updated.role.name if updated.role else "",

@@ -6,7 +6,6 @@ class AdminUserCreate(BaseModel):
     """Data for creating a new user by admin."""
     first_name: str = Field(min_length=2, max_length=80)
     last_name: str = Field(min_length=2, max_length=80)
-    login: str = Field(min_length=3, max_length=64)
     email: EmailStr
     one_time_password: str = Field(min_length=8, max_length=128)
     role: str = Field(min_length=2, max_length=80)  # role name
@@ -16,6 +15,7 @@ class AdminUserCreate(BaseModel):
 class UserCreatedResponse(BaseModel):
     """Response after user creation — contains generated login and password."""
     user_id: int
+    album_number: str
     login: str
     email: EmailStr
     first_name: str
@@ -29,6 +29,7 @@ class AdminUserListResponse(BaseModel):
     user_id: int
     first_name: str
     last_name: str
+    album_number: str
     login: str
     email: EmailStr
     role: str

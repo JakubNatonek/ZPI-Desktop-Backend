@@ -3,6 +3,7 @@ import string
 
 from typing import Optional
 
+from sqlalchemy import cast, func, Integer
 from sqlalchemy.orm import Session
 
 
@@ -16,6 +17,13 @@ def get_user_by_login(db: Session, login: str) -> Optional[User]:
     Pobierz użytkownika na podstawie loginu.
     """
     return db.query(User).filter(User.login == login).first()
+
+
+def get_user_by_album_number(db: Session, album_number: str) -> Optional[User]:
+    """
+    Pobierz użytkownika na podstawie numeru albumu.
+    """
+    return db.query(User).filter(User.album_number == album_number).first()
 
 
 
@@ -35,17 +43,21 @@ def get_user_by_id(db: Session, user_id: int) -> Optional[User]:
 
 
 
-def _generate_login(db: Session, first_name: str, last_name: str) -> str:
+def _generate_album_number(db: Session) -> str:
     """
-    Generate a unique login: first letter of first name + '.' + last name + 4 digits.
+    Generate the next album number in format 00001, 00002, ...
     """
-    base = first_name[0].lower() + "." + last_name.lower()
-    for _ in range(100):
-        suffix = str(random.randint(1000, 9999))
-        login = base + suffix
-        if get_user_by_login(db, login) is None:
-            return login
-    raise RuntimeError("Could not generate a unique login after 100 attempts.")
+    max_album_number = db.query(func.max(cast(User.album_number, Integer))).scalar()
+    next_number = int(max_album_number or 0) + 1
+    return f"{next_number:05d}"
+
+
+def _generate_login(first_name: str, last_name: str, album_number: str) -> str:
+    """
+    Generate login as first letter of first name + first letter of last name + album number.
+    Example: Jan Kowalski + 00001 -> jk00001
+    """
+    return first_name[0].lower() + last_name[0].lower() + album_number
 
 
 
@@ -66,14 +78,20 @@ def create_user_by_admin(
     email: str,
     role_name: str,
     department_name: str,
-    login: str | None = None,
     one_time_password: str | None = None,
 ) -> User:
     """
-    Create a user with auto-generated login and one-time password.
+    Create a user with auto-generated album number, login and one-time password.
     role_name and department_name are strings matching names in the tables.
     """
-    login = login or _generate_login(db, first_name, last_name)
+    album_number = _generate_album_number(db)
+    login = _generate_login(first_name, last_name, album_number)
+
+    if get_user_by_login(db, login) is not None:
+        raise ValueError(f"Generated login already exists: {login}")
+    if get_user_by_album_number(db, album_number) is not None:
+        raise ValueError(f"Generated album number already exists: {album_number}")
+
     plain_password = one_time_password or _generate_password()
     hashed = hash_password(plain_password)
 
@@ -87,6 +105,7 @@ def create_user_by_admin(
     user = User(
         first_name=first_name,
         last_name=last_name,
+        album_number=album_number,
         login=login,
         email=email,
         password_hash=hashed,

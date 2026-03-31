@@ -10,6 +10,7 @@ def create_admin():
             db.add(User(
                 first_name="admin",
                 last_name="admin",
+                album_number="00001",
                 login="admin",
                 email="admin@admin.com",
                 password_hash="$2b$12$zi7AdboGsbPpUp4j3qFpv.WTir3I5odeMnqzyUW4DTaN956Jq3.p.",

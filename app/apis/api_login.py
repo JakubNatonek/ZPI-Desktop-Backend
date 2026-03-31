@@ -20,7 +20,6 @@ from app.cruds.crud_login import (
     create_user_by_admin,
     get_user_by_email,
     get_user_by_id,
-    get_user_by_login,
     update_user_password,
 )
 from app.cruds.crud_refresh_token import (
@@ -79,11 +78,7 @@ def create_user(
     if role_value != "admin":
         raise HTTPException(status_code=403, detail="Forbidden")
 
-    normalized_login = payload.login.strip().lower()
     normalized_email = str(payload.email).strip().lower()
-
-    if get_user_by_login(db, normalized_login) is not None:
-        raise HTTPException(status_code=409, detail="User with this login already exists")
 
     existing_email = get_user_by_email(db, normalized_email)
     if existing_email is not None:
@@ -93,7 +88,6 @@ def create_user(
         db,
         first_name=payload.first_name.strip(),
         last_name=payload.last_name.strip(),
-        login=normalized_login,
         email=normalized_email,
         one_time_password=payload.one_time_password,
         role_name=payload.role.strip(),
@@ -102,6 +96,7 @@ def create_user(
 
     return UserCreatedResponse(
         user_id=user.user_id,
+        album_number=user.album_number,
         login=user.login,
         email=user.email,
         first_name=user.first_name,

@@ -14,6 +14,14 @@ from app.models.model_semestr import Semestr
 from app.models.model_day import Day
 
 
+def _album_number_from_user_id(user_id: int) -> str:
+    return f"{user_id:05d}"
+
+
+def _login_from_name_and_album(first_name: str, last_name: str, album_number: str) -> str:
+    return f"{first_name[0]}{last_name[0]}{album_number}".lower()
+
+
 def seed_roles():
     """Seed roles table with sample data."""
     db: Session = SessionLocal()
@@ -204,6 +212,15 @@ def seed_users_and_profiles():
         ]
 
         for teacher_data in teachers_data:
+            user_payload = teacher_data["user"]
+            album_number = _album_number_from_user_id(int(user_payload["user_id"]))
+            user_payload["album_number"] = album_number
+            user_payload["login"] = _login_from_name_and_album(
+                user_payload["first_name"],
+                user_payload["last_name"],
+                album_number,
+            )
+
             user_exists = db.query(User).filter_by(user_id=teacher_data["user"]["user_id"]).first()
             if not user_exists:
                 user = User(**teacher_data["user"])
@@ -237,6 +254,15 @@ def seed_users_and_profiles():
         ]
 
         for student_data in students_data:
+            user_payload = student_data["user"]
+            album_number = _album_number_from_user_id(int(user_payload["user_id"]))
+            user_payload["album_number"] = album_number
+            user_payload["login"] = _login_from_name_and_album(
+                user_payload["first_name"],
+                user_payload["last_name"],
+                album_number,
+            )
+
             user_exists = db.query(User).filter_by(user_id=student_data["user"]["user_id"]).first()
             if not user_exists:
                 user = User(**student_data["user"])
