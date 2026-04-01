@@ -7,6 +7,7 @@ from app.seed_data.rapla.seed_rapla_user_groups import seed_rapla_user_groups
 from app.seed_data.rapla.seed_rapla_departments import seed_rapla_departments
 from app.seed_data.rapla.seed_rapla_titles import seed_rapla_titles
 from app.seed_data.rapla.seed_define_nauczyciel_from_example import seed_define_nauczyciel
+from app.seed_data.rapla.seed_define_dezyteraty_from_example import seed_define_dezyderata
 
 
 def seed_rapla_all(db: Session, admin_id: int) -> None:
@@ -19,5 +20,6 @@ def seed_rapla_all(db: Session, admin_id: int) -> None:
     seed_rapla_departments(db)
     seed_rapla_titles(db)
     seed_define_nauczyciel(db, rapla_admin_uuid)
+    seed_define_dezyderata(db, rapla_admin_uuid)
 
     print("All seed data applied.")

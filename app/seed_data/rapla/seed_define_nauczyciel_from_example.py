@@ -57,7 +57,7 @@ def seed_define_nauczyciel(db: Session, rapla_admin_uuid: str) -> None:
 
     # Annotations from the XML
     annotations = {
-        "nameformat": "{nazwisko} {imie} {tytul}",
+        "nameformat": "{nazwisko} {imie} {tytul} {wydzial}",
         "classification-type": "person",
         "colors": "rapla:automated",
     }

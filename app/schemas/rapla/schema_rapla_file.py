@@ -10,6 +10,7 @@ from app.schemas.rapla.schema_rapla_categories import RaplaCategories
 from app.schemas.rapla.schema_rapla_users import RaplaUsers
 from app.schemas.rapla.schema_rapla_grammar import RaplaGrammar
 from app.schemas.rapla.schema_rapla_resources import SchemaRaplaResources
+from app.schemas.rapla.schema_rapla_reservations import SchemaRaplaReservations
 
 @dataclass
 class RaplaFile:
@@ -23,7 +24,7 @@ class RaplaFile:
     resources: SchemaRaplaResources = field(default_factory=SchemaRaplaResources)
 
     # reservations: list[Reservation] = field(default_factory=lambda: cast(list[Reservation], []))
-
+    reservations: SchemaRaplaReservations = field(default_factory=SchemaRaplaReservations)
     # importexports: ImportExportsSection = field(default_factory=ImportExportsSection)
 
     ##
@@ -45,6 +46,7 @@ class RaplaFile:
         self.users.to_xml(root)
         self.grammar.to_xml(root)
         self.resources.to_xml(root)
+        self.reservations.to_xml(root)
         ET.indent(root, space="    ")
 
         xml_bytes = ET.tostring(

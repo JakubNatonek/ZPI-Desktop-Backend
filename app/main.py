@@ -22,6 +22,8 @@ from app.seed_data.seed_all import seed_all
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     init_database()
     # run_migrations() # this should not be done evry time the server is run
+
+    # seed_all()
     yield
 
 

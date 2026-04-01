@@ -18,6 +18,9 @@ from app.cruds.rapla.rapla_format_datetime import format_rapla_datetime , parse_
 def get_all_rapla_users(db: Session) -> list[RaplaUserModel]:
 	return db.query(RaplaUserModel).order_by(RaplaUserModel.created_at.asc()).all()
 
+def get_first_rapla_users(db: Session) -> list[RaplaUserModel]:
+	return db.query(RaplaUserModel).order_by(RaplaUserModel.created_at.asc()).first()
+
 
 ##
 # @brief Build the Rapla users API schema from database rows.

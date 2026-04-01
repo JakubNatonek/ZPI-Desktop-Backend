@@ -101,11 +101,11 @@ def init_database() -> None:
 
             Base.metadata.create_all(bind=engine)
 
-            # Run seeding only when the database was created by this process
-            if db_created:
-                from app.seed_data.seed_all import seed_all
+            # # Run seeding only when the database was created by this process
+            # if db_created:
+            #     from app.seed_data.seed_all import seed_all
 
-                seed_all()
+            #     seed_all()
 
             return
         except psycopg2.OperationalError as exc:

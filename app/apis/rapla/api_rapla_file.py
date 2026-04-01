@@ -12,6 +12,8 @@ from app.schemas.rapla.schema_rapla_file import RaplaFile
 from app.schemas.rapla.schema_rapla_grammar import RaplaGrammar
 from app.schemas.rapla.schema_rapla_resources import SchemaRaplaResources
 from app.cruds.rapla.crud_rapla_app_user_to_resourc import all_app_user_to_resourc_schema
+from app.cruds.crud_dezyderata import dezyderaty_to_schema
+
 
 
 
@@ -28,7 +30,10 @@ def generate_rapla_file(db: Session = Depends(get_db)) -> FileResponse:
 	categories = get_rapla_categories_schema(db)
 	grammar = RaplaGrammar( get_define_element_full_schema(db) )
 	resources = SchemaRaplaResources( all_app_user_to_resourc_schema(db) )
-	data = RaplaFile(users=users, categories=categories, grammar=grammar, resources=resources)
+
+	reservations = dezyderaty_to_schema(db)
+
+	data = RaplaFile(users=users, categories=categories, grammar=grammar, resources=resources, reservations=reservations)
 	data.save_to_file(str(output_path))
 
 	return FileResponse(
