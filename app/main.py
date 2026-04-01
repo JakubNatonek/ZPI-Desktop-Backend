@@ -17,12 +17,14 @@ from app.services.socket_events import create_socket_events
 from app.apis.api_rooms import router as rooms_router
 from scripts.migration_runner import run_migrations
 from scripts.create_admin import create_admin
+from scripts.seed_roles_departments import seed_roles_and_departments
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     init_database()
     # run_migrations() # this should not be done evry time the server is run
+    # seed_roles_and_departments()
     # create_admin()
     yield
 
