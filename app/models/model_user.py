@@ -13,6 +13,7 @@ class User(Base):
     user_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     first_name = Column(String, nullable=False)
     last_name = Column(String, nullable=False)
+    album_number = Column(String(5), unique=True, index=True, nullable=False)
     login = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     public_key = Column(Text, nullable=True)
