@@ -51,6 +51,12 @@ REFRESH_COOKIE_SECURE = os.getenv("REFRESH_COOKIE_SECURE", "false").lower() == "
 REFRESH_COOKIE_SAMESITE = os.getenv("REFRESH_COOKIE_SAMESITE", "lax")
 
 
+def _require_admin(current_user: User) -> None:
+    role_value = (current_user.role.name if current_user.role else "").strip().lower()
+    if role_value != "admin":
+        raise HTTPException(status_code=403, detail="Administrator access required")
+
+
 def _set_refresh_cookie(response: Response, refresh_token: str) -> None:
     response.set_cookie(
         key=REFRESH_COOKIE_NAME,

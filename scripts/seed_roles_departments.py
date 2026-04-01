@@ -21,6 +21,7 @@ def seed_roles_and_departments():
         roles = [
             {'id': 1, 'name': 'admin'},
             {'id': 2, 'name': 'wykładowca'},
+            {'id': 2, 'name': 'wykladowca'},
             {'id': 3, 'name': 'student'},
         ]
         for role in roles:

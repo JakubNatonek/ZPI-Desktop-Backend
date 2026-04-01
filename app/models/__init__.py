@@ -6,11 +6,15 @@ from app.models.chat.model_conversation_member import ConversationMember
 from app.models.chat.model_message import Message
 from app.models.model_alembic_version import AlembicVersion
 from app.models.model_group import Group
+from app.models.model_grade import GradeRecord
 from app.models.model_teacher import Teacher
 from app.models.model_subject import Subject
+from app.models.model_announcement import Announcement, AnnouncementSeen
 from app.models.model_refresh_token import RefreshTokenSession
 from app.models.model_room import Room
 from app.models.model_student import Student
+from app.models.model_thesis_proposal import ThesisProposal, ThesisProposalStatus
+from app.models.model_thesis_settings import ThesisScheduleSettings
 from app.models.model_user import User
 from app.models.model_semestr import Semestr
 from app.models.model_dezyderata import Dezyderata
@@ -23,6 +27,8 @@ __all__ = [
 	"RolaEnum",
 	"DzialEnum",
 	"RefreshTokenSession",
+	"Announcement",
+	"AnnouncementSeen",
 	"Conversation",
 	"ConversationTypeEnum",
 	"ConversationMember",
@@ -30,9 +36,13 @@ __all__ = [
 	"Room",
 	"Teacher",
 	"Student",
+	"ThesisProposal",
+	"ThesisProposalStatus",
+	"ThesisScheduleSettings",
 	"Group",
 	"Subject",
 	"Semestr",
 	"Dezyderata",
 	"Day",
+	"GradeRecord",
 ]

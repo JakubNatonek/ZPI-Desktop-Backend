@@ -16,6 +16,9 @@ from app.cruds.crud_login import (
     update_user_by_admin,
 )
 from app.dependencies.auth import require_admin
+from app.models.model_department import Department
+from app.models.model_role import Role
+from app.models.model_user import User
 from app.schemas.user import (
     AdminResetOneTimePasswordRequest,
     AdminUserCreate,
@@ -26,8 +29,8 @@ from app.schemas.user import (
     UserCreatedResponse,
     UserCredentialsResponse,
     UserNameResponse,
+    UserProfileResponse,
 )
-from app.models.model_user import Department, Role, User
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -274,6 +277,38 @@ def admin_reset_one_time_password(
         user_id=updated.user_id,
         login=updated.login,
         one_time_password=updated.plain_password or payload.one_time_password,
+    )
+
+
+@router.get(
+    "/me/profile",
+    response_model=UserProfileResponse,
+    summary="Pobierz profil zalogowanego użytkownika",
+)
+def get_my_profile(current_user: User = Depends(get_current_user)) -> UserProfileResponse:
+    role_name = (current_user.role.name if current_user.role else "").lower()
+    group_code = current_user.student_profile.group.code if current_user.student_profile and current_user.student_profile.group else None
+
+    if role_name == "student":
+        status = "Aktywny student"
+    elif role_name in {"wykladowca", "lecturer"}:
+        status = "Pracownik dydaktyczny"
+    elif role_name in {"planista", "planner"}:
+        status = "Planista"
+    else:
+        status = "Administrator systemu"
+
+    return UserProfileResponse(
+        status=status,
+        album_number=current_user.student_profile.index_number if current_user.student_profile and current_user.student_profile.index_number else "Nie dotyczy",
+        year=str(current_user.student_profile.group.year) if current_user.student_profile and current_user.student_profile.group else "Nie dotyczy",
+        semester=str(current_user.student_profile.semester) if current_user.student_profile and current_user.student_profile.semester is not None else "Nie dotyczy",
+        major=current_user.department.name if current_user.department else "Nie dotyczy",
+        faculty=current_user.department.name if current_user.department else "Nie dotyczy",
+        study_track="Ogolnoakademicki" if role_name == "student" else "Nie dotyczy",
+        study_mode="Stacjonarne" if role_name == "student" else "Nie dotyczy",
+        title=current_user.teacher_profile.title if current_user.teacher_profile and current_user.teacher_profile.title else "Nie dotyczy",
+        groups=[group_code] if group_code else [],
     )
 
 

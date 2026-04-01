@@ -15,6 +15,10 @@ from app.apis.api_departments import router as departments_router
 from app.apis.api_roles import router as roles_router
 from app.apis.api_chat import router as chat_router
 from app.apis.api_messages import router as messages_router
+from app.apis.api_announcements import router as announcements_router
+from app.apis.api_thesis import router as thesis_router
+from app.apis.api_admin_thesis import router as admin_thesis_router
+from app.apis.api_grades import router as grades_router
 from app.services.socket_events import create_socket_events
 from app.apis.api_rooms import router as rooms_router
 from app.apis.api_dezyderata import router as dezyderata_router
@@ -22,6 +26,7 @@ from scripts.migration_runner import run_migrations
 from scripts.create_admin import create_admin
 from scripts.seed_roles_departments import seed_roles_and_departments
 from scripts.seed_data import seed_all
+from scripts.seed_initial_data import seed_initial_data
 
 
 @asynccontextmanager
@@ -31,6 +36,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     # seed_roles_and_departments()
     # create_admin()
     # seed_all()  # Uncomment to seed database with sample data
+    # seed_initial_data()
     yield
 
 
@@ -82,9 +88,13 @@ app.include_router(users_router)
 app.include_router(departments_router)
 app.include_router(roles_router)
 app.include_router(chat_router)
+app.include_router(announcements_router)
 app.include_router(rooms_router)
 app.include_router(messages_router)
 app.include_router(dezyderata_router)
+app.include_router(thesis_router)
+app.include_router(admin_thesis_router)
+app.include_router(grades_router)
 
 
 

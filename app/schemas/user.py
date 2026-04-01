@@ -127,3 +127,15 @@ class PublicKeyResponse(BaseModel):
 class PublicKeyUpdate(BaseModel):
     """Payload for updating a user's public key."""
     public_key: str
+class UserProfileResponse(BaseModel):
+    """Profile data for the currently logged-in user."""
+    status: str
+    album_number: str
+    year: str
+    semester: str
+    major: str
+    faculty: str
+    study_track: str
+    study_mode: str
+    title: str
+    groups: list[str]

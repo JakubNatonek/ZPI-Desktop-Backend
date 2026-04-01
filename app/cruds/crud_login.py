@@ -8,7 +8,30 @@ from sqlalchemy.orm import Session
 
 
 from app.auth.password_utils import hash_password, verify_password
+from app.core.text_normalization import normalize_lookup_value
 from app.models.model_user import User, Role, Department
+
+
+def _find_role_by_name(db: Session, role_name: str) -> Optional[Role]:
+    requested_name = normalize_lookup_value(role_name)
+    if not requested_name:
+        return None
+
+    for role in db.query(Role).all():
+        if normalize_lookup_value(role.name) == requested_name:
+            return role
+    return None
+
+
+def _find_department_by_name(db: Session, department_name: str) -> Optional[Department]:
+    requested_name = normalize_lookup_value(department_name)
+    if not requested_name:
+        return None
+
+    for department in db.query(Department).all():
+        if normalize_lookup_value(department.name) == requested_name:
+            return department
+    return None
 
 
 
