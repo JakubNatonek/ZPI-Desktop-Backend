@@ -22,21 +22,14 @@ from app.apis.api_grades import router as grades_router
 from app.services.socket_events import create_socket_events
 from app.apis.api_rooms import router as rooms_router
 from app.apis.api_dezyderata import router as dezyderata_router
-from scripts.migration_runner import run_migrations
-from scripts.create_admin import create_admin
-from scripts.seed_roles_departments import seed_roles_and_departments
-from scripts.seed_data import seed_all
-from scripts.seed_initial_data import seed_initial_data
+from app.seed_data.seed_all import seed_all
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     init_database()
-    # run_migrations() # this should not be done evry time the server is run
-    # seed_roles_and_departments()
-    # create_admin()
-    # seed_all()  # Uncomment to seed database with sample data
-    # seed_initial_data()
+    #seed_all()  # Uncomment to seed database with sample data
+
     yield
 
 
