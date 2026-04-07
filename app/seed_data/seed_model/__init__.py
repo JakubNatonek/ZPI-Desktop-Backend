@@ -6,7 +6,28 @@ from app.seed_data.seed_model.seed_grades import seed_grades
 from app.seed_data.seed_model.seed_groups import seed_groups
 from app.seed_data.seed_model.seed_roles import seed_roles
 from app.seed_data.seed_model.seed_rooms import seed_rooms
+from app.seed_data.seed_model.seed_room_types import seed_room_types
+from app.seed_data.seed_model.seed_admin import seed_admin
+from app.seed_data.seed_model.seed_titles import seed_titles
 from app.seed_data.seed_model.seed_semesters import seed_semesters
 from app.seed_data.seed_model.seed_subjects import seed_subjects
 from app.seed_data.seed_model.seed_teacher_student_profiles import seed_teacher_student_profiles
 from app.seed_data.seed_model.seed_users import seed_users
+
+__all__ = [
+	"seed_days",
+	"seed_dezyderata",
+	"seed_departments",
+	"seed_departments_for_user",
+	"seed_grades",
+	"seed_groups",
+	"seed_roles",
+	"seed_rooms",
+	"seed_room_types",
+	"seed_semesters",
+	"seed_subjects",
+	"seed_teacher_student_profiles",
+	"seed_users",
+	"seed_admin",
+	"seed_titles",
+]

@@ -2,7 +2,7 @@ from enum import Enum as PyEnum
 
 from sqlalchemy.orm import Session
 
-from app.cruds.crud_department_role import create_role
+from app.cruds.crud_role import create_role
 
 
 class RolaEnum(str, PyEnum):

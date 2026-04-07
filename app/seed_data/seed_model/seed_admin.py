@@ -4,9 +4,9 @@ from sqlalchemy.orm import Session
 
 from app.models.model_department import Department
 from app.models.model_role import Role
-from app.seed_data.seed_departments import DzialEnum
-from app.seed_data.seed_roles import RolaEnum
-from app.cruds.crud_user import get_or_create_user
+from app.seed_data.seed_model.seed_departments import DzialEnum
+from app.seed_data.seed_model.seed_roles import RolaEnum
+from app.cruds.crud_user import create_user
 from app.cruds.crud_departments_for_user import add_department_to_user
 from app.cruds.crud_roles_for_user import add_role_to_user
 
@@ -21,7 +21,7 @@ def seed_admin(db: Session) -> int:
     if role is None or department is None:
         raise RuntimeError("Missing admin role/department. Run seed_roles_and_departments first.")
 
-    created_user = get_or_create_user(
+    created_user = create_user(
         db,
         first_name="admin",
         last_name="admin",

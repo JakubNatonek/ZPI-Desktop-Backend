@@ -14,7 +14,7 @@ class TytulEnum(PyEnum):
     PROF_DR_HAB_INZ = "prof. dr. hab. inż."
 
 
-def seed_Tytles(db: Session) -> None:
+def seed_titles(db: Session) -> None:
     for title in TytulEnum:
         try:
             create_title(db, title.value)
