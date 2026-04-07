@@ -10,13 +10,15 @@ from app.seed_data.rapla.seed_rapla_all import seed_rapla_all
 def seed_all() -> None:
     db: Session = SessionLocal()
     try:
-        # for app
+        # User
         seed_model.seed_departments(db)
         seed_model.seed_roles(db)
-        seed_model.seed_room_types(db)
+        seed_model.seed_titles(db)
         admin_id: int = seed_model.seed_admin(db)
         seed_model.seed_users(db)
 
+
+        seed_model.seed_room_types(db)
         seed_model.seed_rooms(db)
 
         seed_model.seed_days(db)
