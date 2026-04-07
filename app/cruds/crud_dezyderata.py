@@ -1,21 +1,23 @@
 from datetime import date, datetime, timezone
 from typing import List, Optional, Set, cast
+from uuid import uuid4
 
 from sqlalchemy.orm import Session
 
 from app.models.model_day import Day
 from app.models.model_dezyderata import Dezyderata
 from app.models.model_semestr import Semestr
+from app.schemas.dezyderata import DezyderataCreate, SemestrCreate
 
+# RAPLA Schemas
 from app.schemas.rapla.reservations.schema_rapla_reservation_dezyderata import SchemaRaplaReservationDezyerata
 from app.schemas.rapla.reservations.schema_rapla_apontment import SchemaRaplaApointment
 from app.schemas.rapla.schema_rapla_reservations import SchemaRaplaReservations
 from app.schemas.rapla.schema_rapla_permision import RaplaPermission
 
+# RAPLA Cruds
 from app.cruds.rapla.crud_rapla_app_user_to_resourc import get_resorsc_by_user_id
 from app.cruds.rapla.crud_rapla_users import get_first_rapla_users
-
-from uuid import uuid4
 
 
 # ----- Semestr CRUD -----
@@ -140,7 +142,7 @@ def map_semestr_to_response(semestr: Semestr) -> dict:
         "nazwa": semestr.nazwa
     }
 
-
+# Needed for RAPLA conversion
 def dezyderaty_to_schema(db: Session) -> SchemaRaplaReservations:
     list_of_model_dezyderata = get_all_dezyderaty(db)
     owner = get_first_rapla_users(db)

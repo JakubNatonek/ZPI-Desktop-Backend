@@ -3,7 +3,13 @@ from pydantic import BaseModel
 class MessageResponse(BaseModel):
     id: int
     sender_id: int
-    content: str
+    conversation_id: int
+    encrypted_message: str | None = None
+    encrypted_aes_key: str | None = None
+    content: str | None = None
+    ciphertext: str | None = None
+    iv: str | None = None
+    wrapped_key: str | None = None
     created_at: str
     delivered_at: str | None = None
     is_read: bool
@@ -14,6 +20,7 @@ class ConversationStartResponse(BaseModel):
     conversation_id: int
     user_a_id: int
     user_b_id: int
+    public_key: str | None = None
 
 
 class ConversationListItemResponse(BaseModel):

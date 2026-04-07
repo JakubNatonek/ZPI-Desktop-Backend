@@ -1,19 +1,22 @@
 
 from pydantic import BaseModel, EmailStr, Field
+from typing import Optional
 
 
 class AdminUserCreate(BaseModel):
     """Data for creating a new user by admin."""
-    first_name: str
-    last_name: str
+    first_name: str = Field(min_length=2, max_length=80)
+    last_name: str = Field(min_length=2, max_length=80)
     email: EmailStr
-    role: str  # role name
-    department: str  # department name
+    one_time_password: str = Field(min_length=8, max_length=128)
+    role_id: int = Field(gt=0)
+    department_id: int = Field(gt=0)
 
 
 class UserCreatedResponse(BaseModel):
     """Response after user creation — contains generated login and password."""
     user_id: int
+    album_number: str
     login: str
     email: EmailStr
     first_name: str
@@ -21,6 +24,41 @@ class UserCreatedResponse(BaseModel):
     role: str  # role name
     department: str  # department name
     one_time_password: str
+
+
+class AdminUserListResponse(BaseModel):
+    user_id: int
+    first_name: str
+    last_name: str
+    album_number: str
+    login: str
+    email: str
+    role: str
+    department: str
+    must_change_password: bool
+
+
+class AdminUserUpdate(BaseModel):
+    first_name: str = Field(min_length=2, max_length=80)
+    last_name: str = Field(min_length=2, max_length=80)
+    login: str = Field(min_length=3, max_length=64)
+    email: EmailStr
+    role_id: int = Field(gt=0)
+    department_id: int = Field(gt=0)
+
+
+class AdminResetOneTimePasswordRequest(BaseModel):
+    one_time_password: str = Field(min_length=8, max_length=128)
+
+
+class RoleOptionResponse(BaseModel):
+    id: int
+    name: str
+
+
+class DepartmentOptionResponse(BaseModel):
+    id: int
+    name: str
 
 
 
@@ -78,3 +116,26 @@ class UserNameResponse(BaseModel):
     user_id: int
     first_name: str
     last_name: str
+
+
+class PublicKeyResponse(BaseModel):
+    """Public key response for a user."""
+    user_id: int
+    public_key: Optional[str] = None
+
+
+class PublicKeyUpdate(BaseModel):
+    """Payload for updating a user's public key."""
+    public_key: str
+class UserProfileResponse(BaseModel):
+    """Profile data for the currently logged-in user."""
+    status: str
+    album_number: str
+    year: str
+    semester: str
+    major: str
+    faculty: str
+    study_track: str
+    study_mode: str
+    title: str
+    groups: list[str]

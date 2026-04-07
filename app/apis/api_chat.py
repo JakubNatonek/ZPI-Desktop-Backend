@@ -15,7 +15,7 @@ from app.cruds.chat.crud_message import (
 )
 from app.cruds.chat.crud_message_send import save_message
 from app.models.model_user import User
-from app.schemas.chat import (
+from app.schemas.chat.chat import (
     ConversationListItemResponse,
     ConversationStartResponse,
     MessageResponse,
@@ -24,8 +24,8 @@ from app.schemas.chat import (
     TypingIndicatorResponse,
     UserPresenceResponse,
 )
-from app.schemas.chat_group import CreateGroupRequest, CreateGroupResponse
-from app.schemas.chat_send import SendMessageRequest
+from app.schemas.chat.chat_group import CreateGroupRequest, CreateGroupResponse
+from app.schemas.chat.chat_send import SendMessageRequest
 from app.schemas.user import UserNameResponse
 from app.services.chat_service import (
     ERROR_CANNOT_MARK_OWN_MESSAGE,
@@ -345,13 +345,14 @@ def start_conversation(
     if user_id == current_user.user_id:
         raise HTTPException(status_code=400, detail=ERROR_SAME_USER_CONVERSATION)
     
-    get_user_or_raise(db, user_id)
+    target_user = get_user_or_raise(db, user_id)
     conv = get_or_create_direct_conversation(db, current_user.user_id, user_id)
-    
+
     return ConversationStartResponse(
         conversation_id=conv.id,
         user_a_id=current_user.user_id,
         user_b_id=user_id,
+        public_key=getattr(target_user, "public_key", None),
     )
 
 
@@ -372,8 +373,14 @@ def get_conversation_messages(
     return [
         MessageResponse(
             id=m.id,
+            conversation_id=m.conversation_id,
             sender_id=m.sender_id,
+            encrypted_message=getattr(m, "ciphertext", None),
+            encrypted_aes_key=getattr(m, "wrapped_key", None),
             content=m.content,
+            ciphertext=getattr(m, "ciphertext", None),
+            iv=getattr(m, "iv", None),
+            wrapped_key=getattr(m, "wrapped_key", None),
             created_at=m.created_at.isoformat(),
             delivered_at=m.delivered_at.isoformat() if m.delivered_at else None,
             is_read=m.is_read,
@@ -402,11 +409,17 @@ def send_message(
         raise HTTPException(status_code=400, detail=ERROR_EMPTY_MESSAGE)
     
     msg = save_message(db, conversation_id, current_user.user_id, content)
-    
+
     return MessageResponse(
         id=msg.id,
+        conversation_id=msg.conversation_id,
         sender_id=msg.sender_id,
+        encrypted_message=getattr(msg, "ciphertext", None),
+        encrypted_aes_key=getattr(msg, "wrapped_key", None),
         content=msg.content,
+        ciphertext=getattr(msg, "ciphertext", None),
+        iv=getattr(msg, "iv", None),
+        wrapped_key=getattr(msg, "wrapped_key", None),
         created_at=msg.created_at.isoformat(),
         delivered_at=msg.delivered_at.isoformat() if msg.delivered_at else None,
         is_read=msg.is_read,

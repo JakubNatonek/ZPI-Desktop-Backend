@@ -11,19 +11,29 @@ from app.core.database import init_database
 
 from app.apis.api_login import router as login_router
 from app.apis.api_users import router as users_router
+from app.apis.api_departments import router as departments_router
+from app.apis.api_roles import router as roles_router
 from app.apis.api_chat import router as chat_router
+from app.apis.api_messages import router as messages_router
+from app.apis.api_announcements import router as announcements_router
+from app.apis.api_thesis import router as thesis_router
+from app.apis.api_admin_thesis import router as admin_thesis_router
+from app.apis.api_grades import router as grades_router
 from app.services.socket_events import create_socket_events
 from app.apis.api_rooms import router as rooms_router
 from app.apis.rapla.api_rapla_file import router as rapla_file_router
-from app.seed_data.seed_all import seed_all
 
+from app.apis.api_dezyderata import router as dezyderata_router
+
+# NOTE: Semi example data to use and maybe import to proper app.
+from app.seed_data.seed_all import seed_all
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     init_database()
-    # run_migrations() # this should not be done evry time the server is run
+    # run_migrations() # NOTE: this should not be done evry time the server is run
 
-    # seed_all()
+    # seed_all() # NOTE: Works only for empty DB with correct tables
     yield
 
 
@@ -64,9 +74,20 @@ app.add_middleware(
 
 app.include_router(login_router)
 app.include_router(users_router)
+app.include_router(departments_router)
+app.include_router(roles_router)
 app.include_router(chat_router)
+app.include_router(announcements_router)
 app.include_router(rooms_router)
+
+# NOTE: Not fully implemented
 app.include_router(rapla_file_router)
+
+app.include_router(messages_router)
+app.include_router(dezyderata_router)
+app.include_router(thesis_router)
+app.include_router(admin_thesis_router)
+app.include_router(grades_router)
 
 
 

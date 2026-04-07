@@ -51,6 +51,12 @@ REFRESH_COOKIE_SECURE = os.getenv("REFRESH_COOKIE_SECURE", "false").lower() == "
 REFRESH_COOKIE_SAMESITE = os.getenv("REFRESH_COOKIE_SAMESITE", "lax")
 
 
+def _require_admin(current_user: User) -> None:
+    role_value = (current_user.role.name if current_user.role else "").strip().lower()
+    if role_value != "admin":
+        raise HTTPException(status_code=403, detail="Administrator access required")
+
+
 def _set_refresh_cookie(response: Response, refresh_token: str) -> None:
     response.set_cookie(
         key=REFRESH_COOKIE_NAME,
@@ -69,22 +75,34 @@ def _set_refresh_cookie(response: Response, refresh_token: str) -> None:
     status_code=201,
     summary="Utwórz nowego użytkownika",
 )
-def create_user(payload: AdminUserCreate, db: Session = Depends(get_db)) -> UserCreatedResponse:
-    existing_email = get_user_by_email(db, payload.email)
+def create_user(
+    payload: AdminUserCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> UserCreatedResponse:
+    role_value = current_user.role.name if current_user.role else str(current_user.role)
+    if role_value != "admin":
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    normalized_email = str(payload.email).strip().lower()
+
+    existing_email = get_user_by_email(db, normalized_email)
     if existing_email is not None:
         raise HTTPException(status_code=409, detail="User with this email already exists")
 
     user = create_user_by_admin(
         db,
-        first_name=payload.first_name,
-        last_name=payload.last_name,
-        email=payload.email,
-        role_name=payload.role,
-        department_name=payload.department,
+        first_name=payload.first_name.strip(),
+        last_name=payload.last_name.strip(),
+        email=normalized_email,
+        one_time_password=payload.one_time_password,
+        role_id=payload.role_id,
+        department_id=payload.department_id,
     )
 
     return UserCreatedResponse(
         user_id=user.user_id,
+        album_number=user.album_number,
         login=user.login,
         email=user.email,
         first_name=user.first_name,
@@ -100,7 +118,15 @@ def create_user(payload: AdminUserCreate, db: Session = Depends(get_db)) -> User
     response_model=UserCredentialsResponse,
     summary="Pobierz dane logowania użytkownika",
 )
-def get_credentials(user_id: int, db: Session = Depends(get_db)) -> UserCredentialsResponse:
+def get_credentials(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> UserCredentialsResponse:
+    role_value = current_user.role.name if current_user.role else str(current_user.role)
+    if role_value != "admin":
+        raise HTTPException(status_code=403, detail="Forbidden")
+
     user = get_user_by_id(db, user_id)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
@@ -243,7 +269,8 @@ def logout(request: Request, response: Response, db: Session = Depends(get_db)) 
             # We still clear cookie even if token is malformed/expired.
             pass
 
-    response.delete_cookie(key=REFRESH_COOKIE_NAME, path="/auth")
+        response.delete_cookie(key=REFRESH_COOKIE_NAME, path="/")
+        response.delete_cookie(key="access_token", path="/")
     return {"message": "Logged out"}
 
 

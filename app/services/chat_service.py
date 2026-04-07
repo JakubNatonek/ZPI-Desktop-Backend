@@ -12,7 +12,7 @@ from fastapi import HTTPException
 
 from app.models.model_user import User
 from app.models.chat.model_conversation_member import ConversationMember
-from app.schemas.chat import MessageStatusResponse, UserPresenceResponse, TypingIndicatorResponse
+from app.schemas.chat.chat import MessageStatusResponse, UserPresenceResponse, TypingIndicatorResponse
 
 
 # Constants

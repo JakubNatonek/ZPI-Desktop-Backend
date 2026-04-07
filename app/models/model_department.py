@@ -1,14 +1,5 @@
-##
-# @file model_department.py
-# @brief Department model for users.
-#
-# Defines the `Department` SQLAlchemy model used by the user model and other
-# code that needs department information.
-
 from sqlalchemy import Column, Integer, String
-
 from app.core.database import Base
-
 
 class Department(Base):
 
