@@ -32,7 +32,7 @@ class AdminUserListResponse(BaseModel):
     last_name: str
     album_number: str
     login: str
-    email: EmailStr
+    email: str
     role: str
     department: str
     must_change_password: bool
