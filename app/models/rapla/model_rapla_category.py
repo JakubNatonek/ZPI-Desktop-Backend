@@ -10,8 +10,8 @@ class RaplaCategory(Base):
    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
 
    # Rapla data
-   uuid = Column(String(100), nullable=False, unique=True)
+   uuid = Column(String(100), nullable=False, index=True, unique=True)
    created_at = Column(DateTime(timezone=True), nullable=True)
    last_changed = Column(DateTime(timezone=True), nullable=True)
-   key = Column(String(255),unique=True, nullable=False)
-   parent_id = Column(Integer, ForeignKey("rapla_category.id"), nullable=True)
+   key = Column(String(255), unique=True, index=True, nullable=False)
+   parent_id = Column(Integer, ForeignKey("rapla_category.id"), index=True, nullable=True)

@@ -11,6 +11,6 @@ class RolesForUser(Base):
 
     __tablename__ = "roles_for_user"
 
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
-    role_id = Column(Integer, ForeignKey("roles.id"), nullable=False)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.user_id"), index=True, nullable=False)
+    role_id = Column(Integer, ForeignKey("roles.id"), index=True, nullable=False)

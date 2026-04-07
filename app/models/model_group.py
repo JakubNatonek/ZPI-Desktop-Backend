@@ -14,4 +14,4 @@ class Group(Base):
     year = Column("rok", Integer, nullable=False)
     studies_type = Column("studia", String, nullable=False)
 
-    students = relationship("Student", back_populates="group")
+    students = relationship("Student", back_populates="group") # <- NOTE: Why do this??

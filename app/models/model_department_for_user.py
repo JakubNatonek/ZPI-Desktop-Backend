@@ -11,6 +11,6 @@ class DepartmentsForUser(Base):
     
     __tablename__ = "departments_for_user"
 
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
-    department_id = Column(Integer, ForeignKey("departments.id"), nullable=False)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.user_id"), index=True, nullable=False)
+    department_id = Column(Integer, ForeignKey("departments.id"), index=True, nullable=False)

@@ -12,11 +12,13 @@ def _utcnow() -> datetime:
 class ThesisScheduleSettings(Base):
     __tablename__ = "thesis_schedule_settings"
 
-    id = Column(Integer, primary_key=True, default=1)
-    tab_visible_from = Column(DateTime(timezone=True), nullable=True)
-    tab_visible_to = Column(DateTime(timezone=True), nullable=True)
-    topic_submission_from = Column(DateTime(timezone=True), nullable=True)
-    topic_submission_to = Column(DateTime(timezone=True), nullable=True)
-    proposal_selection_from = Column(DateTime(timezone=True), nullable=True)
+    id = Column(Integer, primary_key=True, default=1) # NOTE: Shouldn't this be this: id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+                                                                            #_
+    tab_visible_from = Column(DateTime(timezone=True), nullable=True)       # |
+    tab_visible_to = Column(DateTime(timezone=True), nullable=True)         # |
+    topic_submission_from = Column(DateTime(timezone=True), nullable=True)  # | -> NOTE: What is the goal here?
+    topic_submission_to = Column(DateTime(timezone=True), nullable=True)    # |
+    proposal_selection_from = Column(DateTime(timezone=True), nullable=True)#_|
+
     proposal_selection_deadline = Column(DateTime(timezone=True), nullable=True)
     updated_at = Column(DateTime(timezone=True), nullable=False, default=_utcnow, onupdate=_utcnow)

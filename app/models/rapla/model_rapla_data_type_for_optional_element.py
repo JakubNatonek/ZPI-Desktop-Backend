@@ -11,8 +11,8 @@ class RaplaDataTypeForOptionalElement(Base):
 	id = Column(Integer, primary_key=True, index=True, autoincrement=True)
 
 	# Rapla data
-	optional_element_id = Column(Integer, ForeignKey("rapla_optional_element.id"), nullable=False)
-	data_type_id = Column(Integer, ForeignKey("rapla_data_type.id"), nullable=False)
+	optional_element_id = Column(Integer, ForeignKey("rapla_optional_element.id"), index=True, nullable=False)
+	data_type_id = Column(Integer, ForeignKey("rapla_data_type.id"), index=True, nullable=False)
 
 	# Relationship
 	optional_element = relationship("RaplaOptionalElement")

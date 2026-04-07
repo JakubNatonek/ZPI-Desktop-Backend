@@ -11,8 +11,8 @@ class RaplaLanguageNameForDefineElement(Base):
 	id = Column(Integer, primary_key=True, index=True, autoincrement=True)
 
 	# Rapla data
-	define_element_id = Column(Integer, ForeignKey("rapla_define_element.id"), nullable=False)
-	language_name_id = Column(Integer, ForeignKey("rapla_language_name.id"), nullable=False)
+	define_element_id = Column(Integer, ForeignKey("rapla_define_element.id"), index=True, nullable=False)
+	language_name_id = Column(Integer, ForeignKey("rapla_language_name.id"), index=True, nullable=False)
 
 	# Relationship
 	define_element = relationship("RaplaDefineElement")

@@ -11,8 +11,8 @@ class RaplaLanguageNameForCategory(Base):
 	id = Column(Integer, primary_key=True, index=True, autoincrement=True)
 
 	# Rapla data
-	category_id = Column(Integer, ForeignKey("rapla_category.id"), nullable=False)
-	language_name_id = Column(Integer, ForeignKey("rapla_language_name.id"), nullable=False)
+	category_id = Column(Integer, ForeignKey("rapla_category.id"), index=True, nullable=False)
+	language_name_id = Column(Integer, ForeignKey("rapla_language_name.id"), index=True, nullable=False)
 
 	# Relationship
 	category = relationship("RaplaCategory")

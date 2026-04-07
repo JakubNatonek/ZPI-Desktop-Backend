@@ -8,6 +8,7 @@ class Dezyderata(Base):
     __tablename__ = "availability_preferences"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    
     user_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False, index=True)
     data_od = Column(Date, nullable=False)
     data_do = Column(Date, nullable=False)

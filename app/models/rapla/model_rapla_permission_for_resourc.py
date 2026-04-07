@@ -11,8 +11,8 @@ class RaplaPermissionForResourc(Base):
 	id = Column(Integer, primary_key=True, index=True, autoincrement=True)
 
 	# Rapla data
-	resourc_id = Column(Integer, ForeignKey("rapla_resourc.id"), nullable=False)
-	permission_id = Column(Integer, ForeignKey("rapla_permission.id"), nullable=False)
+	resourc_id = Column(Integer, ForeignKey("rapla_resourc.id"), index=True, nullable=False)
+	permission_id = Column(Integer, ForeignKey("rapla_permission.id"), index=True, nullable=False)
 
 	# Relationship
 	rapla_resourc = relationship("ModelRaplaResourc")

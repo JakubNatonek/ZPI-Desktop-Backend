@@ -11,8 +11,8 @@ class RaplaLanguageNameForOptionalElement(Base):
 	id = Column(Integer, primary_key=True, index=True, autoincrement=True)
 
 	# Rapla data
-	optional_element_id = Column(Integer, ForeignKey("rapla_optional_element.id"), nullable=False)
-	language_name_id = Column(Integer, ForeignKey("rapla_language_name.id"), nullable=False)
+	optional_element_id = Column(Integer, ForeignKey("rapla_optional_element.id"), index=True, nullable=False)
+	language_name_id = Column(Integer, ForeignKey("rapla_language_name.id"), index=True, nullable=False)
 
 	# Relationship
 	optional_element = relationship("RaplaOptionalElement")

@@ -9,10 +9,10 @@ class RaplaOptionalElementForDefineElement(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
 
     optional_element_id = Column(
-        Integer, ForeignKey("rapla_optional_element.id", ondelete="CASCADE"), nullable=False
+        Integer, ForeignKey("rapla_optional_element.id", ondelete="CASCADE"), index=True, nullable=False
     )
     define_element_id = Column(
-        Integer, ForeignKey("rapla_define_element.id", ondelete="CASCADE"), nullable=False
+        Integer, ForeignKey("rapla_define_element.id", ondelete="CASCADE"), index=True, nullable=False
     )
 
     __table_args__ = (

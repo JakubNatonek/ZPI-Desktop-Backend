@@ -21,11 +21,13 @@ class ThesisProposal(Base):
     __tablename__ = "thesis_proposals"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+
     student_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False, index=True)
     lecturer_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False, index=True)
     student_average_grade = Column(Float, nullable=False, default=0.0)
     topic = Column(String(255), nullable=False)
     justification = Column(Text, nullable=False)
+    # NOTE: This enum should be a seprate table in db.
     status = Column(
         Enum(
             ThesisProposalStatus,

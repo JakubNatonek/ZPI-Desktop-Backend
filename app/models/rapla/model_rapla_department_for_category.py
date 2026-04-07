@@ -7,5 +7,5 @@ class RaplaDepartmentForCategory(Base):
     __tablename__ = "rapla_department_for_category"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    id_category = Column(Integer, ForeignKey("rapla_category.id"), nullable=False)
-    id_department = Column(Integer, ForeignKey("departments.id"), nullable=False)
+    id_category = Column(Integer, ForeignKey("rapla_category.id"), index=True, nullable=False)
+    id_department = Column(Integer, ForeignKey("departments.id"), index=True, nullable=False)

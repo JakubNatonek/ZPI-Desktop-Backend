@@ -22,7 +22,7 @@ POLISH_CHAR_TRANSLATION = str.maketrans({
     "Ż": "Z",
 })
 
-
+# NOTE: WHERE IS THIS USED AND WHY??
 def normalize_lookup_value(value: str) -> str:
     normalized = unicodedata.normalize("NFKD", (value or "").translate(POLISH_CHAR_TRANSLATION))
     ascii_value = normalized.encode("ascii", "ignore").decode("ascii")

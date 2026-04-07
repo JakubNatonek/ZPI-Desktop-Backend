@@ -10,7 +10,7 @@ class ModelRaplaResourc(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
 
 # Rapla data
-    uuid = Column(String(100), nullable=False, unique=True)
+    uuid = Column(String(100), nullable=False, index=True, unique=True)
     owner = Column(String(100), nullable=False)
     created_at = Column(DateTime(timezone=True), nullable=True)
     last_changed = Column(DateTime(timezone=True), nullable=True)

@@ -9,8 +9,8 @@ class RaplaConstraintForOptionalElement(Base):
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
 
-    optional_element_id = Column(Integer, ForeignKey("rapla_optional_element.id"), nullable=False)
-    constraint_id = Column(Integer, ForeignKey("rapla_constraint.id"), nullable=False)
+    optional_element_id = Column(Integer, ForeignKey("rapla_optional_element.id"), index=True, nullable=False)
+    constraint_id = Column(Integer, ForeignKey("rapla_constraint.id"), index=True, nullable=False)
 
     optional_element = relationship("RaplaOptionalElement")
     constraint = relationship("RaplaConstraint")

@@ -9,8 +9,8 @@ class RaplaGroupForUser(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
 
 # Rapla data
-    rapla_user_id = Column(Integer, ForeignKey("rapla_user.id"), nullable=False)
-    category_id = Column(Integer, ForeignKey("rapla_category.id"), nullable=False)
+    rapla_user_id = Column(Integer, ForeignKey("rapla_user.id"), index=True, nullable=False)
+    category_id = Column(Integer, ForeignKey("rapla_category.id"), index=True, nullable=False)
 
     __table_args__ = (
         UniqueConstraint("rapla_user_id", "category_id", name="uq_rapla_group_for_user"),

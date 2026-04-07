@@ -8,8 +8,8 @@ class RaplaUserToAppUser(Base):
 	__tablename__ = "rapla_user_to_app_user"
 
 	id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-	app_user_id = Column(Integer, ForeignKey("users.user_id"), nullable=False)
-	rapla_user_id = Column(Integer, ForeignKey("rapla_user.id"), nullable=False)
+	app_user_id = Column(Integer, ForeignKey("users.user_id"), index=True, nullable=False)
+	rapla_user_id = Column(Integer, ForeignKey("rapla_user.id"), index=True, nullable=False)
 
 	app_user = relationship("User")
 	rapla_user = relationship("RaplaUser")

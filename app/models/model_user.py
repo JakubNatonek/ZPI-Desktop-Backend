@@ -1,11 +1,7 @@
 
-from sqlalchemy import Boolean, Column, DateTime, Integer, String, ForeignKey, Text
+from sqlalchemy import Boolean, Column, DateTime, Integer, String, Text
 from sqlalchemy.orm import relationship
 from app.core.database import Base
-
-from app.models.model_department import Department
-from app.models.model_role import Role
-
 
 
 class User(Base):

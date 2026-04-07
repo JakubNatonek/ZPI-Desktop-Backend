@@ -10,5 +10,5 @@ class RaplaLanguageName(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
 
 # Rapla data
-    id_abbreviations = Column(Integer, ForeignKey("rapla_language_abbreviations.id"), nullable=False)
+    id_abbreviations = Column(Integer, ForeignKey("rapla_language_abbreviations.id"), index=True, nullable=False)
     name = Column(String(255))

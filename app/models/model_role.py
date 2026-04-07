@@ -5,5 +5,5 @@ from app.core.database import Base
 class Role(Base):
     __tablename__ = "roles"
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     name = Column(String, unique=True, nullable=False)

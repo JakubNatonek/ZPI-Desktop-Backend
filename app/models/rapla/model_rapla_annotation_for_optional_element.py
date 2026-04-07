@@ -8,8 +8,8 @@ class RaplaAnnotationForOptionalElement(Base):
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
 
-    annotation_id = Column(Integer, ForeignKey("rapla_annotation.id", ondelete="CASCADE"), nullable=False)
-    optional_element_id = Column(Integer, ForeignKey("rapla_optional_element.id", ondelete="CASCADE"), nullable=False)
+    annotation_id = Column(Integer, ForeignKey("rapla_annotation.id", ondelete="CASCADE"), index=True, nullable=False)
+    optional_element_id = Column(Integer, ForeignKey("rapla_optional_element.id", ondelete="CASCADE"), index=True, nullable=False)
 
     __table_args__ = (
         UniqueConstraint("annotation_id", "optional_element_id", name="u_annot_optional"),
