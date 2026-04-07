@@ -43,13 +43,13 @@ def update_department(db: Session, department_id: int, name: Optional[str] = Non
         conflict = db.query(Department).filter(Department.name == name, Department.id != department_id).first()
         if conflict:
             raise ValueError(f"Department name already exists: {name}")
-        department.name = name
+        department.name = name # type: ignore
 
     if abbreviation is not None and abbreviation != department.abbreviation:
         conflict = db.query(Department).filter(Department.abbreviation == abbreviation, Department.id != department_id).first()
         if conflict:
             raise ValueError(f"Department abbreviation already exists: {abbreviation}")
-        department.abbreviation = abbreviation
+        department.abbreviation = abbreviation # type: ignore
 
     db.commit()
     db.refresh(department)

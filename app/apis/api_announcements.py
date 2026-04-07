@@ -10,6 +10,7 @@ from app.schemas.announcement import AnnouncementCreateRequest, AnnouncementResp
 
 router = APIRouter(prefix="/announcements", tags=["announcements"])
 
+# NOTE: Chenge thisa to data from db or enum in seed_data/seed_roles
 LECTURER_ROLE_NAMES = {"lecturer", "wykladowca", "cwiczenia", "laboratorium", "seminarium"}
 
 

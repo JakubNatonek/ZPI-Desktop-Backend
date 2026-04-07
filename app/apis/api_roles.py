@@ -1,10 +1,10 @@
-from typing import List
+from typing import List, cast
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.cruds.crud_department_role import create_role, get_roles
+from app.cruds.crud_role import create_role, get_roles
 from app.dependencies.auth import require_admin
 from app.models.model_user import User
 from app.schemas.role import RoleCreate, RoleResponse
@@ -26,8 +26,14 @@ def create_role_entry(
     try:
         role = create_role(db, payload.name.strip())
     except ValueError as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-    return RoleResponse(id=role.id, name=role.name)
+        raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, 
+                detail=str(exc)
+            ) from exc
+    return RoleResponse(
+            id = cast(int, role.id),
+            name = cast(str, role.name),
+        )
 
 
 @router.get(
@@ -40,4 +46,4 @@ def list_roles(
     _: User = Depends(require_admin),
 ) -> List[RoleResponse]:
     roles = get_roles(db)
-    return [RoleResponse(id=role.id, name=role.name) for role in roles]
+    return [RoleResponse(id = cast(int, role.id), name = cast(str, role.name),) for role in roles]

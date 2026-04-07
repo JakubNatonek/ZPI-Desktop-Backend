@@ -12,3 +12,7 @@ def create_role(db: Session, name: str) -> Role:
     db.commit()
     db.refresh(role)
     return role
+
+
+def get_roles(db: Session) -> list[Role]:
+    return db.query(Role).all()

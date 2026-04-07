@@ -36,12 +36,13 @@ router = APIRouter(prefix="/dezyderaty", tags=["dezyderaty"])
 def _require_lecturer_or_admin(current_user: User = Depends(get_current_user)) -> User:
     role_value = current_user.role.name if current_user.role else str(current_user.role)
     role_lower = role_value.lower() if role_value else ""
+    # NOTE: Please use data from seed_data or db
     allowed_roles = ("admin", "wykładowca", "lecturer", "wykladowca", "planner")
     if role_lower not in allowed_roles:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     return current_user
 
-
+# NOTE: Why this and note use: from app.dependencies.auth import require_admin  _: User = Depends(require_admin),
 def _require_admin(current_user: User = Depends(get_current_user)) -> User:
     role_value = current_user.role.name if current_user.role else str(current_user.role)
     role_lower = role_value.lower() if role_value else ""
@@ -154,6 +155,7 @@ def get_dezyderata(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dezyderata not found")
 
     role_value = current_user.role.name if current_user.role else str(current_user.role)
+    # NOTE: Static data to chenge
     role_lower = role_value.lower() if role_value else ""
     if role_lower in ("wykładowca", "wykladowca", "lecturer") and dezyderata.user_id != current_user.user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
@@ -203,6 +205,7 @@ def delete_dezyderata_entry(
 
     role_value = current_user.role.name if current_user.role else str(current_user.role)
     role_lower = role_value.lower() if role_value else ""
+    # NOTE: Why ststic data here
     if role_lower in ("wykładowca", "wykladowca", "lecturer") and dezyderata.user_id != current_user.user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
 

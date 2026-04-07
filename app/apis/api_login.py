@@ -1,5 +1,4 @@
 import os
-from typing import List
 
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
@@ -41,6 +40,7 @@ from app.schemas.user import (
     UserLogin,
 )
 
+from app.dependencies.auth import require_admin
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -49,12 +49,6 @@ load_dotenv()
 REFRESH_COOKIE_NAME = os.getenv("REFRESH_COOKIE_NAME", "refresh_token")
 REFRESH_COOKIE_SECURE = os.getenv("REFRESH_COOKIE_SECURE", "false").lower() == "true"
 REFRESH_COOKIE_SAMESITE = os.getenv("REFRESH_COOKIE_SAMESITE", "lax")
-
-
-def _require_admin(current_user: User) -> None:
-    role_value = (current_user.role.name if current_user.role else "").strip().lower()
-    if role_value != "admin":
-        raise HTTPException(status_code=403, detail="Administrator access required")
 
 
 def _set_refresh_cookie(response: Response, refresh_token: str) -> None:
@@ -80,10 +74,12 @@ def create_user(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> UserCreatedResponse:
+    # NOTE: Why this and note use: from app.dependencies.auth import require_admin  _: User = Depends(require_admin),
     role_value = current_user.role.name if current_user.role else str(current_user.role)
     if role_value != "admin":
         raise HTTPException(status_code=403, detail="Forbidden")
 
+    # NOTE: THIS IS WERY BAD THIS SHOULD BE NEVER DONE IN THE FIRST PLACE!!!!!!!
     normalized_email = str(payload.email).strip().lower()
 
     existing_email = get_user_by_email(db, normalized_email)
@@ -123,6 +119,7 @@ def get_credentials(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> UserCredentialsResponse:
+    # NOTE: Why this and note use: from app.dependencies.auth import require_admin  _: User = Depends(require_admin),
     role_value = current_user.role.name if current_user.role else str(current_user.role)
     if role_value != "admin":
         raise HTTPException(status_code=403, detail="Forbidden")

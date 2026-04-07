@@ -9,6 +9,7 @@ from app.models.chat.model_message import Message
 from app.schemas.chat.chat import MessageResponse
 from app.auth.current_user import get_current_user
 from app.models.model_user import User
+from app.dependencies.auth import require_admin
 
 
 router = APIRouter()

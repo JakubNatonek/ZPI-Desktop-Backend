@@ -25,6 +25,7 @@ from app.schemas.thesis import (
 
 router = APIRouter(prefix="/thesis", tags=["thesis"])
 
+# NOTE: Why are you make static data, make string base cheks????
 MAX_APPROVED_PROPOSALS = 3
 LECTURER_ROLE_NAMES = {"lecturer", "wykladowca", "cwiczenia", "laboratorium", "seminarium"}
 STUDENT_ROLE_NAMES = {"student"}

@@ -25,15 +25,16 @@ from app.schemas.admin_thesis import (
 )
 from app.schemas.thesis import LecturerResponse
 
+from app.dependencies.auth import require_admin
 
 router = APIRouter(prefix="/admin/thesis", tags=["admin-thesis"])
 
 
-def _require_admin(current_user: User = Depends(get_current_user)) -> User:
-    role_value = current_user.role.name if current_user.role else str(current_user.role)
-    if role_value != "admin":
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
-    return current_user
+# def _require_admin(current_user: User = Depends(get_current_user)) -> User:
+#     role_value = current_user.role.name if current_user.role else str(current_user.role)
+#     if role_value != "admin":
+#         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+#     return current_user
 
 
 def _to_admin_response(proposal: ThesisProposal) -> AdminThesisProposalResponse:
@@ -99,7 +100,7 @@ def _to_settings_response(settings: ThesisScheduleSettings) -> AdminThesisSettin
 )
 def get_settings(
     db: Session = Depends(get_db),
-    _: User = Depends(_require_admin),
+    _: User = Depends(require_admin),
 ) -> AdminThesisSettingsResponse:
     settings = get_or_create_thesis_settings(db)
     return _to_settings_response(settings)
@@ -113,7 +114,7 @@ def get_settings(
 def patch_settings(
     payload: AdminThesisSettingsUpdate,
     db: Session = Depends(get_db),
-    _: User = Depends(_require_admin),
+    _: User = Depends(require_admin),
 ) -> AdminThesisSettingsResponse:
     settings = update_thesis_settings(
         db,
@@ -135,7 +136,7 @@ def patch_settings(
 def list_all_proposals(
     status_filter: str | None = Query(None, alias="status"),
     db: Session = Depends(get_db),
-    _: User = Depends(_require_admin),
+    _: User = Depends(require_admin),
 ) -> list[AdminThesisProposalResponse]:
     thesis_status = None
     if status_filter:
@@ -157,7 +158,7 @@ def list_all_proposals(
 )
 def get_proposal_stats(
     db: Session = Depends(get_db),
-    _: User = Depends(_require_admin),
+    _: User = Depends(require_admin),
 ) -> AdminThesisStats:
     all_proposals = get_all_proposals(db)
     return AdminThesisStats(
@@ -176,7 +177,7 @@ def get_proposal_stats(
 def get_proposal_detail(
     proposal_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(_require_admin),
+    _: User = Depends(require_admin),
 ) -> AdminThesisProposalResponse:
     proposal = get_proposal_by_id(db, proposal_id)
     if proposal is None:
@@ -193,7 +194,7 @@ def update_proposal_status(
     proposal_id: int,
     payload: AdminThesisStatusUpdate,
     db: Session = Depends(get_db),
-    _: User = Depends(_require_admin),
+    _: User = Depends(require_admin),
 ) -> AdminThesisProposalResponse:
     proposal = admin_update_proposal_status(
         db,
@@ -214,7 +215,7 @@ def update_proposal_topic(
     proposal_id: int,
     payload: AdminThesisTopicUpdate,
     db: Session = Depends(get_db),
-    _: User = Depends(_require_admin),
+    _: User = Depends(require_admin),
 ) -> AdminThesisProposalResponse:
     proposal = admin_update_proposal_topic(
         db,
@@ -234,7 +235,7 @@ def update_proposal_topic(
 def delete_proposal(
     proposal_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(_require_admin),
+    _: User = Depends(require_admin),
 ) -> None:
     deleted = admin_delete_proposal(db, proposal_id)
     if not deleted:
@@ -248,7 +249,7 @@ def delete_proposal(
 )
 def list_lecturers(
     db: Session = Depends(get_db),
-    _: User = Depends(_require_admin),
+    _: User = Depends(require_admin),
 ) -> list[LecturerResponse]:
     lecturers = get_all_lecturers(db)
     return [

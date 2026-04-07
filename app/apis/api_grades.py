@@ -10,6 +10,7 @@ from app.schemas.grade import LecturerSemesterGradesResponse, SemesterGradesResp
 
 router = APIRouter(prefix="/grades", tags=["grades"])
 
+# NOTE: Static data for what ?
 LECTURER_ROLE_NAMES = {"lecturer", "wykladowca", "cwiczenia", "laboratorium", "seminarium"}
 STUDENT_ROLE_NAMES = {"student"}
 

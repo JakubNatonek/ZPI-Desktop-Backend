@@ -47,6 +47,7 @@ def get_current_user(
             detail="User not found",
         )
 
+    # NOTE/TODO: This need to be fix so it takes data from roles_for_user table
     user_role_value = user.role.name if user.role else str(user.role)
     if user_role_value != str(role):
         raise HTTPException(
@@ -54,4 +55,5 @@ def get_current_user(
             detail="Token role mismatch",
         )
 
+    # NOTE: You can return user permision here eliminating addisional check in dependancies auth.py.
     return user
