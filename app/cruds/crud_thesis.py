@@ -5,9 +5,10 @@ from sqlalchemy.orm import Session
 
 from app.core.text_normalization import normalize_lookup_value
 from app.models.model_thesis_proposal import ThesisProposal, ThesisProposalStatus
-from app.models.model_user import Role, User
+from app.models.model_user import User
+from app.models.model_role import Role
 
-
+# NOTE: just do a table nex time
 LECTURER_ROLE_NAMES = {"lecturer", "wykladowca", "cwiczenia", "laboratorium", "seminarium"}
 
 
@@ -16,6 +17,7 @@ def _is_lecturer_user(user: User) -> bool:
     return role_name in LECTURER_ROLE_NAMES
 
 
+# NOTE this all need a redo
 def get_lecturers(db: Session) -> list[User]:
     users = (
         db.query(User)

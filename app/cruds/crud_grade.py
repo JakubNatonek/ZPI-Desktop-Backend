@@ -12,7 +12,7 @@ from app.schemas.grade import (
     SubjectGradeResponse,
 )
 
-
+# NOTE: Stop using stic shit and if you do keep it all in one place for futer replacment
 LECTURER_ROLE_NAMES = {"lecturer", "wykladowca", "cwiczenia", "laboratorium", "seminarium"}
 STUDENT_ROLE_NAMES = {"student"}
 
@@ -21,12 +21,12 @@ def _to_grade_string(value: float) -> str:
     as_text = f"{value:.1f}".rstrip("0").rstrip(".")
     return as_text if as_text else "0"
 
-
+# NOTE: Didn't you write this in FUKING every file insted of FUKING inporting and WHY??
 def _is_lecturer_user(user: User) -> bool:
     role_name = (user.role.name if user.role else "").strip().lower()
     return role_name in LECTURER_ROLE_NAMES
 
-
+# NOTE: Didn't you write this in FUKING every file insted of FUKING inporting and WHY??
 def _is_student_user(user: User) -> bool:
     role_name = (user.role.name if user.role else "").strip().lower()
     return role_name in STUDENT_ROLE_NAMES

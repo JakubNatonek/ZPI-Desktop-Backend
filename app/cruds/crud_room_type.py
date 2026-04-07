@@ -48,9 +48,9 @@ def update_room_type(db: Session, room_type_id: int, type: Optional[str] = None,
         return None
 
     if type is not None:
-        room_type.type = type
+        room_type.type = type # type: ignore
     if abbreviation is not None:
-        room_type.abbreviation = abbreviation
+        room_type.abbreviation = abbreviation # type: ignore
 
     db.commit()
     db.refresh(room_type)

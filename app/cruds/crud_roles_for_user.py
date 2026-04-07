@@ -3,7 +3,6 @@ from typing import List
 from sqlalchemy.orm import Session
 
 from app.models.model_role_for_user import RolesForUser
-from app.models.model_user import User
 from app.models.model_role import Role
 
 

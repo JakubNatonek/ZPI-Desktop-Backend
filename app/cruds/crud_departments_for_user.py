@@ -3,7 +3,6 @@ from typing import List
 from sqlalchemy.orm import Session
 
 from app.models.model_department_for_user import DepartmentsForUser
-from app.models.model_user import User
 from app.models.model_department import Department
 
 

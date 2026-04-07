@@ -21,8 +21,8 @@ from app.cruds.rapla.crud_rapla_users import get_first_rapla_users
 
 
 # ----- Semestr CRUD -----
-
-def get_semestry(db: Session) -> List[Semestr]:
+# NOTE: This should be in seprate crude file for Semestr
+def get_emestry(db: Session) -> List[Semestr]:
     return db.query(Semestr).order_by(Semestr.data_rozpoczecia.desc()).all()
 
 
@@ -30,7 +30,7 @@ def get_semestr_by_id(db: Session, semestr_id: int) -> Optional[Semestr]:
     return db.query(Semestr).filter(Semestr.id == semestr_id).first()
 
 
-def get_current_semestr(db: Session, current_date: date = None) -> Optional[Semestr]:
+def get_current_semestr(db: Session, current_date: date | None= None) -> Optional[Semestr]:
     if current_date is None:
         current_date = date.today()
     return db.query(Semestr).filter(
@@ -38,7 +38,7 @@ def get_current_semestr(db: Session, current_date: date = None) -> Optional[Seme
         Semestr.data_zakonczenia >= current_date
     ).first()
 
-
+# NOTE: Chenge this to field to field insted of payload
 def create_semestr(db: Session, payload: SemestrCreate) -> Semestr:
     semestr = Semestr(
         data_rozpoczecia=payload.data_rozpoczecia,
@@ -50,16 +50,16 @@ def create_semestr(db: Session, payload: SemestrCreate) -> Semestr:
     db.refresh(semestr)
     return semestr
 
-
+# NOTE: Need this by id
 def delete_semestr(db: Session, semestr: Semestr) -> None:
     db.delete(semestr)
     db.commit()
 
-
+# NOTE: This should be in seprate crude file for days
 def get_days(db: Session) -> List[Day]:
     return db.query(Day).order_by(Day.id.asc()).all()
 
-
+# NOTE: This should be in seprate crude file for days
 def get_valid_day_ids(db: Session) -> Set[int]:
     return {day.id for day in get_days(db)}
 
@@ -82,7 +82,7 @@ def get_all_dezyderaty(db: Session) -> List[Dezyderata]:
 def get_dezyderata_by_id(db: Session, dezyderata_id: int) -> Optional[Dezyderata]:
     return db.query(Dezyderata).filter(Dezyderata.id == dezyderata_id).first()
 
-
+# NOTE: For what use is this
 def replace_dezyderata_for_week(db: Session, user_id: int, payload: DezyderataCreate) -> List[Dezyderata]:
     db.query(Dezyderata).filter(
         Dezyderata.user_id == user_id,
@@ -117,7 +117,7 @@ def delete_dezyderata(db: Session, dezyderata: Dezyderata) -> None:
     db.delete(dezyderata)
     db.commit()
 
-
+# NOTE: Stop constracting JSON by hand use response class
 def map_dezyderata_to_response(dezyderata: Dezyderata) -> dict:
     return {
         "id": dezyderata.id,
@@ -133,7 +133,7 @@ def map_dezyderata_to_response(dezyderata: Dezyderata) -> dict:
         "semestr_nazwa": dezyderata.semestr.nazwa if dezyderata.semestr else None
     }
 
-
+# NOTE: Stop constracting JSON by hand use response class. Move to crude semestr
 def map_semestr_to_response(semestr: Semestr) -> dict:
     return {
         "id": semestr.id,
@@ -143,6 +143,9 @@ def map_semestr_to_response(semestr: Semestr) -> dict:
     }
 
 # Needed for RAPLA conversion
+# NOTE: Not done.
+# FIXME:
+# BUG: One for whole semester
 def dezyderaty_to_schema(db: Session) -> SchemaRaplaReservations:
     list_of_model_dezyderata = get_all_dezyderaty(db)
     owner = get_first_rapla_users(db)

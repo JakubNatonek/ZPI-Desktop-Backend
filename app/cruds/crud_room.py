@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.models.model_room import Room
 from app.schemas.room import RoomCreate, RoomUpdate
 
-
+# NOTE: Why do you chenge data 
 def _resolve_building(room_number: str) -> str:
     cleaned = room_number.strip()
     if "-" in cleaned:
@@ -19,11 +19,11 @@ def _resolve_building(room_number: str) -> str:
 
     return "A"
 
-
+# NOTE: Why do you create JSON by hand when you could use response class??
 def _serialize_activities(activities: list[str]) -> str:
     return json.dumps(activities, ensure_ascii=False)
 
-
+# NOTE: For what do you use this ??
 def _deserialize_activities(raw: Optional[str]) -> list[str]:
     if not raw:
         return []
@@ -49,7 +49,7 @@ def get_room_by_id(db: Session, room_id: int) -> Optional[Room]:
 def get_room_by_number(db: Session, room_number: str) -> Optional[Room]:
     return db.query(Room).filter(Room.number == room_number.strip()).first()
 
-
+# NOTE/TODO: Chenge building to department maping
 def create_room(db: Session, payload: RoomCreate) -> Room:
     room_number = payload.room_number.strip()
     room = Room(
@@ -65,7 +65,7 @@ def create_room(db: Session, payload: RoomCreate) -> Room:
     db.refresh(room)
     return room
 
-
+# NOTE/TODO: Chenge building to department maping
 def update_room(db: Session, room: Room, payload: RoomUpdate) -> Room:
     room_number = payload.room_number.strip()
     room.building = _resolve_building(room_number)
@@ -85,7 +85,7 @@ def delete_room(db: Session, room: Room) -> None:
     db.delete(room)
     db.commit()
 
-
+# NOTE: Why do you create JSON by hand when you could use response class??
 def map_room_to_response(room: Room) -> dict:
     return {
         "id": room.id,
