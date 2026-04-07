@@ -5,11 +5,23 @@ from app.models.chat.model_message import Message
 from app.models.chat.model_conversation_member import ConversationMember
 
 
-def get_messages_for_conversation(db: Session, conversation_id: int) -> list[Message]:
+def get_messages_for_conversation(db: Session, conversation_id: int, before_id: int | None = None, limit: int = 25) -> list[Message]:
     """
-    Pobierz wszystkie wiadomości dla danej rozmowy.
+    Pobierz wiadomości dla danej rozmowy z obsługą paginacji (cursor-based).
+    Zwraca najnowsze `limit` wiadomości, starsze niż `before_id` (jeśli podano).
+    Wiadomości są zwracane w kolejności chronologicznej (od najstarszej do najnowszej w ramach paczki).
     """
-    return db.query(Message).filter(Message.conversation_id == conversation_id).order_by(Message.created_at.asc()).all()
+    query = db.query(Message).filter(Message.conversation_id == conversation_id)
+    
+    if before_id is not None:
+        query = query.filter(Message.id < before_id)
+        
+    # Pobieramy najnowsze przed `before_id` (dlatego desc())
+    messages = query.order_by(Message.id.desc()).limit(limit).all()
+    
+    # Odwracamy z powrotem, aby frontend dostał chronologicznie (od góry do dołu)
+    messages.reverse()
+    return messages
 
 
 def get_message_for_user(db: Session, message_id: int, user_id: int) -> Message | None:
