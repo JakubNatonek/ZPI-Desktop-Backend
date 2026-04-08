@@ -13,7 +13,7 @@ class RaplaUser(Base):
     uuid = Column(String(100), nullable=False, unique=True)
     created_at = Column(DateTime(timezone=True), nullable=True)
     last_changed = Column(DateTime(timezone=True), nullable=True)
-    username = Column(String(100))
+    username = Column(String(100), index=True, unique=True)
     password = Column(String(100))
     name = Column(String(255))
     email = Column(String(255))

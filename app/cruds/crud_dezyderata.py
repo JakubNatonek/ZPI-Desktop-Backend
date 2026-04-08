@@ -17,12 +17,12 @@ from app.schemas.rapla.schema_rapla_permision import RaplaPermission
 
 # RAPLA Cruds
 from app.cruds.rapla.crud_rapla_app_user_to_resourc import get_resorsc_by_user_id
-from app.cruds.rapla.crud_rapla_users import get_first_rapla_users
+from app.cruds.rapla.crud_rapla_users import get_first_rapla_users_by_username
 
 
 # ----- Semestr CRUD -----
 # NOTE: This should be in seprate crude file for Semestr
-def get_emestry(db: Session) -> List[Semestr]:
+def get_semestry(db: Session) -> List[Semestr]:
     return db.query(Semestr).order_by(Semestr.data_rozpoczecia.desc()).all()
 
 
@@ -148,7 +148,7 @@ def map_semestr_to_response(semestr: Semestr) -> dict:
 # BUG: One for whole semester
 def dezyderaty_to_schema(db: Session) -> SchemaRaplaReservations:
     list_of_model_dezyderata = get_all_dezyderaty(db)
-    owner = get_first_rapla_users(db)
+    owner = get_first_rapla_users_by_username(db, "system")
     owner_uuid = owner.uuid if owner is not None else ""
 
     now = datetime.now(timezone.utc)
@@ -158,7 +158,7 @@ def dezyderaty_to_schema(db: Session) -> SchemaRaplaReservations:
     list_of_dezyderat_schema: list[SchemaRaplaReservationDezyerata] = []
     for model_dezyderata in list_of_model_dezyderata:
         user_id = model_dezyderata.user_id
-        resorc_user_data = get_resorsc_by_user_id(db, user_id)
+        resorc_user_data = get_resorsc_by_user_id(db, cast(int, user_id))
 
         allocate: list[str] = []
         if resorc_user_data is not None and getattr(resorc_user_data, "uuid", None):

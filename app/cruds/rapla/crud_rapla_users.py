@@ -22,6 +22,16 @@ def get_first_rapla_users(db: Session) -> list[RaplaUserModel]:
 	return db.query(RaplaUserModel).order_by(RaplaUserModel.created_at.asc()).first()
 
 
+def get_first_rapla_users_by_username(db: Session, username: str) -> RaplaUserModel | None:
+	return (
+		db.query(RaplaUserModel)
+		.filter(RaplaUserModel.username == username)
+		.order_by(RaplaUserModel.created_at.asc())
+		.first()
+	)
+
+
+
 ##
 # @brief Build the Rapla users API schema from database rows.
 # @param db Active database session.

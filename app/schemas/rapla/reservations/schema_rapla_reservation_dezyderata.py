@@ -5,6 +5,7 @@ from typing import Iterable, Tuple, cast
 from app.schemas.rapla.rapla_namespaces import RAPLA_NS, DYNATT_NS
 from app.schemas.rapla.schema_rapla_permision import RaplaPermission
 from app.schemas.rapla.reservations.schema_rapla_apontment import SchemaRaplaApointment
+from app.schemas.rapla.reservations.schema_rapla_repeating import SchemaRaplaRepeating
 
 
 @dataclass
@@ -21,7 +22,7 @@ class SchemaRaplaReservationDezyerata:
     color: str
 
     allocate: list[str]
-
+    repeating: SchemaRaplaRepeating
     permissions: list[RaplaPermission] = field(default_factory=lambda: cast(list[RaplaPermission], []))
 
     def to_xml(self, parent: ET.Element) -> ET.Element:
@@ -36,12 +37,14 @@ class SchemaRaplaReservationDezyerata:
         # appointment
         self.apointment.to_xml(reservation)
 
+        self.repeating.to_xml(reservation)
+
         # dynatt dezyderata element
         dezyderata = ET.SubElement(
             reservation,
             f"{{{DYNATT_NS}}}dezyderata",
         )
-
+        
         if self.name:
             first_name = ET.SubElement(dezyderata, f"{{{DYNATT_NS}}}name")
             first_name.text = self.name
