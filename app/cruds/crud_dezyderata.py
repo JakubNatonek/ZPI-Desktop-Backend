@@ -1,4 +1,4 @@
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timezone, timedelta
 from typing import List, Optional, Set, cast
 from uuid import uuid4
 
@@ -14,11 +14,12 @@ from app.schemas.rapla.reservations.schema_rapla_reservation_dezyderata import S
 from app.schemas.rapla.reservations.schema_rapla_apontment import SchemaRaplaApointment
 from app.schemas.rapla.schema_rapla_reservations import SchemaRaplaReservations
 from app.schemas.rapla.schema_rapla_permision import RaplaPermission
+from app.schemas.rapla.reservations.schema_rapla_repeating import SchemaRaplaRepeating
 
 # RAPLA Cruds
 from app.cruds.rapla.crud_rapla_app_user_to_resourc import get_resorsc_by_user_id
 from app.cruds.rapla.crud_rapla_users import get_first_rapla_users_by_username
-
+from app.cruds.rapla.rapla_format_datetime import format_rapla_datetime
 
 # ----- Semestr CRUD -----
 # NOTE: This should be in seprate crude file for Semestr
@@ -59,9 +60,16 @@ def delete_semestr(db: Session, semestr: Semestr) -> None:
 def get_days(db: Session) -> List[Day]:
     return db.query(Day).order_by(Day.id.asc()).all()
 
+def get_day_by_id(db: Session, day_id: int) -> Day:
+    return db.query(Day).filter(Day.id == day_id).first()
+
 # NOTE: This should be in seprate crude file for days
 def get_valid_day_ids(db: Session) -> Set[int]:
     return {day.id for day in get_days(db)}
+
+def get_first_day(start: datetime, day_id: int) -> datetime:
+    days_ahead = ( (day_id - 1) - start.weekday()) % 7
+    return start + timedelta(days = days_ahead)
 
 
 # ----- Dezyderata CRUD -----
@@ -159,26 +167,34 @@ def dezyderaty_to_schema(db: Session) -> SchemaRaplaReservations:
     for model_dezyderata in list_of_model_dezyderata:
         user_id = model_dezyderata.user_id
         resorc_user_data = get_resorsc_by_user_id(db, cast(int, user_id))
+        semester = get_semestr_by_id( db,  cast( int, model_dezyderata.semestr_id ) )
 
         allocate: list[str] = []
+        # Adding person
         if resorc_user_data is not None and getattr(resorc_user_data, "uuid", None):
-            allocate.append(resorc_user_data.uuid)
+            allocate.append( cast( str, resorc_user_data.uuid ) )
+
+        repiting = SchemaRaplaRepeating(
+            type = "weekly",
+            end_date = format_rapla_datetime( cast(datetime, semester.data_zakonczenia ) ),
+        )
 
         apointment = SchemaRaplaApointment(
             uuid=str(uuid4()),
-            start_date=(model_dezyderata.data_od.isoformat() if hasattr(model_dezyderata.data_od, "isoformat") else str(model_dezyderata.data_od)),
+            start_date=format_rapla_datetime(get_first_day(cast(datetime, semester.data_rozpoczecia), cast(int, model_dezyderata.day_id))),
             start_time=f"{int(model_dezyderata.from_hour):02d}:00:00",
-            end_date=(model_dezyderata.data_do.isoformat() if hasattr(model_dezyderata.data_do, "isoformat") else str(model_dezyderata.data_do)),
+            end_date=format_rapla_datetime(get_first_day(cast(datetime, semester.data_rozpoczecia), cast(int, model_dezyderata.day_id))),
             end_time=f"{int(model_dezyderata.to_hour):02d}:00:00",
+            repeating=repiting,
         )
 
         res_uuid = str(uuid4())
         dezyd = SchemaRaplaReservationDezyerata(
-            uuid=res_uuid,
-            owner=owner_uuid,
-            created_at=created_at,
-            last_changed=last_changed,
-            last_changed_by=owner_uuid,
+            uuid = res_uuid,
+            owner = cast( str, owner_uuid ),
+            created_at = created_at,
+            last_changed = last_changed,
+            last_changed_by = cast( str, owner_uuid ),
 
             apointment=apointment,
 

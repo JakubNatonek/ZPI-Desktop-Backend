@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 
 ##
 # @brief Format a datetime value to Rapla-compatible ISO 8601 string.
@@ -8,6 +8,17 @@ def format_rapla_datetime(value: datetime | None) -> str:
 	if value is None:
 		return ""
 	return value.isoformat().replace("+00:00", "Z")
+
+
+
+def format_rapla_date(value: date) -> str:
+	# Parse a `YYYY-MM-DD` string into a `date`.
+	return value.isoformat()
+
+
+def parse_rapla_date(value: str) -> date:
+	# Parse a `YYYY-MM-DD` string into a `date`.
+	return date.fromisoformat(value)
 
 
 def parse_rapla_datetime(value: str | None) -> datetime | None:

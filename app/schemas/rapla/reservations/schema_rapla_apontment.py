@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import xml.etree.ElementTree as ET
 
 from app.schemas.rapla.rapla_namespaces import RAPLA_NS
-
+from app.schemas.rapla.reservations.schema_rapla_repeating import SchemaRaplaRepeating
 
 @dataclass
 class SchemaRaplaApointment:
@@ -11,6 +11,7 @@ class SchemaRaplaApointment:
     start_time: str
     end_date: str
     end_time: str
+    repeating: SchemaRaplaRepeating
 
     def to_xml(self, parent: ET.Element) -> ET.Element:
         appointment = ET.SubElement(
@@ -24,6 +25,8 @@ class SchemaRaplaApointment:
                 "end-time": self.end_time,
             },
         )
+        
+        self.repeating.to_xml(appointment)
 
         return appointment
 	

@@ -15,6 +15,8 @@ def seed_all() -> None:
         seed_model.seed_roles(db)
         seed_model.seed_titles(db)
         admin_id: int = seed_model.seed_admin(db)
+        #for rapla
+        seed_rapla_all(db = db, admin_id = admin_id)
         seed_model.seed_users(db)
 
 
@@ -27,8 +29,7 @@ def seed_all() -> None:
         # default availability preference for a test user
         seed_model.seed_dezyderata(db)
 
-        #for rapla
-        seed_rapla_all(db = db, admin_id = admin_id)
+        
 
 
         # NOTE: WTF is this dogshit

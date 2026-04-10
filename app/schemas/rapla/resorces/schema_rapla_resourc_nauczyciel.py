@@ -63,7 +63,7 @@ class SchemaRaplaResourcNauczyciel:
         return (
             ("id", self.uuid),
             ("owner", self.owner),
-            ("created_at", self.created_at),
-            ("last_changed", self.last_changed),
-            ("last_changed_by", self.last_changed_by),
+            ("created-at", self.created_at),
+            ("last-changed", self.last_changed),
+            ("last-changed-by", self.last_changed_by),
         )

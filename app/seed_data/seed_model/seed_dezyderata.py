@@ -29,7 +29,7 @@ def seed_dezyderata(db: Session) -> None:
 			"is_available": True,
 		},
 		{
-			"user_id": 1,
+			"user_id": 3,
 			"data_od": date(2025, 9, 28),
 			"data_do": date(2026, 2, 12),
 			"semestr_id": 1,
@@ -49,7 +49,7 @@ def seed_dezyderata(db: Session) -> None:
 			"is_available": True,
 		},
 		{
-			"user_id": 1,
+			"user_id": 3,
 			"data_od": date(2025, 10, 6),
 			"data_do": date(2026, 2, 20),
 			"semestr_id": 1,
@@ -59,7 +59,7 @@ def seed_dezyderata(db: Session) -> None:
 			"is_available": True,
 		},
 		{
-			"user_id": 1,
+			"user_id": 3,
 			"data_od": date(2025, 9, 30),
 			"data_do": date(2026, 2, 14),
 			"semestr_id": 1,

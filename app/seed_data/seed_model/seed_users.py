@@ -17,9 +17,9 @@ from app.cruds.crud_title import get_title_by_name, create_title
 from app.cruds.crud_title_for_user import add_title_to_user
 from app.seed_data.seed_model.seed_titles import TytulEnum
 from app.cruds.crud_roles_for_user import get_roles_for_user
+from app.cruds.rapla.crud_rapla_users import  get_first_rapla_users_by_username
 
 # rapla helpers
-from app.models.rapla.model_rapla_user import RaplaUser as RaplaUserModel
 from app.models.rapla.model_rapla_resourc import ModelRaplaResourc
 from app.models.model_user import User
 from app.cruds.rapla.crud_rapla_resourc import create_resourc
@@ -76,12 +76,12 @@ def _ensure_rapla_resource_for_user(db: Session, user: User, login: str):
     if not any(r.name == "wykladowca" for r in roles):
         return None
 
-    rapla_admin = db.query(RaplaUserModel).filter(RaplaUserModel.username == "admin").first()
-    if rapla_admin is None:
+    rapla_system = get_first_rapla_users_by_username(db, "system")
+    if rapla_system is None:
         print(f"Rapla admin user not found; skipping Rapla resource creation for {login}")
         return None
 
-    owner_uuid = cast(str, rapla_admin.uuid)
+    owner_uuid = cast(str, rapla_system.uuid)
     try:
         res = create_resourc(db, owner=owner_uuid)
         print(f"Created Rapla resource id={res.id} uuid={res.uuid} for app user {login}")
