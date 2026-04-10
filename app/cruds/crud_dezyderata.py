@@ -22,7 +22,7 @@ from app.cruds.rapla.crud_rapla_users import get_first_rapla_users
 
 # ----- Semestr CRUD -----
 # NOTE: This should be in seprate crude file for Semestr
-def get_emestry(db: Session) -> List[Semestr]:
+def get_semestry(db: Session) -> List[Semestr]:
     return db.query(Semestr).order_by(Semestr.data_rozpoczecia.desc()).all()
 
 

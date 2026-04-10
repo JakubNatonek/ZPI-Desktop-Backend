@@ -8,7 +8,7 @@ from app.cruds.rapla.crud_rapla_language_abbreviations import get_language_abbre
 from app.cruds.rapla.crud_rapla_language_name import create_language_name
 from app.cruds.rapla.crud_rapla_language_name_for_category import add_language_name_to_category
 
-from app.seed_data.seed_departments import DzialEnum
+from app.seed_data.seed_model.seed_departments import DzialEnum
 from app.cruds.crud_department import get_department_by_abbreviation
 from app.cruds.rapla.crud_rapla_department_for_category import create_department_category_mapping
 

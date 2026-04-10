@@ -11,6 +11,7 @@ from app.auth.jwt_utils import (
     REFRESH_TOKEN_EXPIRE_DAYS,
     create_access_token,
     create_refresh_token,
+    decode_access_token,
     decode_refresh_token,
     refresh_expiry_datetime,
 )
@@ -21,6 +22,7 @@ from app.cruds.crud_login import (
     get_user_by_id,
     update_user_password,
 )
+from app.cruds.crud_roles_for_user import get_roles_for_user
 from app.cruds.crud_refresh_token import (
     create_refresh_session,
     is_refresh_session_active,
@@ -75,8 +77,8 @@ def create_user(
     current_user: User = Depends(get_current_user),
 ) -> UserCreatedResponse:
     # NOTE: Why this and note use: from app.dependencies.auth import require_admin  _: User = Depends(require_admin),
-    role_value = current_user.role.name if current_user.role else str(current_user.role)
-    if role_value != "admin":
+    token_roles = getattr(current_user, "token_roles", [])
+    if "admin" not in token_roles:
         raise HTTPException(status_code=403, detail="Forbidden")
 
     # NOTE: THIS IS WERY BAD THIS SHOULD BE NEVER DONE IN THE FIRST PLACE!!!!!!!
@@ -120,8 +122,8 @@ def get_credentials(
     current_user: User = Depends(get_current_user),
 ) -> UserCredentialsResponse:
     # NOTE: Why this and note use: from app.dependencies.auth import require_admin  _: User = Depends(require_admin),
-    role_value = current_user.role.name if current_user.role else str(current_user.role)
-    if role_value != "admin":
+    token_roles = getattr(current_user, "token_roles", [])
+    if "admin" not in token_roles:
         raise HTTPException(status_code=403, detail="Forbidden")
 
     user = get_user_by_id(db, user_id)
@@ -145,8 +147,9 @@ def login(payload: UserLogin, response: Response, db: Session = Depends(get_db))
     if user is None:
         raise HTTPException(status_code=401, detail="Invalid login or password")
 
-    access_token = create_access_token(user_id=user.user_id, role=user.role.name if user.role else None)
-    refresh_token, refresh_jti = create_refresh_token(user_id=user.user_id, role=user.role.name if user.role else None)
+    role_names = [role.name.strip().lower() for role in get_roles_for_user(db, user.user_id) if role.name]
+    access_token = create_access_token(user_id=user.user_id, roles=role_names)
+    refresh_token, refresh_jti = create_refresh_token(user_id=user.user_id, roles=role_names)
     create_refresh_session(
         db,
         user_id=user.user_id,
@@ -202,8 +205,9 @@ def refresh_tokens(request: Request, response: Response, db: Session = Depends(g
     if user is None:
         raise HTTPException(status_code=401, detail="User not found")
 
-    access_token = create_access_token(user_id=user.user_id, role=user.role.name if user.role else None)
-    new_refresh_token, new_refresh_jti = create_refresh_token(user_id=user.user_id, role=user.role.name if user.role else None)
+    role_names = [role.name.strip().lower() for role in get_roles_for_user(db, user.user_id) if role.name]
+    access_token = create_access_token(user_id=user.user_id, roles=role_names)
+    new_refresh_token, new_refresh_jti = create_refresh_token(user_id=user.user_id, roles=role_names)
 
     revoke_refresh_session(db, str(refresh_jti))
     create_refresh_session(

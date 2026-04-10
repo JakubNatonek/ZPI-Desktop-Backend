@@ -6,6 +6,7 @@ from app.seed_data.seed_model.seed_roles import RolaEnum
 
 
 def require_admin(current_user: User = Depends(get_current_user)) -> User:
-    if current_user.role is None or current_user.role.name != RolaEnum.ADMIN.value:
+    token_roles = getattr(current_user, "token_roles", [])
+    if RolaEnum.ADMIN.value.lower() not in token_roles:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     return current_user
