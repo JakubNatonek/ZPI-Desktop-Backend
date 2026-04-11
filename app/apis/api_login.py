@@ -252,12 +252,16 @@ def logout(request: Request, response: Response, db: Session = Depends(get_db)) 
     response_model=CurrentUserResponse,
     summary="Dane zalogowanego użytkownika",
 )
-def me(current_user: User = Depends(get_current_user)) -> CurrentUserResponse:
+def me(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> CurrentUserResponse:
+    role_names = [role.name.strip().lower() for role in get_roles_for_user(db, current_user.user_id) if role.name]
     return CurrentUserResponse(
         user_id=current_user.user_id,
         login=current_user.login,
         email=current_user.email,
-        role=current_user.role.name if current_user.role else None,
+        roles=role_names,
         department=current_user.department.name if current_user.department else None,
     )
 

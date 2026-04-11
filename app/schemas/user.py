@@ -97,7 +97,7 @@ class CurrentUserResponse(BaseModel):
     user_id: int
     login: str
     email: EmailStr
-    role: str  # role name
+    roles: list[str]  # role names
     department: str  # department name
 
 
