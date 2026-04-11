@@ -27,7 +27,7 @@ router = APIRouter(prefix="/rooms", tags=["rooms"])
 #     return current_user
 
 
-@router.get("", response_model=RoomListResponse, summary="Pobierz listę sal")
+@router.get("/list", response_model=RoomListResponse, summary="Pobierz listę sal")
 def list_rooms(
     db: Session = Depends(get_db),
     _: User = Depends(require_admin),

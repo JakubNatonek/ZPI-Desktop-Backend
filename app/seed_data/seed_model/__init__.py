@@ -5,6 +5,7 @@ from app.seed_data.seed_model.seed_departments_for_user import seed_departments_
 from app.seed_data.seed_model.seed_grades import seed_grades
 from app.seed_data.seed_model.seed_groups import seed_groups
 from app.seed_data.seed_model.seed_roles import seed_roles
+from app.seed_data.seed_model.seed_announcements import seed_announcements
 from app.seed_data.seed_model.seed_rooms import seed_rooms
 from app.seed_data.seed_model.seed_room_types import seed_room_types
 from app.seed_data.seed_model.seed_admin import seed_admin
@@ -22,6 +23,7 @@ __all__ = [
 	"seed_grades",
 	"seed_groups",
 	"seed_roles",
+	"seed_announcements",
 	"seed_rooms",
 	"seed_room_types",
 	"seed_semesters",

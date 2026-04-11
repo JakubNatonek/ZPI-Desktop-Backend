@@ -37,7 +37,7 @@ def create_role_entry(
 
 
 @router.get(
-    "",
+    "/list",
     response_model=List[RoleResponse],
     summary="Lista dostępnych ról",
 )
