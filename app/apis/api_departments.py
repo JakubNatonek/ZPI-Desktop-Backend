@@ -35,7 +35,7 @@ def create_department_entry(
 
 # NOTE: Frontend need fix cos recive incorect data
 @router.get(
-    "",
+    "/list",
     response_model=list[DepartmentResponse],
     summary="Lista dostępnych wydziałów",
 )

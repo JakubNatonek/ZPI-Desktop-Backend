@@ -28,6 +28,16 @@ class User(Base):
         back_populates="user",
         cascade="all, delete-orphan",
     )
+    title_assignments = relationship(
+        "TitleForUser",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    refresh_token_sessions = relationship(
+        "RefreshTokenSession",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
 
     @property
     def role(self):

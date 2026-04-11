@@ -17,13 +17,10 @@ from app.auth.jwt_utils import (
 )
 from app.cruds.crud_login import (
     authenticate_user,
-    create_user_by_admin,
     get_user_by_id,
-    get_user_by_email,
     update_user_password,
 )
 from app.cruds.crud_roles_for_user import get_roles_for_user
-from app.cruds.crud_departments_for_user import get_departments_for_user
 from app.cruds.crud_refresh_token import (
     create_refresh_session,
     is_refresh_session_active,
@@ -32,12 +29,10 @@ from app.cruds.crud_refresh_token import (
 from app.core.database import get_db
 from app.models.model_user import User
 from app.schemas.user import (
-    AdminUserCreate,
     AuthResponse,
     ChangePasswordRequest,
     ChangePasswordResponse,
     CurrentUserResponse,
-    UserCreatedResponse,
     UserNameResponse,
     UserLogin,
 )
@@ -63,56 +58,6 @@ def _set_refresh_cookie(response: Response, refresh_token: str) -> None:
         max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
         path="/",
     )
-
-
-@router.post(
-    "/create",
-    response_model=UserCreatedResponse,
-    status_code=201,
-    summary="Utwórz nowego użytkownika",
-)
-def create_user(
-    payload: AdminUserCreate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-) -> UserCreatedResponse:
-    # NOTE: Why this and note use: from app.dependencies.auth import require_admin  _: User = Depends(require_admin),
-    token_roles = getattr(current_user, "token_roles", [])
-    if "admin" not in token_roles:
-        raise HTTPException(status_code=403, detail="Forbidden")
-
-    # NOTE: THIS IS WERY BAD THIS SHOULD BE NEVER DONE IN THE FIRST PLACE!!!!!!!
-    normalized_email = str(payload.email).strip().lower()
-
-    existing_email = get_user_by_email(db, normalized_email)
-    if existing_email is not None:
-        raise HTTPException(status_code=409, detail="User with this email already exists")
-
-    user = create_user_by_admin(
-        db,
-        first_name=payload.first_name.strip(),
-        last_name=payload.last_name.strip(),
-        email=normalized_email,
-        password=payload.password,
-        role_ids=payload.role_ids,
-        department_ids=payload.department_ids,
-    )
-
-    roles = [role.name for role in get_roles_for_user(db, user.user_id) if role.name]
-    departments = [department.name for department in get_departments_for_user(db, user.user_id) if department.name]
-
-    return UserCreatedResponse(
-        user_id=user.user_id,
-        album_number=user.album_number,
-        login=user.login,
-        email=user.email,
-        first_name=user.first_name,
-        last_name=user.last_name,
-        roles=roles,
-        departments=departments,
-    )
-
-
 @router.post(
     "/",
     response_model=AuthResponse,
@@ -250,28 +195,5 @@ def logout(request: Request, response: Response, db: Session = Depends(get_db)) 
         response.delete_cookie(key="access_token", path="/")
     return {"message": "Logged out"}
 
-
-@router.get(
-    "/me",
-    response_model=CurrentUserResponse,
-    summary="Dane zalogowanego użytkownika",
-)
-def me(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-) -> CurrentUserResponse:
-    role_names = [role.name.strip().lower() for role in get_roles_for_user(db, current_user.user_id) if role.name]
-    department_names = [
-        department.name.strip()
-        for department in get_departments_for_user(db, current_user.user_id)
-        if department.name
-    ]
-    return CurrentUserResponse(
-        user_id=current_user.user_id,
-        login=current_user.login,
-        email=current_user.email,
-        roles=role_names,
-        departments=department_names,
-    )
 
 

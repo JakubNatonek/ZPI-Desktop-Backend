@@ -16,6 +16,8 @@ from app.cruds.crud_login import (
     update_user_by_admin,
 )
 from app.cruds.crud_departments_for_user import get_departments_for_user
+from app.cruds.crud_roles_for_user import get_roles_for_user
+from app.cruds.crud_user import get_related_names_for_user
 from app.dependencies.auth import require_admin
 from app.models.model_department import Department
 from app.models.model_role import Role
@@ -31,13 +33,14 @@ from app.schemas.user import (
     UserCreatedResponse,
     UserNameResponse,
     UserProfileResponse,
+    CurrentUserResponse,
 )
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.post(
-    "/admin-create",
+    "/create",
     response_model=UserCreatedResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Utwórz nowego użytkownika przez administratora",
@@ -65,8 +68,8 @@ def create_user_as_admin(
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
-    roles = [role.name for role in get_roles_for_user(db, user.user_id) if role.name]
-    departments = [department.name for department in get_departments_for_user(db, user.user_id) if department.name]
+    roles = get_related_names_for_user(db, user.user_id, get_roles_for_user)
+    departments = get_related_names_for_user(db, user.user_id, get_departments_for_user)
 
     return UserCreatedResponse(
         user_id=user.user_id,
@@ -80,7 +83,7 @@ def create_user_as_admin(
     )
 
 @router.get(
-    "",
+    "/list",
     response_model=List[UserNameResponse],
     summary="Pobierz listę użytkowników (imię, nazwisko, user_id)",
 )
@@ -168,8 +171,8 @@ def admin_list_users(
             album_number=user.album_number,
             login=user.login,
             email=user.email,
-            role=user.role.name if user.role else "",
-            department=user.department.name if user.department else "",
+            roles=get_related_names_for_user(db, user.user_id, get_roles_for_user),
+            departments=get_related_names_for_user(db, user.user_id, get_departments_for_user),
             must_change_password=bool(user.must_change_password),
         )
         for user in users
@@ -202,30 +205,26 @@ def admin_update_user(
     if existing_email is not None and existing_email.user_id != user_id:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User with this email already exists")
 
-    role = db.query(Role).filter(Role.id == payload.role_id).first()
-    if role is None:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Role not found: {payload.role_id}")
+    admin_role = db.query(Role).filter(Role.name == "admin").first()
+    if admin_role is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Admin role not found")
 
-    department = db.query(Department).filter(Department.id == payload.department_id).first()
-    if department is None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Department not found: {payload.department_id}",
-        )
-
-    if current_user.user_id == user.user_id and role.name != "admin":
+    if current_user.user_id == user.user_id and admin_role.id not in payload.role_ids:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You cannot remove your own admin role")
 
-    updated = update_user_by_admin(
-        db,
-        user=user,
-        first_name=payload.first_name.strip(),
-        last_name=payload.last_name.strip(),
-        login=normalized_login,
-        email=normalized_email,
-        role=role,
-        department=department,
-    )
+    try:
+        updated = update_user_by_admin(
+            db,
+            user=user,
+            first_name=payload.first_name.strip(),
+            last_name=payload.last_name.strip(),
+            login=normalized_login,
+            email=normalized_email,
+            role_ids=payload.role_ids,
+            department_ids=payload.department_ids,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
     return AdminUserListResponse(
         user_id=updated.user_id,
@@ -234,8 +233,8 @@ def admin_update_user(
         album_number=updated.album_number,
         login=updated.login,
         email=updated.email,
-        role=updated.role.name if updated.role else "",
-        department=updated.department.name if updated.department else "",
+        roles=get_related_names_for_user(db, updated.user_id, get_roles_for_user),
+        departments=get_related_names_for_user(db, updated.user_id, get_departments_for_user),
         must_change_password=bool(updated.must_change_password),
     )
 
@@ -308,6 +307,26 @@ def get_my_profile(current_user: User = Depends(get_current_user)) -> UserProfil
         study_mode="Stacjonarne" if role_name == "student" else "Nie dotyczy",
         title=current_user.teacher_profile.title if current_user.teacher_profile and current_user.teacher_profile.title else "Nie dotyczy",
         groups=[group_code] if group_code else [],
+    )
+
+
+@router.get(
+    "/me",
+    response_model=CurrentUserResponse,
+    summary="Dane zalogowanego użytkownika",
+)
+def me(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> CurrentUserResponse:
+    role_names = [name.lower() for name in get_related_names_for_user(db, current_user.user_id, get_roles_for_user)]
+    department_names = get_related_names_for_user(db, current_user.user_id, get_departments_for_user)
+    return CurrentUserResponse(
+        user_id=current_user.user_id,
+        login=current_user.login,
+        email=current_user.email,
+        roles=role_names,
+        departments=department_names,
     )
 
 

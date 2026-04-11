@@ -11,6 +11,12 @@ from app.auth.password_utils import hash_password, verify_password
 from app.models.model_department_for_user import DepartmentsForUser
 from app.models.model_role_for_user import RolesForUser
 from app.models.model_user import User
+from app.models.model_role_for_user import RolesForUser
+from app.models.model_department_for_user import DepartmentsForUser
+from app.models.model_title_for_user import TitleForUser
+from app.models.model_refresh_token import RefreshTokenSession
+from app.models.rapla.model_rapla_app_user_to_resourc import RaplaAppUserToResourc
+from app.models.rapla.model_rapla_user_to_app_user import RaplaUserToAppUser
 from app.models.model_role import Role
 from app.models.model_department import Department
 from app.core.text_normalization import normalize_lookup_value
@@ -195,25 +201,50 @@ def update_user_by_admin(
     last_name: str,
     login: str,
     email: str,
-    role: Role,
-    department: Department,
+    role_ids: list[int],
+    department_ids: list[int],
 ) -> User:
     user.first_name = first_name
     user.last_name = last_name
     user.login = login
     user.email = email
 
+    if not role_ids:
+        raise ValueError("At least one role must be provided")
+    if not department_ids:
+        raise ValueError("At least one department must be provided")
+
+    roles = []
+    for role_id in dict.fromkeys(role_ids):
+        role = db.query(Role).filter(Role.id == role_id).first()
+        if not role:
+            raise ValueError(f"Role not found: {role_id}")
+        roles.append(role)
+
+    departments = []
+    for department_id in dict.fromkeys(department_ids):
+        department = db.query(Department).filter(Department.id == department_id).first()
+        if not department:
+            raise ValueError(f"Department not found: {department_id}")
+        departments.append(department)
+
     db.add(user)
     db.query(RolesForUser).filter(RolesForUser.user_id == user.user_id).delete(synchronize_session=False)
     db.query(DepartmentsForUser).filter(DepartmentsForUser.user_id == user.user_id).delete(synchronize_session=False)
-    db.add(RolesForUser(user_id=user.user_id, role_id=role.id))
-    db.add(DepartmentsForUser(user_id=user.user_id, department_id=department.id))
+    for role in roles:
+        db.add(RolesForUser(user_id=user.user_id, role_id=role.id))
+    for department in departments:
+        db.add(DepartmentsForUser(user_id=user.user_id, department_id=department.id))
     db.commit()
     db.refresh(user)
     return user
 
 
 def delete_user_by_admin(db: Session, user: User) -> None:
+    db.query(RolesForUser).filter(RolesForUser.user_id == user.user_id).delete(synchronize_session=False)
+    db.query(DepartmentsForUser).filter(DepartmentsForUser.user_id == user.user_id).delete(synchronize_session=False)
+    db.query(TitleForUser).filter(TitleForUser.user_id == user.user_id).delete(synchronize_session=False)
+    db.query(RefreshTokenSession).filter(RefreshTokenSession.user_id == user.user_id).delete(synchronize_session=False)
     db.delete(user)
     db.commit()
 

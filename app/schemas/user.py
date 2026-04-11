@@ -32,8 +32,8 @@ class AdminUserListResponse(BaseModel):
     album_number: str
     login: str
     email: str
-    role: str
-    department: str
+    roles: list[str]
+    departments: list[str]
     must_change_password: bool
 
 
@@ -42,8 +42,8 @@ class AdminUserUpdate(BaseModel):
     last_name: str = Field(min_length=2, max_length=80)
     login: str = Field(min_length=3, max_length=64)
     email: EmailStr
-    role_id: int = Field(gt=0)
-    department_id: int = Field(gt=0)
+    role_ids: list[PositiveInt] = Field(min_length=1)
+    department_ids: list[PositiveInt] = Field(min_length=1)
 
 
 class AdminResetPasswordRequest(BaseModel):

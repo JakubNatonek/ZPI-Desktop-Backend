@@ -1,9 +1,11 @@
-from typing import Optional
+from typing import Callable, Optional, TypeVar
 from sqlalchemy.orm import Session
 from sqlalchemy import cast, func, Integer
 from datetime import datetime
 
 from app.models.model_user import User
+
+RelatedItem = TypeVar("RelatedItem")
 
 def get_all_users(db: Session) -> list[User]:
     return db.query(User).order_by(User.user_id.asc()).all()
@@ -150,4 +152,13 @@ def delete_user(db: Session, user_id: int) -> bool:
     db.delete(user)
     db.commit()
     return True
+
+
+def get_related_names_for_user(
+    db: Session,
+    user_id: int,
+    fetch_related: Callable[[Session, int], list[RelatedItem]],
+) -> list[str]:
+    related_items = fetch_related(db, user_id)
+    return [str(getattr(item, "name", "")).strip() for item in related_items if getattr(item, "name", None)]
 
