@@ -1,5 +1,5 @@
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, PositiveInt
 from typing import Optional
 
 
@@ -9,8 +9,8 @@ class AdminUserCreate(BaseModel):
     last_name: str = Field(min_length=2, max_length=80)
     email: EmailStr
     password: str = Field(min_length=8, max_length=128)
-    role_id: int = Field(gt=0)
-    department_id: int = Field(gt=0)
+    role_ids: list[PositiveInt] = Field(min_length=1)
+    department_ids: list[PositiveInt] = Field(min_length=1)
 
 
 class UserCreatedResponse(BaseModel):
@@ -21,8 +21,8 @@ class UserCreatedResponse(BaseModel):
     email: EmailStr
     first_name: str
     last_name: str
-    role: str  # role name
-    department: str  # department name
+    roles: list[str]  # role names
+    departments: list[str]  # department names
 
 
 class AdminUserListResponse(BaseModel):
@@ -98,7 +98,7 @@ class CurrentUserResponse(BaseModel):
     login: str
     email: EmailStr
     roles: list[str]  # role names
-    department: str  # department name
+    departments: list[str]  # department names
 
 
 

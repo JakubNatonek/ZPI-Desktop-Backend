@@ -15,6 +15,7 @@ from app.cruds.crud_login import (
     set_user_password,
     update_user_by_admin,
 )
+from app.cruds.crud_departments_for_user import get_departments_for_user
 from app.dependencies.auth import require_admin
 from app.models.model_department import Department
 from app.models.model_role import Role
@@ -58,11 +59,14 @@ def create_user_as_admin(
             last_name=payload.last_name.strip(),
             email=normalized_email,
             password=payload.password,
-            role_id=payload.role_id,
-            department_id=payload.department_id,
+            role_ids=payload.role_ids,
+            department_ids=payload.department_ids,
         )
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+    roles = [role.name for role in get_roles_for_user(db, user.user_id) if role.name]
+    departments = [department.name for department in get_departments_for_user(db, user.user_id) if department.name]
 
     return UserCreatedResponse(
         user_id=user.user_id,
@@ -71,8 +75,8 @@ def create_user_as_admin(
         email=user.email,
         first_name=user.first_name,
         last_name=user.last_name,
-        role=user.role.name if user.role else None,
-        department=user.department.name if user.department else None,
+        roles=roles,
+        departments=departments,
     )
 
 @router.get(

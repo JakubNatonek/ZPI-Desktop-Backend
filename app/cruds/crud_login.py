@@ -103,14 +103,11 @@ def create_user_by_admin(
     first_name: str,
     last_name: str,
     email: str,
-    role_id: int,
-    department_id: int,
+    role_ids: list[int],
+    department_ids: list[int],
     password: str,
 ) -> User:
-    """
-    Create a user with auto-generated album number, login and one-time password.
-    role_id and department_id must reference existing records.
-    """
+    """Create a user with auto-generated album number, login and password."""
     album_number = _generate_album_number(db)
     login = _generate_login(first_name, last_name, album_number)
 
@@ -121,13 +118,24 @@ def create_user_by_admin(
 
     hashed = hash_password(password)
 
-    # NOTE/TODO: Chenge role and department to use dedicated crude. Not a raw query.
-    role = db.query(Role).filter(Role.id == role_id).first()
-    department = db.query(Department).filter(Department.id == department_id).first()
-    if not role:
-        raise ValueError(f"Role not found: {role_id}")
-    if not department:
-        raise ValueError(f"Department not found: {department_id}")
+    if not role_ids:
+        raise ValueError("At least one role must be provided")
+    if not department_ids:
+        raise ValueError("At least one department must be provided")
+
+    roles = []
+    for role_id in dict.fromkeys(role_ids):
+        role = db.query(Role).filter(Role.id == role_id).first()
+        if not role:
+            raise ValueError(f"Role not found: {role_id}")
+        roles.append(role)
+
+    departments = []
+    for department_id in dict.fromkeys(department_ids):
+        department = db.query(Department).filter(Department.id == department_id).first()
+        if not department:
+            raise ValueError(f"Department not found: {department_id}")
+        departments.append(department)
 
     user = User(
         first_name=first_name,
@@ -140,8 +148,10 @@ def create_user_by_admin(
     )
     db.add(user)
     db.flush()
-    db.add(RolesForUser(user_id=user.user_id, role_id=role.id))
-    db.add(DepartmentsForUser(user_id=user.user_id, department_id=department.id))
+    for role in roles:
+        db.add(RolesForUser(user_id=user.user_id, role_id=role.id))
+    for department in departments:
+        db.add(DepartmentsForUser(user_id=user.user_id, department_id=department.id))
     db.commit()
     db.refresh(user)
     return user

@@ -18,11 +18,12 @@ from app.auth.jwt_utils import (
 from app.cruds.crud_login import (
     authenticate_user,
     create_user_by_admin,
-    get_user_by_email,
     get_user_by_id,
+    get_user_by_email,
     update_user_password,
 )
 from app.cruds.crud_roles_for_user import get_roles_for_user
+from app.cruds.crud_departments_for_user import get_departments_for_user
 from app.cruds.crud_refresh_token import (
     create_refresh_session,
     is_refresh_session_active,
@@ -93,9 +94,12 @@ def create_user(
         last_name=payload.last_name.strip(),
         email=normalized_email,
         password=payload.password,
-        role_id=payload.role_id,
-        department_id=payload.department_id,
+        role_ids=payload.role_ids,
+        department_ids=payload.department_ids,
     )
+
+    roles = [role.name for role in get_roles_for_user(db, user.user_id) if role.name]
+    departments = [department.name for department in get_departments_for_user(db, user.user_id) if department.name]
 
     return UserCreatedResponse(
         user_id=user.user_id,
@@ -104,8 +108,8 @@ def create_user(
         email=user.email,
         first_name=user.first_name,
         last_name=user.last_name,
-        role=user.role.name if user.role else None,
-        department=user.department.name if user.department else None,
+        roles=roles,
+        departments=departments,
     )
 
 
@@ -257,12 +261,17 @@ def me(
     db: Session = Depends(get_db),
 ) -> CurrentUserResponse:
     role_names = [role.name.strip().lower() for role in get_roles_for_user(db, current_user.user_id) if role.name]
+    department_names = [
+        department.name.strip()
+        for department in get_departments_for_user(db, current_user.user_id)
+        if department.name
+    ]
     return CurrentUserResponse(
         user_id=current_user.user_id,
         login=current_user.login,
         email=current_user.email,
         roles=role_names,
-        department=current_user.department.name if current_user.department else None,
+        departments=department_names,
     )
 
 
