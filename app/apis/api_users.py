@@ -12,7 +12,7 @@ from app.cruds.crud_login import (
     get_user_by_email,
     get_user_by_id,
     get_user_by_login,
-    set_user_one_time_password,
+    set_user_password,
     update_user_by_admin,
 )
 from app.dependencies.auth import require_admin
@@ -20,14 +20,14 @@ from app.models.model_department import Department
 from app.models.model_role import Role
 from app.models.model_user import User
 from app.schemas.user import (
-    AdminResetOneTimePasswordRequest,
+    AdminResetPasswordRequest,
     AdminUserCreate,
     AdminUserListResponse,
     AdminUserUpdate,
+    ChangePasswordResponse,
     PublicKeyResponse,
     PublicKeyUpdate,
     UserCreatedResponse,
-    UserCredentialsResponse,
     UserNameResponse,
     UserProfileResponse,
 )
@@ -57,7 +57,7 @@ def create_user_as_admin(
             first_name=payload.first_name.strip(),
             last_name=payload.last_name.strip(),
             email=normalized_email,
-            one_time_password=payload.one_time_password,
+            password=payload.password,
             role_id=payload.role_id,
             department_id=payload.department_id,
         )
@@ -73,7 +73,6 @@ def create_user_as_admin(
         last_name=user.last_name,
         role=user.role.name if user.role else None,
         department=user.department.name if user.department else None,
-        one_time_password=user.plain_password,
     )
 
 @router.get(
@@ -258,26 +257,22 @@ def admin_delete_user(
 
 
 @router.post(
-    "/{user_id}/reset-one-time-password",
-    response_model=UserCredentialsResponse,
-    summary="Resetuj hasło użytkownika na jednorazowe",
+    "/{user_id}/reset-password",
+    response_model=ChangePasswordResponse,
+    summary="Resetuj hasło użytkownika",
 )
-def admin_reset_one_time_password(
+def admin_reset_password(
     user_id: int,
-    payload: AdminResetOneTimePasswordRequest,
+    payload: AdminResetPasswordRequest,
     db: Session = Depends(get_db),
     _: User = Depends(require_admin),
-) -> UserCredentialsResponse:
+) -> ChangePasswordResponse:
     user = get_user_by_id(db, user_id)
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-    updated = set_user_one_time_password(db, user, payload.one_time_password)
-    return UserCredentialsResponse(
-        user_id=updated.user_id,
-        login=updated.login,
-        one_time_password=updated.plain_password or payload.one_time_password,
-    )
+    set_user_password(db, user, payload.password)
+    return ChangePasswordResponse(message="Password reset successfully")
 
 
 @router.get(

@@ -37,7 +37,6 @@ from app.schemas.user import (
     ChangePasswordResponse,
     CurrentUserResponse,
     UserCreatedResponse,
-    UserCredentialsResponse,
     UserNameResponse,
     UserLogin,
 )
@@ -93,7 +92,7 @@ def create_user(
         first_name=payload.first_name.strip(),
         last_name=payload.last_name.strip(),
         email=normalized_email,
-        one_time_password=payload.one_time_password,
+        password=payload.password,
         role_id=payload.role_id,
         department_id=payload.department_id,
     )
@@ -107,33 +106,6 @@ def create_user(
         last_name=user.last_name,
         role=user.role.name if user.role else None,
         department=user.department.name if user.department else None,
-        one_time_password=user.plain_password,
-    )
-
-
-@router.get(
-    "/credentials/{user_id}",
-    response_model=UserCredentialsResponse,
-    summary="Pobierz dane logowania użytkownika",
-)
-def get_credentials(
-    user_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-) -> UserCredentialsResponse:
-    # NOTE: Why this and note use: from app.dependencies.auth import require_admin  _: User = Depends(require_admin),
-    token_roles = getattr(current_user, "token_roles", [])
-    if "admin" not in token_roles:
-        raise HTTPException(status_code=403, detail="Forbidden")
-
-    user = get_user_by_id(db, user_id)
-    if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    return UserCredentialsResponse(
-        user_id=user.user_id,
-        login=user.login,
-        one_time_password=user.plain_password,
     )
 
 
@@ -174,7 +146,7 @@ def login(payload: UserLogin, response: Response, db: Session = Depends(get_db))
         email=user.email,
         access_token=access_token,
         access_token_expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        must_change_password=user.must_change_password or user.plain_password is not None,
+        must_change_password=user.must_change_password,
     )
 
 
@@ -235,7 +207,7 @@ def refresh_tokens(request: Request, response: Response, db: Session = Depends(g
         email=user.email,
         access_token=access_token,
         access_token_expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        must_change_password=user.must_change_password or user.plain_password is not None,
+        must_change_password=user.must_change_password,
     )
 
 

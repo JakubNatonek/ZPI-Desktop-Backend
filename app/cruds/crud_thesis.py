@@ -3,10 +3,10 @@ from datetime import datetime, timezone
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from app.cruds.crud_roles_for_user import get_roles_for_user
 from app.core.text_normalization import normalize_lookup_value
 from app.models.model_thesis_proposal import ThesisProposal, ThesisProposalStatus
 from app.models.model_user import User
-from app.models.model_role import Role
 
 # NOTE: just do a table nex time
 LECTURER_ROLE_NAMES = {"lecturer", "wykladowca", "cwiczenia", "laboratorium", "seminarium"}
@@ -19,13 +19,15 @@ def _is_lecturer_user(user: User) -> bool:
 
 # NOTE this all need a redo
 def get_lecturers(db: Session) -> list[User]:
-    users = (
-        db.query(User)
-        .join(Role, Role.id == User.role_id)
-        .order_by(User.last_name.asc(), User.first_name.asc())
-        .all()
-    )
-    return [user for user in users if _is_lecturer_user(user)]
+    users = db.query(User).order_by(User.last_name.asc(), User.first_name.asc()).all()
+    lecturers = []
+
+    for user in users:
+        user_roles = get_roles_for_user(db, user.user_id)
+        if any(normalize_lookup_value(role.name) in LECTURER_ROLE_NAMES for role in user_roles if role.name):
+            lecturers.append(user)
+
+    return lecturers
 
 
 def create_thesis_proposal(

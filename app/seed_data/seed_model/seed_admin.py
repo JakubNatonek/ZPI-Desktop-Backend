@@ -2,6 +2,7 @@ from typing import cast
 
 from sqlalchemy.orm import Session
 
+from app.auth.password_utils import hash_password
 from app.models.model_department import Department
 from app.models.model_role import Role
 from app.seed_data.seed_model.seed_departments import DzialEnum
@@ -27,9 +28,8 @@ def seed_admin(db: Session) -> int:
         last_name="admin",
         login="admin",
         email="admin@admin.com",
-        password_hash="$2b$12$zi7AdboGsbPpUp4j3qFpv.WTir3I5odeMnqzyUW4DTaN956Jq3.p.",
-        plain_password=None,
-        must_change_password=False,
+        password_hash=hash_password("test123"),
+        must_change_password=True,
     )
 
     # use CRUD helpers to create association rows

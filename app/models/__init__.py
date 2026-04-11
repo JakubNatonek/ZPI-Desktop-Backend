@@ -26,6 +26,9 @@
 
 
 
+from app.core.database import Base
+
+
 # Import models so SQLAlchemy registers table metadata before create_all.
 
 # -- Chat models -----------------------------------------------------------

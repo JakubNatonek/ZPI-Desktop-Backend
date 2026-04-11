@@ -8,6 +8,8 @@ from sqlalchemy.orm import Session
 
 
 from app.auth.password_utils import hash_password, verify_password
+from app.models.model_department_for_user import DepartmentsForUser
+from app.models.model_role_for_user import RolesForUser
 from app.models.model_user import User
 from app.models.model_role import Role
 from app.models.model_department import Department
@@ -103,8 +105,7 @@ def create_user_by_admin(
     email: str,
     role_id: int,
     department_id: int,
-    # NOTE: Why is this a string instead of a boolean ? (one_time_password)
-    one_time_password: str | None = None, 
+    password: str,
 ) -> User:
     """
     Create a user with auto-generated album number, login and one-time password.
@@ -118,8 +119,7 @@ def create_user_by_admin(
     if get_user_by_album_number(db, album_number) is not None:
         raise ValueError(f"Generated album number already exists: {album_number}")
 
-    plain_password = one_time_password or _generate_password()
-    hashed = hash_password(plain_password)
+    hashed = hash_password(password)
 
     # NOTE/TODO: Chenge role and department to use dedicated crude. Not a raw query.
     role = db.query(Role).filter(Role.id == role_id).first()
@@ -136,12 +136,12 @@ def create_user_by_admin(
         login=login,
         email=email,
         password_hash=hashed,
-        plain_password=plain_password,
-        must_change_password=True,
-        role_id=role.id,
-        department_id=department.id,
+        must_change_password=False,
     )
     db.add(user)
+    db.flush()
+    db.add(RolesForUser(user_id=user.user_id, role_id=role.id))
+    db.add(DepartmentsForUser(user_id=user.user_id, department_id=department.id))
     db.commit()
     db.refresh(user)
     return user
@@ -166,7 +166,6 @@ def update_user_password(db: Session, user: User, new_password: str) -> User:
     Zmień hasło użytkownika i wyczyść flagi pierwszego logowania.
     """
     user.password_hash = hash_password(new_password)
-    user.plain_password = None
     user.must_change_password = False
     db.add(user)
     db.commit()
@@ -193,10 +192,12 @@ def update_user_by_admin(
     user.last_name = last_name
     user.login = login
     user.email = email
-    user.role_id = role.id
-    user.department_id = department.id
 
     db.add(user)
+    db.query(RolesForUser).filter(RolesForUser.user_id == user.user_id).delete(synchronize_session=False)
+    db.query(DepartmentsForUser).filter(DepartmentsForUser.user_id == user.user_id).delete(synchronize_session=False)
+    db.add(RolesForUser(user_id=user.user_id, role_id=role.id))
+    db.add(DepartmentsForUser(user_id=user.user_id, department_id=department.id))
     db.commit()
     db.refresh(user)
     return user
@@ -207,9 +208,8 @@ def delete_user_by_admin(db: Session, user: User) -> None:
     db.commit()
 
 
-def set_user_one_time_password(db: Session, user: User, one_time_password: str) -> User:
-    user.password_hash = hash_password(one_time_password)
-    user.plain_password = one_time_password
+def set_user_password(db: Session, user: User, password: str) -> User:
+    user.password_hash = hash_password(password)
     user.must_change_password = True
 
     db.add(user)

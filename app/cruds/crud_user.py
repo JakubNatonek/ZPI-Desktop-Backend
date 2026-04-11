@@ -31,7 +31,6 @@ def create_user(
 
     album_number: str | None = None,
     public_key: str | None = None,
-    plain_password: str | None = None,
     must_change_password: bool | None = None,
     last_seen_at: datetime | None = None,
 ) -> User:
@@ -72,7 +71,6 @@ def create_user(
         email = email,
         public_key = public_key,
         password_hash = password_hash,
-        plain_password = plain_password,
         must_change_password = must_change_password,
         last_seen_at = last_seen_at,
     )
@@ -92,7 +90,6 @@ def update_user(
     email: str | None = None,
     public_key: str | None = None,
     password_hash: str | None = None,
-    plain_password: str | None = None,
     must_change_password: bool | None = None,
     last_seen_at: datetime | None = None,
 ) -> User | None:
@@ -137,8 +134,6 @@ def update_user(
         user.last_seen_at = last_seen_at  # type: ignore
     if password_hash is not None:
         user.password_hash = password_hash  # type: ignore
-    if plain_password is not None:
-        user.plain_password = plain_password  # type: ignore
     if must_change_password is not None:
         user.must_change_password = must_change_password  # type: ignore
 

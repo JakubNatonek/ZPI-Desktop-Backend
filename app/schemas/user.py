@@ -8,13 +8,13 @@ class AdminUserCreate(BaseModel):
     first_name: str = Field(min_length=2, max_length=80)
     last_name: str = Field(min_length=2, max_length=80)
     email: EmailStr
-    one_time_password: str = Field(min_length=8, max_length=128)
+    password: str = Field(min_length=8, max_length=128)
     role_id: int = Field(gt=0)
     department_id: int = Field(gt=0)
 
 
 class UserCreatedResponse(BaseModel):
-    """Response after user creation — contains generated login and password."""
+    """Response after user creation."""
     user_id: int
     album_number: str
     login: str
@@ -23,7 +23,6 @@ class UserCreatedResponse(BaseModel):
     last_name: str
     role: str  # role name
     department: str  # department name
-    one_time_password: str
 
 
 class AdminUserListResponse(BaseModel):
@@ -47,8 +46,8 @@ class AdminUserUpdate(BaseModel):
     department_id: int = Field(gt=0)
 
 
-class AdminResetOneTimePasswordRequest(BaseModel):
-    one_time_password: str = Field(min_length=8, max_length=128)
+class AdminResetPasswordRequest(BaseModel):
+    password: str = Field(min_length=8, max_length=128)
 
 
 class RoleOptionResponse(BaseModel):
@@ -59,14 +58,6 @@ class RoleOptionResponse(BaseModel):
 class DepartmentOptionResponse(BaseModel):
     id: int
     name: str
-
-
-
-class UserCredentialsResponse(BaseModel):
-    """Dane logowania użytkownika (login + jednorazowe hasło)."""
-    user_id: int
-    login: str
-    one_time_password: str
 
 
 
