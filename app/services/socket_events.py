@@ -1,8 +1,87 @@
 """WebSocket event handlers for chat and real-time notifications."""
 
-import socketio
+from http.cookies import SimpleCookie
 
+import socketio
+from jose import ExpiredSignatureError, JWTError
+
+from app.auth.jwt_utils import decode_access_token
+from app.core.database import SessionLocal
+from app.cruds.crud_login import get_user_by_id
 from app.services.websocket_manager import chat_ws_manager
+
+
+def _extract_token_from_environ(environ: dict) -> str | None:
+    """Extract access_token from HTTP cookies sent during WebSocket handshake."""
+    cookie_header = environ.get("HTTP_COOKIE", "")
+    if not cookie_header:
+        return None
+
+    cookie = SimpleCookie()
+    try:
+        cookie.load(cookie_header)
+    except Exception:
+        return None
+
+    morsel = cookie.get("access_token")
+    return morsel.value if morsel else None
+
+
+def _authenticate_ws_connection(environ: dict, auth: dict | None) -> int | None:
+    """
+    Authenticate a WebSocket connection using JWT.
+
+    Token resolution order:
+      1. ``access_token`` httpOnly cookie (sent automatically by the browser)
+      2. ``auth.token`` field provided by the Socket.IO client
+
+    Returns the verified ``user_id`` or ``None`` if authentication fails.
+    """
+
+    # 1) Try cookie first (preferred — httpOnly, automatic)
+    token = _extract_token_from_environ(environ)
+
+    # 2) Fallback: client-supplied token in auth payload
+    if not token and auth:
+        token = auth.get("token")
+
+    if not token:
+        print("[WS AUTH] No access_token found in cookies or auth payload")
+        return None
+
+    # 3) Decode & validate JWT
+    try:
+        payload = decode_access_token(token)
+    except ExpiredSignatureError:
+        print("[WS AUTH] Access token expired")
+        return None
+    except JWTError as exc:
+        print(f"[WS AUTH] Invalid access token: {exc}")
+        return None
+
+    user_id = payload.get("user_id")
+    role = payload.get("role")
+    if user_id is None or role is None:
+        print("[WS AUTH] Token payload missing user_id or role")
+        return None
+
+    # 4) Verify user exists in the database
+    db = SessionLocal()
+    try:
+        user = get_user_by_id(db, int(user_id))
+        if user is None:
+            print(f"[WS AUTH] User {user_id} not found in database")
+            return None
+
+        # Optional: verify role hasn't changed since token was issued
+        user_role_value = user.role.name if user.role else str(user.role)
+        if user_role_value != str(role):
+            print(f"[WS AUTH] Token role mismatch for user {user_id}")
+            return None
+    finally:
+        db.close()
+
+    return int(user_id)
 
 
 class ChatSocketEvents:
@@ -12,20 +91,20 @@ class ChatSocketEvents:
         self.sio = sio
     
     async def on_connect(self, sid: str, environ, auth):
-        """Handle new WebSocket connection."""
-        # Extract user_id from auth token
-        user_id = auth.get("user_id") if auth else None
+        """
+        Handle new WebSocket connection.
+
+        Authenticates via JWT token extracted from httpOnly cookie or
+        the auth.token field. Rejects connections without a valid token.
+        """
+        user_id = _authenticate_ws_connection(environ, auth)
 
         if user_id is None:
-            return False  # Reject connection if no user_id
+            print(f"[CONNECT] Rejected unauthenticated connection (sid: {sid})")
+            return False  # Reject — Socket.IO will disconnect the client
 
-        try:
-            parsed_user_id = int(user_id)
-        except (TypeError, ValueError):
-            return False
-
-        chat_ws_manager.connect(sid, parsed_user_id)
-        print(f"[CONNECT] User {parsed_user_id} via {sid}")
+        chat_ws_manager.connect(sid, user_id)
+        print(f"[CONNECT] User {user_id} authenticated via JWT (sid: {sid})")
         return True
     
     async def on_disconnect(self, sid: str):
