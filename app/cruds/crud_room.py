@@ -7,23 +7,13 @@ from sqlalchemy.orm import selectinload
 from fastapi import HTTPException, status
 
 from app.cruds.crud_activity import get_activities_by_ids
+from app.cruds.crud_department import get_departments_by_ids
+from app.cruds.crud_special_equipment import get_special_equipment_by_ids
 from app.cruds.crud_room_type import get_room_type_by_id
 from app.models.model_room import Room
 from app.schemas.room import RoomCreate, RoomUpdate
 
 # NOTE: Why do you chenge data 
-def _resolve_building(room_number: str) -> str:
-    cleaned = room_number.strip()
-    if "-" in cleaned:
-        prefix = cleaned.split("-", maxsplit=1)[0].strip()
-        if prefix:
-            return prefix.upper()
-
-    if cleaned and cleaned[0].isalpha():
-        return cleaned[0].upper()
-
-    return "A"
-
 def _resolve_activities(db: Session, activity_ids: list[int]) -> list:
     unique_ids = list(dict.fromkeys(activity_ids))
     resolved_activities = get_activities_by_ids(db, unique_ids)
@@ -37,6 +27,36 @@ def _resolve_activities(db: Session, activity_ids: list[int]) -> list:
         )
 
     return resolved_activities
+
+
+def _resolve_special_equipment(db: Session, special_equipment_ids: list[int]) -> list:
+    unique_ids = list(dict.fromkeys(special_equipment_ids))
+    resolved_special_equipment = get_special_equipment_by_ids(db, unique_ids)
+
+    found_ids = {equipment.id for equipment in resolved_special_equipment}
+    missing_ids = [equipment_id for equipment_id in unique_ids if equipment_id not in found_ids]
+    if missing_ids:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Unknown special equipment ids: {missing_ids}",
+        )
+
+    return resolved_special_equipment
+
+
+def _resolve_departments(db: Session, department_ids: list[int]) -> list:
+    unique_ids = list(dict.fromkeys(department_ids))
+    resolved_departments = get_departments_by_ids(db, unique_ids)
+
+    found_ids = {department.id for department in resolved_departments}
+    missing_ids = [department_id for department_id in unique_ids if department_id not in found_ids]
+    if missing_ids:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Unknown department ids: {missing_ids}",
+        )
+
+    return resolved_departments
 
 
 def _sync_room_id_sequence(db: Session) -> None:
@@ -59,42 +79,55 @@ def _resolve_room_type(db: Session, room_type_id: int):
 
 
 def get_rooms(db: Session) -> list[Room]:
-    return db.query(Room).options(selectinload(Room.type), selectinload(Room.activities)).order_by(Room.number.asc()).all()
+    return db.query(Room).options(
+        selectinload(Room.type),
+        selectinload(Room.departments),
+        selectinload(Room.activities),
+        selectinload(Room.special_equipment),
+    ).order_by(Room.number.asc()).all()
 
 
 def get_room_by_id(db: Session, room_id: int) -> Optional[Room]:
-    return db.query(Room).options(selectinload(Room.type), selectinload(Room.activities)).filter(Room.id == room_id).first()
+    return db.query(Room).options(
+        selectinload(Room.type),
+        selectinload(Room.departments),
+        selectinload(Room.activities),
+        selectinload(Room.special_equipment),
+    ).filter(Room.id == room_id).first()
 
 
 def get_room_by_number(db: Session, room_number: str) -> Optional[Room]:
-    return db.query(Room).options(selectinload(Room.type), selectinload(Room.activities)).filter(Room.number == room_number.strip()).first()
+    return db.query(Room).options(
+        selectinload(Room.type),
+        selectinload(Room.departments),
+        selectinload(Room.activities),
+        selectinload(Room.special_equipment),
+    ).filter(Room.number == room_number.strip()).first()
 
-# NOTE/TODO: Chenge building to department maping
 def create_room(db: Session, payload: RoomCreate) -> Room:
     _sync_room_id_sequence(db)
     room_number = payload.room_number.strip()
     room = Room(
-        building=_resolve_building(room_number),
         number=room_number,
         seats=payload.seats_count,
         type=_resolve_room_type(db, payload.room_type_id),
-        description=payload.special_equipment.strip() or None,
     )
+    room.departments = _resolve_departments(db, payload.departments)
     room.activities = _resolve_activities(db, payload.activities)
+    room.special_equipment = _resolve_special_equipment(db, payload.special_equipment)
     db.add(room)
     db.commit()
     db.refresh(room)
     return room
 
-# NOTE/TODO: Chenge building to department maping
 def update_room(db: Session, room: Room, payload: RoomUpdate) -> Room:
     room_number = payload.room_number.strip()
-    room.building = _resolve_building(room_number)
     room.number = room_number
     room.seats = payload.seats_count
     room.type = _resolve_room_type(db, payload.room_type_id)
-    room.description = payload.special_equipment.strip() or None
+    room.departments = _resolve_departments(db, payload.departments)
     room.activities = _resolve_activities(db, payload.activities)
+    room.special_equipment = _resolve_special_equipment(db, payload.special_equipment)
 
     db.add(room)
     db.commit()
@@ -110,10 +143,10 @@ def delete_room(db: Session, room: Room) -> None:
 def map_room_to_response(room: Room) -> dict:
     return {
         "id": room.id,
-        "building": room.building,
         "room_number": room.number,
         "seats_count": room.seats,
         "room_type": room.type.type if room.type else "inna",
-        "special_equipment": room.description or "",
+        "special_equipment": [equipment.id for equipment in room.special_equipment],
         "activities": [activity.id for activity in room.activities],
+        "departments": [department.id for department in room.departments],
     }

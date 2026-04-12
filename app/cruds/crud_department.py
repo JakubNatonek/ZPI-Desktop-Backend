@@ -16,6 +16,13 @@ def get_department_by_abbreviation(db: Session, abbreviation: str) -> Optional[D
     return db.query(Department).filter(Department.abbreviation == abbreviation).first()
 
 
+def get_departments_by_ids(db: Session, department_ids: list[int]) -> list[Department]:
+    if not department_ids:
+        return []
+
+    return db.query(Department).filter(Department.id.in_(department_ids)).all()
+
+
 def create_department(db: Session, name: str, abbreviation: str) -> Department:
     # check name uniqueness
     name_exists = db.query(Department).filter(Department.name == name).first()

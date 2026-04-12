@@ -19,6 +19,7 @@ def seed_all() -> None:
         seed_model.seed_users(db)
 
         seed_model.seed_activities(db)
+        seed_model.seed_special_equipment(db)
 
 
         seed_model.seed_room_types(db)
