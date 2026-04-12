@@ -18,6 +18,8 @@ def seed_all() -> None:
         seed_model.seed_announcements(db, author_id=admin_id)
         seed_model.seed_users(db)
 
+        seed_model.seed_activities(db)
+
 
         seed_model.seed_room_types(db)
         seed_model.seed_rooms(db)

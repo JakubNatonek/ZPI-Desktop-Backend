@@ -1,4 +1,5 @@
 from app.seed_data.seed_model.seed_days import seed_days
+from app.seed_data.seed_model.seed_activities import seed_activities
 from app.seed_data.seed_model.seed_dezyderata import seed_dezyderata
 from app.seed_data.seed_model.seed_departments import seed_departments
 from app.seed_data.seed_model.seed_departments_for_user import seed_departments_for_user
@@ -17,6 +18,7 @@ from app.seed_data.seed_model.seed_users import seed_users
 
 __all__ = [
 	"seed_days",
+	"seed_activities",
 	"seed_dezyderata",
 	"seed_departments",
 	"seed_departments_for_user",

@@ -42,9 +42,12 @@ from app.models.model_department_for_user import DepartmentsForUser
 from app.models.model_department import Department
 from app.models.model_group import Group
 from app.models.model_grade import GradeRecord
+from app.models.model_title import TitleModel
+from app.models.model_title_for_user import TitleForUser
 from app.models.model_teacher import Teacher
 from app.models.model_subject import Subject
 from app.models.model_announcement import Announcement, AnnouncementSeen
+from app.models.model_activity import Activity
 from app.models.model_refresh_token import RefreshTokenSession
 from app.models.model_role_for_user import RolesForUser
 from app.models.model_role import Role
@@ -73,11 +76,14 @@ __all__ = [
     "RefreshTokenSession",
     "RolesForUser",
     "Room",
+    "Activity",
     "RoomType",
     "Role",
     "Department",
     "Student",
     "Subject",
+    "TitleForUser",
+    "TitleModel",
     "Teacher",
     "User",
     "AlembicVersion",

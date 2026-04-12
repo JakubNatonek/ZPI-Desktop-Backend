@@ -1,3 +1,4 @@
+import re
 from typing import Optional
 from sqlalchemy.orm import Session
 
@@ -22,6 +23,25 @@ def get_room_type_by_id(db: Session, room_type_id: int) -> Optional[RoomType]:
 
 
 ##
+# @brief Find a room type by exact name.
+# @param db Active database session.
+# @param type Room type name.
+# @return Matching row or None when not found.
+def get_room_type_by_name(db: Session, type: str) -> Optional[RoomType]:
+    return db.query(RoomType).filter(RoomType.type == type.strip()).first()
+
+
+def _build_room_type_abbreviation(type: str) -> str:
+    cleaned = type.strip()
+    if not cleaned:
+        return "RT"
+
+    words = [part for part in re.split(r"\s+", cleaned) if part]
+    abbreviation = "".join(word[0] for word in words)
+    return abbreviation[:10].upper() or "RT"
+
+
+##
 # @brief Create a room type row.
 # @param db Active database session.
 # @param type Room type name.
@@ -32,6 +52,17 @@ def create_room_type(db: Session, type: str, abbreviation: str) -> RoomType:
     db.add(room_type)
     db.commit()
     db.refresh(room_type)
+    return room_type
+
+
+def get_or_create_room_type(db: Session, type: str) -> RoomType:
+    room_type = get_room_type_by_name(db, type)
+    if room_type is not None:
+        return room_type
+
+    room_type = RoomType(type=type.strip(), abbreviation=_build_room_type_abbreviation(type))
+    db.add(room_type)
+    db.flush()
     return room_type
 
 

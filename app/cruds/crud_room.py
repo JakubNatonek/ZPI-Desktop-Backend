@@ -1,8 +1,13 @@
-import json
 from typing import Optional
 
+from sqlalchemy import text
 from sqlalchemy.orm import Session
+from sqlalchemy.orm import selectinload
 
+from fastapi import HTTPException, status
+
+from app.cruds.crud_activity import get_activities_by_ids
+from app.cruds.crud_room_type import get_room_type_by_id
 from app.models.model_room import Room
 from app.schemas.room import RoomCreate, RoomUpdate
 
@@ -19,47 +24,63 @@ def _resolve_building(room_number: str) -> str:
 
     return "A"
 
-# NOTE: Why do you create JSON by hand when you could use response class??
-def _serialize_activities(activities: list[str]) -> str:
-    return json.dumps(activities, ensure_ascii=False)
+def _resolve_activities(db: Session, activity_ids: list[int]) -> list:
+    unique_ids = list(dict.fromkeys(activity_ids))
+    resolved_activities = get_activities_by_ids(db, unique_ids)
 
-# NOTE: For what do you use this ??
-def _deserialize_activities(raw: Optional[str]) -> list[str]:
-    if not raw:
-        return []
+    found_ids = {activity.id for activity in resolved_activities}
+    missing_ids = [activity_id for activity_id in unique_ids if activity_id not in found_ids]
+    if missing_ids:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Unknown activity ids: {missing_ids}",
+        )
 
-    try:
-        parsed = json.loads(raw)
-        if isinstance(parsed, list):
-            return [str(item) for item in parsed if str(item).strip()]
-    except json.JSONDecodeError:
-        pass
+    return resolved_activities
 
-    return [item.strip() for item in raw.split(",") if item.strip()]
+
+def _sync_room_id_sequence(db: Session) -> None:
+    db.execute(
+        text(
+            "SELECT setval(pg_get_serial_sequence('room', 'id'), COALESCE((SELECT MAX(id) FROM room), 0) + 1, false)"
+        )
+    )
+
+
+def _resolve_room_type(db: Session, room_type_id: int):
+    room_type = get_room_type_by_id(db, room_type_id)
+    if room_type is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Unknown room type id: {room_type_id}",
+        )
+
+    return room_type
 
 
 def get_rooms(db: Session) -> list[Room]:
-    return db.query(Room).order_by(Room.number.asc()).all()
+    return db.query(Room).options(selectinload(Room.type), selectinload(Room.activities)).order_by(Room.number.asc()).all()
 
 
 def get_room_by_id(db: Session, room_id: int) -> Optional[Room]:
-    return db.query(Room).filter(Room.id == room_id).first()
+    return db.query(Room).options(selectinload(Room.type), selectinload(Room.activities)).filter(Room.id == room_id).first()
 
 
 def get_room_by_number(db: Session, room_number: str) -> Optional[Room]:
-    return db.query(Room).filter(Room.number == room_number.strip()).first()
+    return db.query(Room).options(selectinload(Room.type), selectinload(Room.activities)).filter(Room.number == room_number.strip()).first()
 
 # NOTE/TODO: Chenge building to department maping
 def create_room(db: Session, payload: RoomCreate) -> Room:
+    _sync_room_id_sequence(db)
     room_number = payload.room_number.strip()
     room = Room(
         building=_resolve_building(room_number),
         number=room_number,
         seats=payload.seats_count,
-        type=payload.room_type.strip(),
+        type=_resolve_room_type(db, payload.room_type_id),
         description=payload.special_equipment.strip() or None,
-        activities=_serialize_activities(payload.activities),
     )
+    room.activities = _resolve_activities(db, payload.activities)
     db.add(room)
     db.commit()
     db.refresh(room)
@@ -71,9 +92,9 @@ def update_room(db: Session, room: Room, payload: RoomUpdate) -> Room:
     room.building = _resolve_building(room_number)
     room.number = room_number
     room.seats = payload.seats_count
-    room.type = payload.room_type.strip()
+    room.type = _resolve_room_type(db, payload.room_type_id)
     room.description = payload.special_equipment.strip() or None
-    room.activities = _serialize_activities(payload.activities)
+    room.activities = _resolve_activities(db, payload.activities)
 
     db.add(room)
     db.commit()
@@ -92,7 +113,7 @@ def map_room_to_response(room: Room) -> dict:
         "building": room.building,
         "room_number": room.number,
         "seats_count": room.seats,
-        "room_type": room.type or "inna",
+        "room_type": room.type.type if room.type else "inna",
         "special_equipment": room.description or "",
-        "activities": _deserialize_activities(room.activities),
+        "activities": [activity.id for activity in room.activities],
     }

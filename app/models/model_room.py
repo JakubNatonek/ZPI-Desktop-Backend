@@ -1,6 +1,9 @@
-from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
 
 from app.core.database import Base
+from app.models.model_activity import room_activities
+from app.models.model_room_type import RoomType
 
 
 class Room(Base):
@@ -12,5 +15,7 @@ class Room(Base):
     number = Column(String, nullable=False)
     seats = Column(Integer, nullable=False)
     description = Column(String, nullable=True)
-    type = Column(String, nullable=True) # NOTE: To seprate table cos it can have multiple types
-    activities = Column(Text, nullable=True) # NOTE: To seprate table cos it can have multiple types
+    type_id = Column(Integer, ForeignKey("room_type.id"), nullable=True)
+
+    type = relationship("RoomType")
+    activities = relationship("Activity", secondary=room_activities, back_populates="rooms")
