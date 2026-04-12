@@ -9,11 +9,10 @@ from fastapi import HTTPException, status
 from app.cruds.crud_activity import get_activities_by_ids
 from app.cruds.crud_department import get_departments_by_ids
 from app.cruds.crud_special_equipment import get_special_equipment_by_ids
-from app.cruds.crud_room_type import get_room_type_by_id
+from app.cruds.room.crud_room_type import get_room_type_by_id
 from app.models.model_room import Room
 from app.schemas.room import RoomCreate, RoomUpdate
 
-# NOTE: Why do you chenge data 
 def _resolve_activities(db: Session, activity_ids: list[int]) -> list:
     unique_ids = list(dict.fromkeys(activity_ids))
     resolved_activities = get_activities_by_ids(db, unique_ids)
@@ -80,7 +79,7 @@ def _resolve_room_type(db: Session, room_type_id: int):
 
 def get_rooms(db: Session) -> list[Room]:
     return db.query(Room).options(
-        selectinload(Room.type),
+        selectinload(Room.room_type),
         selectinload(Room.departments),
         selectinload(Room.activities),
         selectinload(Room.special_equipment),
@@ -89,7 +88,7 @@ def get_rooms(db: Session) -> list[Room]:
 
 def get_room_by_id(db: Session, room_id: int) -> Optional[Room]:
     return db.query(Room).options(
-        selectinload(Room.type),
+        selectinload(Room.room_type),
         selectinload(Room.departments),
         selectinload(Room.activities),
         selectinload(Room.special_equipment),
@@ -98,7 +97,7 @@ def get_room_by_id(db: Session, room_id: int) -> Optional[Room]:
 
 def get_room_by_number(db: Session, room_number: str) -> Optional[Room]:
     return db.query(Room).options(
-        selectinload(Room.type),
+        selectinload(Room.room_type),
         selectinload(Room.departments),
         selectinload(Room.activities),
         selectinload(Room.special_equipment),
@@ -110,7 +109,7 @@ def create_room(db: Session, payload: RoomCreate) -> Room:
     room = Room(
         number=room_number,
         seats=payload.seats_count,
-        type=_resolve_room_type(db, payload.room_type_id),
+        room_type=_resolve_room_type(db, payload.room_type_id),
     )
     room.departments = _resolve_departments(db, payload.departments)
     room.activities = _resolve_activities(db, payload.activities)
@@ -124,7 +123,7 @@ def update_room(db: Session, room: Room, payload: RoomUpdate) -> Room:
     room_number = payload.room_number.strip()
     room.number = room_number
     room.seats = payload.seats_count
-    room.type = _resolve_room_type(db, payload.room_type_id)
+    room.room_type = _resolve_room_type(db, payload.room_type_id)
     room.departments = _resolve_departments(db, payload.departments)
     room.activities = _resolve_activities(db, payload.activities)
     room.special_equipment = _resolve_special_equipment(db, payload.special_equipment)
@@ -139,13 +138,12 @@ def delete_room(db: Session, room: Room) -> None:
     db.delete(room)
     db.commit()
 
-# NOTE: Why do you create JSON by hand when you could use response class??
 def map_room_to_response(room: Room) -> dict:
     return {
         "id": room.id,
         "room_number": room.number,
         "seats_count": room.seats,
-        "room_type": room.type.type if room.type else "inna",
+        "room_type": room.room_type.type if room.room_type else "inna",
         "special_equipment": [equipment.id for equipment in room.special_equipment],
         "activities": [activity.id for activity in room.activities],
         "departments": [department.id for department in room.departments],

@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.auth.current_user import get_current_user
 from app.core.database import get_db
-from app.cruds.crud_room import (
+from app.cruds.room.crud_room import (
     create_room,
     delete_room,
     get_room_by_id,

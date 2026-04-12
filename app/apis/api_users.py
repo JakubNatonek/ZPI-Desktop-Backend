@@ -3,7 +3,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.auth.current_user import get_current_user
+from app.auth.current_user import get_current_user, get_user_role_names
 from app.core.database import get_db
 from app.cruds.crud_login import (
     create_user_by_admin,
@@ -284,14 +284,14 @@ def admin_reset_password(
     summary="Pobierz profil zalogowanego użytkownika",
 )
 def get_my_profile(current_user: User = Depends(get_current_user)) -> UserProfileResponse:
-    role_name = (current_user.role.name if current_user.role else "").lower()
+    role_names = get_user_role_names(current_user)
     group_code = current_user.student_profile.group.code if current_user.student_profile and current_user.student_profile.group else None
 
-    if role_name == "student":
+    if "student" in role_names:
         status = "Aktywny student"
-    elif role_name in {"wykladowca", "lecturer"}:
+    elif role_names.intersection({"wykladowca", "lecturer"}):
         status = "Pracownik dydaktyczny"
-    elif role_name in {"planista", "planner"}:
+    elif role_names.intersection({"planista", "planner"}):
         status = "Planista"
     else:
         status = "Administrator systemu"
@@ -303,8 +303,8 @@ def get_my_profile(current_user: User = Depends(get_current_user)) -> UserProfil
         semester=str(current_user.student_profile.semester) if current_user.student_profile and current_user.student_profile.semester is not None else "Nie dotyczy",
         major=current_user.department.name if current_user.department else "Nie dotyczy",
         faculty=current_user.department.name if current_user.department else "Nie dotyczy",
-        study_track="Ogolnoakademicki" if role_name == "student" else "Nie dotyczy",
-        study_mode="Stacjonarne" if role_name == "student" else "Nie dotyczy",
+        study_track="Ogolnoakademicki" if "student" in role_names else "Nie dotyczy",
+        study_mode="Stacjonarne" if "student" in role_names else "Nie dotyczy",
         title=current_user.teacher_profile.title if current_user.teacher_profile and current_user.teacher_profile.title else "Nie dotyczy",
         groups=[group_code] if group_code else [],
     )

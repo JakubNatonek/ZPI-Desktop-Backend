@@ -3,11 +3,11 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
+from app.auth.current_user import get_current_user, user_has_role
 from app.core.database import get_db
 from app.models.chat.model_conversation_member import ConversationMember
 from app.models.chat.model_message import Message
 from app.schemas.chat.chat import MessageResponse
-from app.auth.current_user import get_current_user
 from app.models.model_user import User
 
 
@@ -31,7 +31,7 @@ def get_messages_for_user(
     Uprawnienia: użytkownik może pobrać swoje wiadomości; użytkownik z rolą 'admin' może pobrać dowolnego.
     """
     # Permission check: allow self or admin
-    if current_user.user_id != user_id and getattr(current_user.role, "name", None) != "admin":
+    if current_user.user_id != user_id and not user_has_role(current_user, "admin"):
         raise HTTPException(status_code=403, detail="Brak dostępu do żądanych wiadomości")
 
     conv_rows = db.query(ConversationMember.conversation_id).filter(ConversationMember.user_id == user_id).distinct().all()

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.auth.current_user import get_current_user
+from app.auth.current_user import get_current_user, user_has_role
 from app.core.database import get_db
 from app.cruds.crud_admin_thesis import admin_update_proposal_status, get_all_proposals
 from app.cruds.crud_thesis import (
@@ -28,12 +28,7 @@ router = APIRouter(prefix="/thesis", tags=["thesis"])
 
 
 def _is_admin(user: User) -> bool:
-    token_roles = {
-        str(role).strip().lower()
-        for role in getattr(user, "token_roles", [])
-        if str(role).strip()
-    }
-    return "admin" in token_roles
+    return user_has_role(user, "admin")
 
 
 def _to_response(proposal: ThesisProposal) -> ThesisProposalResponse:

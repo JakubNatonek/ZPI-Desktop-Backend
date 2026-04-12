@@ -9,6 +9,31 @@ from app.core.database import get_db
 from app.models.model_user import User
 
 
+def get_user_role_names(user: User) -> set[str]:
+    return {
+        role_for_user.role.name
+        for role_for_user in getattr(user, "roles_for_user", [])
+        if role_for_user.role and role_for_user.role.name
+    }
+
+
+def user_has_role(user: User, required_role: str | list[str] | set[str] | tuple[str, ...]) -> bool:
+    if isinstance(required_role, str):
+        required_role_names = {required_role} if required_role else set()
+    else:
+        required_role_names = {
+            str(role)
+            for role in required_role
+            if str(role)
+        }
+
+    if not required_role_names:
+        return False
+
+    user_role_names = getattr(user, "role_names", [])
+    return not set(user_role_names).isdisjoint(required_role_names)
+
+
 def get_current_user(
     request: Request,
     db: Session = Depends(get_db),
@@ -56,18 +81,11 @@ def get_current_user(
         )
 
     user_roles = get_roles_for_user(db, user.user_id)
-    user_role_values = {
-        user_role.name.strip().lower()
-        for user_role in user_roles
-        if user_role.name
-    }
+    user_role_values = {user_role.name for user_role in user_roles if user_role.name}
     if not set(token_roles).intersection(user_role_values):
         raise HTTPException(
             status_code=401,
             detail="Token role mismatch",
         )
 
-    setattr(user, "token_roles", token_roles)
-
-    # NOTE: You can return user permision here eliminating addisional check in dependancies auth.py.
     return user

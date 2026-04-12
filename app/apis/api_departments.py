@@ -11,7 +11,6 @@ from app.schemas.department import DepartmentCreate, DepartmentResponse
 
 router = APIRouter(prefix="/departments", tags=["departments"])
 
-# NOTE: Frontend need fix cos sends incorect data
 @router.post(
     "",
     response_model=DepartmentResponse,
@@ -33,7 +32,7 @@ def create_department_entry(
             abbreviation = cast(str, department.abbreviation)
         )
 
-# NOTE: Frontend need fix cos recive incorect data
+
 @router.get(
     "/list",
     response_model=list[DepartmentResponse],

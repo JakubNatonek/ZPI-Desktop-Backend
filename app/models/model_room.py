@@ -5,7 +5,6 @@ from app.core.database import Base
 from app.models.model_activity import room_activities
 from app.models.model_room_department import room_departments
 from app.models.model_special_equipment import room_special_equipment
-from app.models.model_room_type import RoomType
 
 
 class Room(Base):
@@ -18,7 +17,7 @@ class Room(Base):
     description = Column(String, nullable=True)
     type_id = Column(Integer, ForeignKey("room_type.id"), nullable=True)
 
-    type = relationship("RoomType")
+    room_type = relationship("RoomType")
     departments = relationship("Department", secondary=room_departments, back_populates="rooms")
     activities = relationship("Activity", secondary=room_activities, back_populates="rooms")
     special_equipment = relationship("SpecialEquipment", secondary=room_special_equipment, back_populates="rooms")
