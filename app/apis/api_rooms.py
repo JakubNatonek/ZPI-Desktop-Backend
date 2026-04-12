@@ -12,9 +12,9 @@ from app.cruds.crud_room import (
     map_room_to_response,
     update_room,
 )
+from app.dependencies.auth import require_role
 from app.models.model_user import User
 from app.schemas.room import RoomCreate, RoomListResponse, RoomResponse, RoomUpdate
-from app.dependencies.auth import require_admin
 
 
 router = APIRouter(prefix="/rooms", tags=["rooms"])
@@ -30,7 +30,7 @@ router = APIRouter(prefix="/rooms", tags=["rooms"])
 @router.get("/list", response_model=RoomListResponse, summary="Pobierz listę sal")
 def list_rooms(
     db: Session = Depends(get_db),
-    _: User = Depends(require_admin),
+    _: User = Depends(require_role("admin")),
 ) -> RoomListResponse:
     rooms = get_rooms(db)
     return RoomListResponse(items=[RoomResponse(**map_room_to_response(room)) for room in rooms])
@@ -40,7 +40,7 @@ def list_rooms(
 def get_room(
     room_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(require_admin),
+    _: User = Depends(require_role("admin")),
 ) -> RoomResponse:
     room = get_room_by_id(db, room_id)
     if room is None:
@@ -53,7 +53,7 @@ def get_room(
 def create_room_entry(
     payload: RoomCreate,
     db: Session = Depends(get_db),
-    _: User = Depends(require_admin),
+    _: User = Depends(require_role("admin")),
 ) -> RoomResponse:
     existing = get_room_by_number(db, payload.room_number)
     if existing is not None:
@@ -68,7 +68,7 @@ def update_room_entry(
     room_id: int,
     payload: RoomUpdate,
     db: Session = Depends(get_db),
-    _: User = Depends(require_admin),
+    _: User = Depends(require_role("admin")),
 ) -> RoomResponse:
     room = get_room_by_id(db, room_id)
     if room is None:
@@ -86,7 +86,7 @@ def update_room_entry(
 def delete_room_entry(
     room_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(require_admin),
+    _: User = Depends(require_role("admin")),
 ) -> None:
     room = get_room_by_id(db, room_id)
     if room is None:

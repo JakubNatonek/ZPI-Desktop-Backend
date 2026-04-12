@@ -18,7 +18,7 @@ from app.cruds.crud_login import (
 from app.cruds.crud_departments_for_user import get_departments_for_user
 from app.cruds.crud_roles_for_user import get_roles_for_user
 from app.cruds.crud_user import get_related_names_for_user
-from app.dependencies.auth import require_admin
+from app.dependencies.auth import require_role
 from app.models.model_department import Department
 from app.models.model_role import Role
 from app.models.model_user import User
@@ -48,7 +48,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 def create_user_as_admin(
     payload: AdminUserCreate,
     db: Session = Depends(get_db),
-    _: User = Depends(require_admin),
+    _: User = Depends(require_role("admin")),
 ) -> UserCreatedResponse:
     normalized_email = str(payload.email).strip().lower()
 
@@ -160,7 +160,7 @@ def set_user_public_key(
 )
 def admin_list_users(
     db: Session = Depends(get_db),
-    _: User = Depends(require_admin),
+    _: User = Depends(require_role("admin")),
 ) -> List[AdminUserListResponse]:
     users = get_all_users(db)
     return [
@@ -188,7 +188,7 @@ def admin_update_user(
     user_id: int,
     payload: AdminUserUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin),
+    current_user: User = Depends(require_role("admin")),
 ) -> AdminUserListResponse:
     user = get_user_by_id(db, user_id)
     if user is None:
@@ -247,7 +247,7 @@ def admin_update_user(
 def admin_delete_user(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin),
+    current_user: User = Depends(require_role("admin")),
 ) -> None:
     user = get_user_by_id(db, user_id)
     if user is None:
@@ -268,7 +268,7 @@ def admin_reset_password(
     user_id: int,
     payload: AdminResetPasswordRequest,
     db: Session = Depends(get_db),
-    _: User = Depends(require_admin),
+    _: User = Depends(require_role("admin")),
 ) -> ChangePasswordResponse:
     user = get_user_by_id(db, user_id)
     if user is None:

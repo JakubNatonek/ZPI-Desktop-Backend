@@ -37,8 +37,6 @@ from app.schemas.user import (
     UserLogin,
 )
 
-from app.dependencies.auth import require_admin
-
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 load_dotenv()

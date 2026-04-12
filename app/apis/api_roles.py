@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.cruds.crud_role import create_role, get_roles
-from app.dependencies.auth import require_admin
+from app.dependencies.auth import require_role
 from app.models.model_user import User
 from app.schemas.role import RoleCreate, RoleResponse
 
@@ -21,7 +21,7 @@ router = APIRouter(prefix="/roles", tags=["roles"])
 def create_role_entry(
     payload: RoleCreate,
     db: Session = Depends(get_db),
-    _: User = Depends(require_admin),
+    _: User = Depends(require_role("admin")),
 ) -> RoleResponse:
     try:
         role = create_role(db, payload.name.strip())
@@ -43,7 +43,7 @@ def create_role_entry(
 )
 def list_roles(
     db: Session = Depends(get_db),
-    _: User = Depends(require_admin),
+    _: User = Depends(require_role("admin")),
 ) -> List[RoleResponse]:
     roles = get_roles(db)
     return [RoleResponse(id = cast(int, role.id), name = cast(str, role.name),) for role in roles]
