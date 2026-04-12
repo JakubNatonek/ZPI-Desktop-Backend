@@ -1,20 +1,18 @@
-from datetime import datetime, timezone
-
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from app.core.thesis_datetime import utc_now_minute
 from app.cruds.crud_roles_for_user import get_roles_for_user
-from app.core.text_normalization import normalize_lookup_value
 from app.models.model_thesis_proposal import ThesisProposal, ThesisProposalStatus
 from app.models.model_user import User
 
-# NOTE: just do a table nex time
-LECTURER_ROLE_NAMES = {"lecturer", "wykladowca", "cwiczenia", "laboratorium", "seminarium"}
-
-
-def _is_lecturer_user(user: User) -> bool:
-    role_name = normalize_lookup_value(user.role.name if user.role else "")
-    return role_name in LECTURER_ROLE_NAMES
+def _is_lecturer_user(db: Session, user_id: int) -> bool:
+    role_names = {
+        str(role.name).strip().lower()
+        for role in get_roles_for_user(db, user_id)
+        if role.name
+    }
+    return "wykladowca" in role_names
 
 
 # NOTE this all need a redo
@@ -23,8 +21,7 @@ def get_lecturers(db: Session) -> list[User]:
     lecturers = []
 
     for user in users:
-        user_roles = get_roles_for_user(db, user.user_id)
-        if any(normalize_lookup_value(role.name) in LECTURER_ROLE_NAMES for role in user_roles if role.name):
+        if _is_lecturer_user(db, user.user_id):
             lecturers.append(user)
 
     return lecturers
@@ -41,7 +38,7 @@ def create_thesis_proposal(
     lecturer = db.query(User).filter(User.user_id == lecturer_id).first()
     if lecturer is None:
         raise ValueError("Selected lecturer does not exist")
-    if not _is_lecturer_user(lecturer):
+    if not _is_lecturer_user(db, lecturer.user_id):
         raise ValueError("Selected user is not a lecturer")
 
     proposal = ThesisProposal(
@@ -99,7 +96,7 @@ def update_proposal_status(
         raise ValueError("Only pending proposals can be reviewed")
 
     proposal.status = status
-    proposal.reviewed_at = datetime.now(timezone.utc)
+    proposal.reviewed_at = utc_now_minute()
     db.add(proposal)
     db.commit()
     db.refresh(proposal)

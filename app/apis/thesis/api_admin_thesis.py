@@ -26,7 +26,7 @@ from app.schemas.admin_thesis import (
 )
 from app.schemas.thesis import LecturerResponse
 
-router = APIRouter(prefix="/thesis", tags=["admin-thesis"])
+router = APIRouter(prefix="/admin/thesis", tags=["thesis"])
 
 
 # def _require_admin(current_user: User = Depends(get_current_user)) -> User:
@@ -85,6 +85,7 @@ def _to_settings_response(settings: ThesisScheduleSettings) -> AdminThesisSettin
         topic_submission_to=settings.topic_submission_to,
         proposal_selection_from=settings.proposal_selection_from,
         proposal_selection_deadline=settings.proposal_selection_deadline,
+        max_approved_proposals=settings.max_approved_proposals,
         tab_visible_now=flags["tab_visible_now"],
         topic_submission_open=flags["topic_submission_open"],
         proposal_selection_open=flags["proposal_selection_open"],
@@ -123,6 +124,7 @@ def patch_settings(
         topic_submission_to=payload.topic_submission_to,
         proposal_selection_from=payload.proposal_selection_from,
         proposal_selection_deadline=payload.proposal_selection_deadline,
+        max_approved_proposals=payload.max_approved_proposals,
     )
     return _to_settings_response(settings)
 

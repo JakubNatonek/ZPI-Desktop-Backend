@@ -1,14 +1,15 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import Enum as PyEnum
 
 from sqlalchemy import Column, DateTime, Enum, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
+from app.core.thesis_datetime import utc_now_minute
 
 
 def _utcnow() -> datetime:
-    return datetime.now(timezone.utc)
+    return utc_now_minute()
 
 
 class ThesisProposalStatus(str, PyEnum):

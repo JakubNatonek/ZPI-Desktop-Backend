@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Integer, String
+from sqlalchemy import Column, Integer, String
 
 from app.core.database import Base
 
@@ -7,4 +7,3 @@ class Role(Base):
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     name = Column(String, unique=True, nullable=False)
-    is_lecturer = Column(Boolean, nullable=False, default=False)

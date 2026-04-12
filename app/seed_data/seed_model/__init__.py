@@ -15,6 +15,9 @@ from app.seed_data.seed_model.seed_titles import seed_titles
 from app.seed_data.seed_model.seed_semesters import seed_semesters
 from app.seed_data.seed_model.seed_subjects import seed_subjects
 from app.seed_data.seed_model.seed_teacher_student_profiles import seed_teacher_student_profiles
+from app.seed_data.seed_model.seed_thesis import seed_thesis
+from app.seed_data.seed_model.seed_thesis_proposals import seed_thesis_proposals
+from app.seed_data.seed_model.seed_thesis_settings import seed_thesis_settings
 from app.seed_data.seed_model.seed_users import seed_users
 
 __all__ = [
@@ -33,6 +36,9 @@ __all__ = [
 	"seed_semesters",
 	"seed_subjects",
 	"seed_teacher_student_profiles",
+	"seed_thesis_settings",
+	"seed_thesis_proposals",
+	"seed_thesis",
 	"seed_users",
 	"seed_admin",
 	"seed_titles",

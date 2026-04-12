@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.auth.current_user import get_current_user
-from app.core.text_normalization import normalize_lookup_value
 from app.core.database import get_db
+from app.cruds.crud_admin_thesis import admin_update_proposal_status, get_all_proposals
 from app.cruds.crud_thesis import (
     count_approved_for_lecturer,
     create_thesis_proposal,
@@ -12,6 +12,7 @@ from app.cruds.crud_thesis import (
     update_proposal_status,
 )
 from app.cruds.crud_thesis_settings import get_or_create_thesis_settings, get_thesis_schedule_flags
+from app.dependencies.auth import require_role
 from app.models.model_thesis_proposal import ThesisProposal, ThesisProposalStatus
 from app.models.model_user import User
 from app.schemas.thesis import (
@@ -25,20 +26,14 @@ from app.schemas.thesis import (
 
 router = APIRouter(prefix="/thesis", tags=["thesis"])
 
-# NOTE: Why are you make static data, make string base cheks????
-MAX_APPROVED_PROPOSALS = 3
-LECTURER_ROLE_NAMES = {"lecturer", "wykladowca", "cwiczenia", "laboratorium", "seminarium"}
-STUDENT_ROLE_NAMES = {"student"}
 
-
-def _is_lecturer(user: User) -> bool:
-    role_name = normalize_lookup_value(user.role.name if user.role else "")
-    return role_name in LECTURER_ROLE_NAMES
-
-
-def _is_student(user: User) -> bool:
-    role_name = normalize_lookup_value(user.role.name if user.role else "")
-    return role_name in STUDENT_ROLE_NAMES
+def _is_admin(user: User) -> bool:
+    token_roles = {
+        str(role).strip().lower()
+        for role in getattr(user, "token_roles", [])
+        if str(role).strip()
+    }
+    return "admin" in token_roles
 
 
 def _to_response(proposal: ThesisProposal) -> ThesisProposalResponse:
@@ -74,7 +69,7 @@ def _get_schedule_flags(db: Session) -> dict[str, bool]:
 
 def _to_schedule_response(flags: dict[str, bool], current_user: User, db: Session) -> ThesisScheduleAvailabilityResponse:
     settings = get_or_create_thesis_settings(db)
-    is_admin = normalize_lookup_value(current_user.role.name if current_user.role else "") == "admin"
+    is_admin = _is_admin(current_user)
     return ThesisScheduleAvailabilityResponse(
         tab_visible_from=settings.tab_visible_from,
         tab_visible_to=settings.tab_visible_to,
@@ -82,13 +77,16 @@ def _to_schedule_response(flags: dict[str, bool], current_user: User, db: Sessio
         topic_submission_to=settings.topic_submission_to,
         proposal_selection_from=settings.proposal_selection_from,
         proposal_selection_deadline=settings.proposal_selection_deadline,
+        max_approved_proposals=settings.max_approved_proposals,
         can_view_tab=True if is_admin else flags["tab_visible_now"],
         can_submit_topics=True if is_admin else flags["tab_visible_now"] and flags["topic_submission_open"],
         can_select_proposals=True if is_admin else flags["tab_visible_now"] and flags["proposal_selection_open"],
     )
 
 
-def _ensure_tab_visible(db: Session) -> None:
+def _ensure_tab_visible(db: Session, current_user: User) -> None:
+    if _is_admin(current_user):
+        return
     if not _get_schedule_flags(db)["tab_visible_now"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -96,7 +94,9 @@ def _ensure_tab_visible(db: Session) -> None:
         )
 
 
-def _ensure_submission_open(db: Session) -> None:
+def _ensure_submission_open(db: Session, current_user: User) -> None:
+    if _is_admin(current_user):
+        return
     flags = _get_schedule_flags(db)
     if not flags["tab_visible_now"]:
         raise HTTPException(
@@ -110,7 +110,9 @@ def _ensure_submission_open(db: Session) -> None:
         )
 
 
-def _ensure_selection_open(db: Session) -> None:
+def _ensure_selection_open(db: Session, current_user: User) -> None:
+    if _is_admin(current_user):
+        return
     flags = _get_schedule_flags(db)
     if not flags["tab_visible_now"]:
         raise HTTPException(
@@ -136,12 +138,9 @@ def get_schedule_availability(
 @router.get("/lecturers", response_model=list[LecturerResponse], summary="List lecturers")
 def list_lecturers(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role(("admin", "student"))),
 ) -> list[LecturerResponse]:
-    if not _is_student(current_user):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only students can list lecturers")
-
-    _ensure_tab_visible(db)
+    _ensure_tab_visible(db, current_user)
 
     lecturers = get_lecturers(db)
     return [
@@ -159,12 +158,9 @@ def list_lecturers(
 def submit_proposal(
     payload: ThesisProposalCreateRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role(("admin", "student"))),
 ) -> ThesisProposalResponse:
-    if not _is_student(current_user):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only students can submit proposals")
-
-    _ensure_submission_open(db)
+    _ensure_submission_open(db, current_user)
 
     try:
         proposal = create_thesis_proposal(
@@ -184,14 +180,15 @@ def submit_proposal(
 @router.get("/proposals", response_model=list[ThesisProposalResponse], summary="List lecturer thesis proposals")
 def list_lecturer_proposals(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role(("admin", "wykladowca"))),
 ) -> list[ThesisProposalResponse]:
-    if not _is_lecturer(current_user):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only lecturers can view proposals")
+    _ensure_tab_visible(db, current_user)
 
-    _ensure_tab_visible(db)
+    if _is_admin(current_user):
+        proposals = get_all_proposals(db)
+    else:
+        proposals = get_proposals_for_lecturer(db, current_user.user_id)
 
-    proposals = get_proposals_for_lecturer(db, current_user.user_id)
     return [_to_response(proposal) for proposal in proposals]
 
 
@@ -204,19 +201,27 @@ def review_proposal(
     proposal_id: int,
     payload: ThesisProposalStatusUpdateRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role(("admin", "wykladowca"))),
 ) -> ThesisProposalResponse:
-    if not _is_lecturer(current_user):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only lecturers can review proposals")
+    _ensure_selection_open(db, current_user)
+    settings = get_or_create_thesis_settings(db)
 
-    _ensure_selection_open(db)
+    if _is_admin(current_user):
+        proposal = admin_update_proposal_status(
+            db,
+            proposal_id=proposal_id,
+            new_status=ThesisProposalStatus(payload.status.value),
+        )
+        if proposal is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Proposal not found")
+        return _to_response(proposal)
 
     if payload.status == ThesisProposalStatus.APPROVED:
         approved_count = count_approved_for_lecturer(db, current_user.user_id)
-        if approved_count >= MAX_APPROVED_PROPOSALS:
+        if approved_count >= settings.max_approved_proposals:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Maximum approved proposals reached ({MAX_APPROVED_PROPOSALS})",
+                detail=f"Maximum approved proposals reached ({settings.max_approved_proposals})",
             )
 
     try:

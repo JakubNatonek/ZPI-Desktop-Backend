@@ -1,3 +1,5 @@
+from collections.abc import Iterable
+
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -6,8 +8,18 @@ from app.core.database import get_db
 from app.cruds.crud_role import get_roles
 from app.models.model_user import User
 
-def require_role(required_role: str | None = None):
-    normalized_required_role = required_role.strip().lower() if required_role else None
+def require_role(required_role: str | Iterable[str] | None = None):
+    required_roles: set[str] | None
+    if required_role is None:
+        required_roles = None
+    elif isinstance(required_role, str):
+        required_roles = {required_role.strip().lower()} if required_role.strip() else set()
+    else:
+        required_roles = {
+            str(role).strip().lower()
+            for role in required_role
+            if str(role).strip()
+        }
 
     def dependency(
         current_user: User = Depends(get_current_user),
@@ -30,7 +42,7 @@ def require_role(required_role: str | None = None):
         if not matched_roles:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
 
-        if normalized_required_role is not None and normalized_required_role not in matched_roles:
+        if required_roles is not None and matched_roles.isdisjoint(required_roles):
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
 
         return current_user

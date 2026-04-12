@@ -27,6 +27,8 @@ def seed_all() -> None:
 
         seed_model.seed_days(db)
         seed_model.seed_semesters(db)
+        seed_model.seed_thesis_settings(db)
+        seed_model.seed_thesis_proposals(db)
 
         # default availability preference for a test user
         seed_model.seed_dezyderata(db)
