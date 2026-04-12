@@ -91,6 +91,14 @@ class AuthResponse(BaseModel):
     access_token_expires_in: int
     must_change_password: bool
 
+class AuthMeResponse(BaseModel):
+    """Odpowiedź dla bieżącego zalogowanego użytkownika w warstwie auth."""
+    user_id: int
+    login: str
+    email: EmailStr
+    role: str
+    dzial: str
+
 
 class CurrentUserResponse(BaseModel):
     """Current logged-in user data."""

@@ -15,6 +15,7 @@ from app.auth.jwt_utils import (
     decode_refresh_token,
     refresh_expiry_datetime,
 )
+from app.cruds.crud_departments_for_user import get_departments_for_user
 from app.cruds.crud_login import (
     authenticate_user,
     get_user_by_id,
@@ -30,6 +31,7 @@ from app.core.database import get_db
 from app.models.model_user import User
 from app.schemas.user import (
     AuthResponse,
+    AuthMeResponse,
     ChangePasswordRequest,
     ChangePasswordResponse,
     CurrentUserResponse,
@@ -56,6 +58,39 @@ def _set_refresh_cookie(response: Response, refresh_token: str) -> None:
         max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
         path="/",
     )
+
+
+def _resolve_primary_role(role_names: list[str]) -> str:
+    normalized_roles = [role.strip().lower() for role in role_names if role and role.strip()]
+
+    for candidate in ("admin", "wykladowca", "lecturer", "planista", "planner", "student"):
+        if candidate in normalized_roles:
+            return candidate
+
+    return normalized_roles[0] if normalized_roles else "admin"
+
+
+@router.get(
+    "/me",
+    response_model=AuthMeResponse,
+    summary="Dane zalogowanego użytkownika dla warstwy auth",
+)
+def me(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> AuthMeResponse:
+    role_names = [role.name.strip().lower() for role in get_roles_for_user(db, current_user.user_id) if role.name]
+    department_names = [department.name.strip() for department in get_departments_for_user(db, current_user.user_id) if department.name]
+
+    return AuthMeResponse(
+        user_id=current_user.user_id,
+        login=current_user.login,
+        email=current_user.email,
+        role=_resolve_primary_role(role_names),
+        dzial=department_names[0] if department_names else "",
+    )
+
+
 @router.post(
     "/",
     response_model=AuthResponse,
