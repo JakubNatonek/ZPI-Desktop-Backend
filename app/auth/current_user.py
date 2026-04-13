@@ -3,8 +3,8 @@ from jose import ExpiredSignatureError, JWTError
 from sqlalchemy.orm import Session
 
 from app.auth.jwt_utils import decode_access_token
-from app.cruds.crud_login import get_user_by_id
 from app.cruds.crud_roles_for_user import get_roles_for_user
+from app.cruds.crud_user import get_user_by_id
 from app.core.database import get_db
 from app.models.model_user import User
 

@@ -7,7 +7,7 @@ from jose import ExpiredSignatureError, JWTError
 
 from app.auth.jwt_utils import decode_access_token
 from app.core.database import SessionLocal
-from app.cruds.crud_login import get_user_by_id
+from app.cruds.crud_user import get_user_by_id
 from app.services.websocket_manager import chat_ws_manager
 
 

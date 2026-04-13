@@ -18,10 +18,10 @@ from app.auth.jwt_utils import (
 from app.cruds.crud_departments_for_user import get_departments_for_user
 from app.cruds.crud_login import (
     authenticate_user,
-    get_user_by_id,
     update_user_password,
 )
 from app.cruds.crud_roles_for_user import get_roles_for_user
+from app.cruds.crud_user import get_user_by_id
 from app.cruds.crud_refresh_token import (
     create_refresh_session,
     is_refresh_session_active,

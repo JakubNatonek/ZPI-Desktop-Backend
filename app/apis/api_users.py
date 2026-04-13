@@ -5,10 +5,11 @@ from sqlalchemy.orm import Session
 
 from app.auth.current_user import get_current_user, get_user_role_names
 from app.core.database import get_db
-from app.cruds.crud_login import (
+from app.cruds.crud_user import (
     create_user_by_admin,
     delete_user_by_admin,
     get_all_users,
+    get_related_names_for_user,
     get_user_by_email,
     get_user_by_id,
     get_user_by_login,
@@ -17,7 +18,6 @@ from app.cruds.crud_login import (
 )
 from app.cruds.crud_departments_for_user import get_departments_for_user
 from app.cruds.crud_roles_for_user import get_roles_for_user
-from app.cruds.crud_user import get_related_names_for_user
 from app.dependencies.auth import require_role
 from app.models.model_department import Department
 from app.models.model_role import Role
@@ -37,6 +37,13 @@ from app.schemas.user import (
 )
 
 router = APIRouter(prefix="/users", tags=["users"])
+
+
+def _status_for_user_validation_error(detail: str) -> int:
+    normalized = detail.strip().lower()
+    if "already exists" in normalized or "cannot be deleted" in normalized or "constraint" in normalized:
+        return status.HTTP_409_CONFLICT
+    return status.HTTP_400_BAD_REQUEST
 
 
 @router.post(
@@ -66,7 +73,7 @@ def create_user_as_admin(
             department_ids=payload.department_ids,
         )
     except ValueError as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+        raise HTTPException(status_code=_status_for_user_validation_error(str(exc)), detail=str(exc)) from exc
 
     roles = get_related_names_for_user(db, user.user_id, get_roles_for_user)
     departments = get_related_names_for_user(db, user.user_id, get_departments_for_user)
@@ -224,7 +231,7 @@ def admin_update_user(
             department_ids=payload.department_ids,
         )
     except ValueError as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+        raise HTTPException(status_code=_status_for_user_validation_error(str(exc)), detail=str(exc)) from exc
 
     return AdminUserListResponse(
         user_id=updated.user_id,
@@ -256,7 +263,10 @@ def admin_delete_user(
     if current_user.user_id == user.user_id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You cannot delete your own account")
 
-    delete_user_by_admin(db, user)
+    try:
+        delete_user_by_admin(db, user)
+    except ValueError as exc:
+        raise HTTPException(status_code=_status_for_user_validation_error(str(exc)), detail=str(exc)) from exc
 
 
 @router.post(
