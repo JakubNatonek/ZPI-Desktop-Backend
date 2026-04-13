@@ -20,6 +20,10 @@ def seed_grades(db: Session) -> None:
 	for student_id in (1, 2):
 		selected_subjects = rng.sample(subjects, 3)
 		for sort_order, subject in enumerate(selected_subjects, start=1):
+			activity_name = ""
+			if subject.type_link is not None and subject.type_link.activity is not None:
+				activity_name = str(subject.type_link.activity.name)
+
 			existing = (
 				db.query(GradeRecord)
 				.filter(
@@ -39,7 +43,7 @@ def seed_grades(db: Session) -> None:
 					semester=1,
 					subject_name=subject.name,
 					component_label=f"Zadanie {sort_order}",
-					component_info=subject.type_display or subject.type,
+					component_info=subject.type_display or activity_name,
 					grade_value=rng.choice(grade_values),
 					is_final=sort_order == 3,
 					sort_order=sort_order,

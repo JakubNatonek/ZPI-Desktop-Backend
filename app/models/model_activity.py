@@ -19,3 +19,4 @@ class Activity(Base):
     name = Column(String(120), unique=True, nullable=False)
 
     rooms = relationship("Room", secondary=room_activities, back_populates="activities")
+    subject_activities = relationship("SubjectActivity", back_populates="activity")
