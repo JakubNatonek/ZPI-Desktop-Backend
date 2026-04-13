@@ -16,6 +16,8 @@ from app.cruds.crud_user import (
     set_user_password,
     update_user_by_admin,
 )
+from app.cruds.crud_title import list_titles
+from app.cruds.crud_title_for_user import list_titles_for_user
 from app.cruds.crud_departments_for_user import get_departments_for_user
 from app.cruds.crud_roles_for_user import get_roles_for_user
 from app.dependencies.auth import require_role
@@ -30,6 +32,7 @@ from app.schemas.user import (
     ChangePasswordResponse,
     PublicKeyResponse,
     PublicKeyUpdate,
+    TitleOptionResponse,
     UserCreatedResponse,
     UserNameResponse,
     UserProfileResponse,
@@ -71,6 +74,7 @@ def create_user_as_admin(
             password=payload.password,
             role_ids=payload.role_ids,
             department_ids=payload.department_ids,
+            title_ids=payload.title_ids,
         )
     except ValueError as exc:
         raise HTTPException(status_code=_status_for_user_validation_error(str(exc)), detail=str(exc)) from exc
@@ -100,6 +104,19 @@ def list_users(
 ) -> List[UserNameResponse]:
     users = get_all_users(db)
     return [UserNameResponse(user_id=user.user_id, first_name=user.first_name, last_name=user.last_name) for user in users]
+
+
+@router.get(
+    "/titles/list",
+    response_model=List[TitleOptionResponse],
+    summary="Lista dostępnych tytułów naukowych",
+)
+def list_user_title_options(
+    db: Session = Depends(get_db),
+    _: User = Depends(require_role("admin")),
+) -> List[TitleOptionResponse]:
+    titles = list_titles(db)
+    return [TitleOptionResponse(id=title.id, name=title.name) for title in titles]
 
 
 @router.get(
@@ -178,6 +195,7 @@ def admin_list_users(
             album_number=user.album_number,
             login=user.login,
             email=user.email,
+            titles=get_related_names_for_user(db, user.user_id, list_titles_for_user),
             roles=get_related_names_for_user(db, user.user_id, get_roles_for_user),
             departments=get_related_names_for_user(db, user.user_id, get_departments_for_user),
             must_change_password=bool(user.must_change_password),
@@ -240,6 +258,7 @@ def admin_update_user(
         album_number=updated.album_number,
         login=updated.login,
         email=updated.email,
+        titles=get_related_names_for_user(db, updated.user_id, list_titles_for_user),
         roles=get_related_names_for_user(db, updated.user_id, get_roles_for_user),
         departments=get_related_names_for_user(db, updated.user_id, get_departments_for_user),
         must_change_password=bool(updated.must_change_password),

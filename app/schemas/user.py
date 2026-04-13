@@ -11,6 +11,7 @@ class AdminUserCreate(BaseModel):
     password: str = Field(min_length=8, max_length=128)
     role_ids: list[PositiveInt] = Field(min_length=1)
     department_ids: list[PositiveInt] = Field(min_length=1)
+    title_ids: list[PositiveInt] = Field(default_factory=list)
 
 
 class UserCreatedResponse(BaseModel):
@@ -32,6 +33,7 @@ class AdminUserListResponse(BaseModel):
     album_number: str
     login: str
     email: str
+    titles: list[str]
     roles: list[str]
     departments: list[str]
     must_change_password: bool
@@ -56,6 +58,11 @@ class RoleOptionResponse(BaseModel):
 
 
 class DepartmentOptionResponse(BaseModel):
+    id: int
+    name: str
+
+
+class TitleOptionResponse(BaseModel):
     id: int
     name: str
 

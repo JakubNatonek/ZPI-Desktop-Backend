@@ -10,6 +10,7 @@ from app.models.model_department_for_user import DepartmentsForUser
 from app.models.model_refresh_token import RefreshTokenSession
 from app.models.model_role import Role
 from app.models.model_role_for_user import RolesForUser
+from app.models.model_title import TitleModel
 from app.models.model_title_for_user import TitleForUser
 from app.models.model_user import User
 from app.models.rapla.model_rapla_app_user_to_resourc import RaplaAppUserToResourc
@@ -150,6 +151,7 @@ def create_user_by_admin(
     role_ids: list[int],
     department_ids: list[int],
     password: str,
+    title_ids: list[int] | None = None,
 ) -> User:
     album_number = _generate_album_number(db)
     login = _generate_login(first_name, last_name, album_number)
@@ -178,6 +180,13 @@ def create_user_by_admin(
             raise ValueError(f"Department not found: {department_id}")
         departments.append(department)
 
+    titles: list[TitleModel] = []
+    for title_id in dict.fromkeys(title_ids or []):
+        title = db.query(TitleModel).filter(TitleModel.id == title_id).first()
+        if not title:
+            raise ValueError(f"Title not found: {title_id}")
+        titles.append(title)
+
     users_table = _get_users_table(db)
     insert_values = {
         "first_name": first_name,
@@ -198,6 +207,8 @@ def create_user_by_admin(
             db.add(RolesForUser(user_id=user_id, role_id=role.id))
         for department in departments:
             db.add(DepartmentsForUser(user_id=user_id, department_id=department.id))
+        for title in titles:
+            db.add(TitleForUser(user_id=user_id, title_id=title.id))
 
         db.commit()
     except IntegrityError as exc:
