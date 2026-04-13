@@ -2,7 +2,7 @@ from enum import Enum as PyEnum
 
 from sqlalchemy.orm import Session
 
-from app.cruds.crud_room_type import create_room_type
+from app.cruds.room.crud_room_type import get_or_create_room_type
 
 
 class RoomTypeEnum(PyEnum):
@@ -16,11 +16,7 @@ class RoomTypeEnum(PyEnum):
 
 def seed_room_types(db: Session) -> None:
     for rt in RoomTypeEnum:
-        type_name, abbreviation = rt.value
-        try:
-            create_room_type(db, type_name, abbreviation)
-        except Exception:
-            # ignore errors (e.g., already exists)
-            continue
+        room_type_name, abbreviation = rt.value
+        get_or_create_room_type(db, room_type_name, abbreviation)
 
     print("Room types seeded.")

@@ -3,23 +3,35 @@ from sqlalchemy.orm import Session
 
 from app.auth.current_user import get_current_user
 from app.core.database import get_db
-from app.cruds.crud_announcement import create_announcement, list_announcements_for_user, mark_announcement_seen
+from app.cruds.crud_announcement import (
+    create_announcement,
+    format_announcement_datetime,
+    list_announcements_for_user,
+    mark_announcement_seen,
+)
+from app.models.model_role import Role
 from app.models.model_user import User
 from app.schemas.announcement import AnnouncementCreateRequest, AnnouncementResponse, AnnouncementSeenResponse
 
 
 router = APIRouter(prefix="/announcements", tags=["announcements"])
 
-# NOTE: Chenge thisa to data from db or enum in seed_data/seed_roles
-LECTURER_ROLE_NAMES = {"lecturer", "wykladowca", "cwiczenia", "laboratorium", "seminarium"}
+
+def _is_lecturer(user: User, db: Session) -> bool:
+    user_role_ids = [role_for_user.role_id for role_for_user in user.roles_for_user]
+    if not user_role_ids:
+        return False
+
+    return (
+        db.query(Role)
+        .filter(Role.id.in_(user_role_ids))
+        .filter(Role.is_lecturer.is_(True))
+        .first()
+        is not None
+    )
 
 
-def _is_lecturer(user: User) -> bool:
-    role_name = (user.role.name if user.role else "").strip().lower().replace("\u0142", "l")
-    return role_name in LECTURER_ROLE_NAMES
-
-
-@router.get("", response_model=list[AnnouncementResponse], summary="List announcements with user seen flags")
+@router.get("/list", response_model=list[AnnouncementResponse], summary="List announcements with user seen flags")
 def list_announcements(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -34,7 +46,7 @@ def create_announcement_entry(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> AnnouncementResponse:
-    if not _is_lecturer(current_user):
+    if not _is_lecturer(current_user, db):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only lecturers can create announcements")
 
     created = create_announcement(
@@ -49,7 +61,7 @@ def create_announcement_entry(
         subject=created.subject,
         content=created.content,
         seen=False,
-        created_at=created.created_at,
+        created_at=format_announcement_datetime(created.created_at),
         author_id=created.author_id,
     )
 

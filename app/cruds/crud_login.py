@@ -8,7 +8,15 @@ from sqlalchemy.orm import Session
 
 
 from app.auth.password_utils import hash_password, verify_password
+from app.models.model_department_for_user import DepartmentsForUser
+from app.models.model_role_for_user import RolesForUser
 from app.models.model_user import User
+from app.models.model_role_for_user import RolesForUser
+from app.models.model_department_for_user import DepartmentsForUser
+from app.models.model_title_for_user import TitleForUser
+from app.models.model_refresh_token import RefreshTokenSession
+from app.models.rapla.model_rapla_app_user_to_resourc import RaplaAppUserToResourc
+from app.models.rapla.model_rapla_user_to_app_user import RaplaUserToAppUser
 from app.models.model_role import Role
 from app.models.model_department import Department
 from app.core.text_normalization import normalize_lookup_value
@@ -101,15 +109,11 @@ def create_user_by_admin(
     first_name: str,
     last_name: str,
     email: str,
-    role_id: int,
-    department_id: int,
-    # NOTE: Why is this a string instead of a boolean ? (one_time_password)
-    one_time_password: str | None = None, 
+    role_ids: list[int],
+    department_ids: list[int],
+    password: str,
 ) -> User:
-    """
-    Create a user with auto-generated album number, login and one-time password.
-    role_id and department_id must reference existing records.
-    """
+    """Create a user with auto-generated album number, login and password."""
     album_number = _generate_album_number(db)
     login = _generate_login(first_name, last_name, album_number)
 
@@ -118,16 +122,26 @@ def create_user_by_admin(
     if get_user_by_album_number(db, album_number) is not None:
         raise ValueError(f"Generated album number already exists: {album_number}")
 
-    plain_password = one_time_password or _generate_password()
-    hashed = hash_password(plain_password)
+    hashed = hash_password(password)
 
-    # NOTE/TODO: Chenge role and department to use dedicated crude. Not a raw query.
-    role = db.query(Role).filter(Role.id == role_id).first()
-    department = db.query(Department).filter(Department.id == department_id).first()
-    if not role:
-        raise ValueError(f"Role not found: {role_id}")
-    if not department:
-        raise ValueError(f"Department not found: {department_id}")
+    if not role_ids:
+        raise ValueError("At least one role must be provided")
+    if not department_ids:
+        raise ValueError("At least one department must be provided")
+
+    roles = []
+    for role_id in dict.fromkeys(role_ids):
+        role = db.query(Role).filter(Role.id == role_id).first()
+        if not role:
+            raise ValueError(f"Role not found: {role_id}")
+        roles.append(role)
+
+    departments = []
+    for department_id in dict.fromkeys(department_ids):
+        department = db.query(Department).filter(Department.id == department_id).first()
+        if not department:
+            raise ValueError(f"Department not found: {department_id}")
+        departments.append(department)
 
     user = User(
         first_name=first_name,
@@ -136,12 +150,14 @@ def create_user_by_admin(
         login=login,
         email=email,
         password_hash=hashed,
-        plain_password=plain_password,
-        must_change_password=True,
-        role_id=role.id,
-        department_id=department.id,
+        must_change_password=False,
     )
     db.add(user)
+    db.flush()
+    for role in roles:
+        db.add(RolesForUser(user_id=user.user_id, role_id=role.id))
+    for department in departments:
+        db.add(DepartmentsForUser(user_id=user.user_id, department_id=department.id))
     db.commit()
     db.refresh(user)
     return user
@@ -166,7 +182,6 @@ def update_user_password(db: Session, user: User, new_password: str) -> User:
     Zmień hasło użytkownika i wyczyść flagi pierwszego logowania.
     """
     user.password_hash = hash_password(new_password)
-    user.plain_password = None
     user.must_change_password = False
     db.add(user)
     db.commit()
@@ -186,30 +201,56 @@ def update_user_by_admin(
     last_name: str,
     login: str,
     email: str,
-    role: Role,
-    department: Department,
+    role_ids: list[int],
+    department_ids: list[int],
 ) -> User:
     user.first_name = first_name
     user.last_name = last_name
     user.login = login
     user.email = email
-    user.role_id = role.id
-    user.department_id = department.id
+
+    if not role_ids:
+        raise ValueError("At least one role must be provided")
+    if not department_ids:
+        raise ValueError("At least one department must be provided")
+
+    roles = []
+    for role_id in dict.fromkeys(role_ids):
+        role = db.query(Role).filter(Role.id == role_id).first()
+        if not role:
+            raise ValueError(f"Role not found: {role_id}")
+        roles.append(role)
+
+    departments = []
+    for department_id in dict.fromkeys(department_ids):
+        department = db.query(Department).filter(Department.id == department_id).first()
+        if not department:
+            raise ValueError(f"Department not found: {department_id}")
+        departments.append(department)
 
     db.add(user)
+    db.query(RolesForUser).filter(RolesForUser.user_id == user.user_id).delete(synchronize_session=False)
+    db.query(DepartmentsForUser).filter(DepartmentsForUser.user_id == user.user_id).delete(synchronize_session=False)
+    for role in roles:
+        db.add(RolesForUser(user_id=user.user_id, role_id=role.id))
+    for department in departments:
+        db.add(DepartmentsForUser(user_id=user.user_id, department_id=department.id))
     db.commit()
     db.refresh(user)
     return user
 
 
 def delete_user_by_admin(db: Session, user: User) -> None:
+    db.query(RolesForUser).filter(RolesForUser.user_id == user.user_id).delete(synchronize_session=False)
+    db.query(DepartmentsForUser).filter(DepartmentsForUser.user_id == user.user_id).delete(synchronize_session=False)
+    db.query(TitleForUser).filter(TitleForUser.user_id == user.user_id).delete(synchronize_session=False)
+    db.query(RefreshTokenSession).filter(RefreshTokenSession.user_id == user.user_id).delete(synchronize_session=False)
     db.delete(user)
     db.commit()
 
 
-def set_user_one_time_password(db: Session, user: User, one_time_password: str) -> User:
-    user.password_hash = hash_password(one_time_password)
-    user.plain_password = one_time_password
+def set_user_password(db: Session, user: User, password: str) -> User:
+    user.password_hash = hash_password(password)
     user.must_change_password = True
 
     db.add(user)

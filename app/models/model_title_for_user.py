@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy.orm import relationship
 
 from app.core.database import Base
 
@@ -11,3 +12,5 @@ class TitleForUser(Base):
 
     user_id = Column(Integer, ForeignKey("users.user_id"), index=True, nullable=False)
     title_id = Column(Integer, ForeignKey("title.id"), index=True, nullable=False)
+
+    user = relationship("User", back_populates="title_assignments")

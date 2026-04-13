@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.auth.current_user import get_current_user
+from app.auth.current_user import get_current_user, user_has_role
 from app.core.database import get_db
 from app.cruds.crud_grade import get_lecturer_semester_grades, get_student_semester_grades, replace_subject_grades
 from app.models.model_user import User
@@ -16,13 +16,11 @@ STUDENT_ROLE_NAMES = {"student"}
 
 
 def _is_lecturer(user: User) -> bool:
-    role_name = (user.role.name if user.role else "").strip().lower()
-    return role_name in LECTURER_ROLE_NAMES
+    return user_has_role(user, LECTURER_ROLE_NAMES)
 
 
 def _is_student(user: User) -> bool:
-    role_name = (user.role.name if user.role else "").strip().lower()
-    return role_name in STUDENT_ROLE_NAMES
+    return user_has_role(user, STUDENT_ROLE_NAMES)
 
 
 def _parse_grade(value: str) -> float:

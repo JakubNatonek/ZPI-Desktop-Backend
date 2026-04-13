@@ -3,7 +3,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.auth.current_user import get_current_user
+from app.auth.current_user import get_current_user, get_user_role_names
 from app.core.database import get_db
 from app.cruds.crud_login import (
     create_user_by_admin,
@@ -12,31 +12,35 @@ from app.cruds.crud_login import (
     get_user_by_email,
     get_user_by_id,
     get_user_by_login,
-    set_user_one_time_password,
+    set_user_password,
     update_user_by_admin,
 )
-from app.dependencies.auth import require_admin
+from app.cruds.crud_departments_for_user import get_departments_for_user
+from app.cruds.crud_roles_for_user import get_roles_for_user
+from app.cruds.crud_user import get_related_names_for_user
+from app.dependencies.auth import require_role
 from app.models.model_department import Department
 from app.models.model_role import Role
 from app.models.model_user import User
 from app.schemas.user import (
-    AdminResetOneTimePasswordRequest,
+    AdminResetPasswordRequest,
     AdminUserCreate,
     AdminUserListResponse,
     AdminUserUpdate,
+    ChangePasswordResponse,
     PublicKeyResponse,
     PublicKeyUpdate,
     UserCreatedResponse,
-    UserCredentialsResponse,
     UserNameResponse,
     UserProfileResponse,
+    CurrentUserResponse,
 )
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.post(
-    "/admin-create",
+    "/create",
     response_model=UserCreatedResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Utwórz nowego użytkownika przez administratora",
@@ -44,7 +48,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 def create_user_as_admin(
     payload: AdminUserCreate,
     db: Session = Depends(get_db),
-    _: User = Depends(require_admin),
+    _: User = Depends(require_role("admin")),
 ) -> UserCreatedResponse:
     normalized_email = str(payload.email).strip().lower()
 
@@ -57,12 +61,15 @@ def create_user_as_admin(
             first_name=payload.first_name.strip(),
             last_name=payload.last_name.strip(),
             email=normalized_email,
-            one_time_password=payload.one_time_password,
-            role_id=payload.role_id,
-            department_id=payload.department_id,
+            password=payload.password,
+            role_ids=payload.role_ids,
+            department_ids=payload.department_ids,
         )
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+    roles = get_related_names_for_user(db, user.user_id, get_roles_for_user)
+    departments = get_related_names_for_user(db, user.user_id, get_departments_for_user)
 
     return UserCreatedResponse(
         user_id=user.user_id,
@@ -71,13 +78,12 @@ def create_user_as_admin(
         email=user.email,
         first_name=user.first_name,
         last_name=user.last_name,
-        role=user.role.name if user.role else None,
-        department=user.department.name if user.department else None,
-        one_time_password=user.plain_password,
+        roles=roles,
+        departments=departments,
     )
 
 @router.get(
-    "",
+    "/list",
     response_model=List[UserNameResponse],
     summary="Pobierz listę użytkowników (imię, nazwisko, user_id)",
 )
@@ -154,7 +160,7 @@ def set_user_public_key(
 )
 def admin_list_users(
     db: Session = Depends(get_db),
-    _: User = Depends(require_admin),
+    _: User = Depends(require_role("admin")),
 ) -> List[AdminUserListResponse]:
     users = get_all_users(db)
     return [
@@ -165,8 +171,8 @@ def admin_list_users(
             album_number=user.album_number,
             login=user.login,
             email=user.email,
-            role=user.role.name if user.role else "",
-            department=user.department.name if user.department else "",
+            roles=get_related_names_for_user(db, user.user_id, get_roles_for_user),
+            departments=get_related_names_for_user(db, user.user_id, get_departments_for_user),
             must_change_password=bool(user.must_change_password),
         )
         for user in users
@@ -182,7 +188,7 @@ def admin_update_user(
     user_id: int,
     payload: AdminUserUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin),
+    current_user: User = Depends(require_role("admin")),
 ) -> AdminUserListResponse:
     user = get_user_by_id(db, user_id)
     if user is None:
@@ -199,30 +205,26 @@ def admin_update_user(
     if existing_email is not None and existing_email.user_id != user_id:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User with this email already exists")
 
-    role = db.query(Role).filter(Role.id == payload.role_id).first()
-    if role is None:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Role not found: {payload.role_id}")
+    admin_role = db.query(Role).filter(Role.name == "admin").first()
+    if admin_role is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Admin role not found")
 
-    department = db.query(Department).filter(Department.id == payload.department_id).first()
-    if department is None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Department not found: {payload.department_id}",
-        )
-
-    if current_user.user_id == user.user_id and role.name != "admin":
+    if current_user.user_id == user.user_id and admin_role.id not in payload.role_ids:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You cannot remove your own admin role")
 
-    updated = update_user_by_admin(
-        db,
-        user=user,
-        first_name=payload.first_name.strip(),
-        last_name=payload.last_name.strip(),
-        login=normalized_login,
-        email=normalized_email,
-        role=role,
-        department=department,
-    )
+    try:
+        updated = update_user_by_admin(
+            db,
+            user=user,
+            first_name=payload.first_name.strip(),
+            last_name=payload.last_name.strip(),
+            login=normalized_login,
+            email=normalized_email,
+            role_ids=payload.role_ids,
+            department_ids=payload.department_ids,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
     return AdminUserListResponse(
         user_id=updated.user_id,
@@ -231,8 +233,8 @@ def admin_update_user(
         album_number=updated.album_number,
         login=updated.login,
         email=updated.email,
-        role=updated.role.name if updated.role else "",
-        department=updated.department.name if updated.department else "",
+        roles=get_related_names_for_user(db, updated.user_id, get_roles_for_user),
+        departments=get_related_names_for_user(db, updated.user_id, get_departments_for_user),
         must_change_password=bool(updated.must_change_password),
     )
 
@@ -245,7 +247,7 @@ def admin_update_user(
 def admin_delete_user(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_admin),
+    current_user: User = Depends(require_role("admin")),
 ) -> None:
     user = get_user_by_id(db, user_id)
     if user is None:
@@ -258,26 +260,22 @@ def admin_delete_user(
 
 
 @router.post(
-    "/{user_id}/reset-one-time-password",
-    response_model=UserCredentialsResponse,
-    summary="Resetuj hasło użytkownika na jednorazowe",
+    "/{user_id}/reset-password",
+    response_model=ChangePasswordResponse,
+    summary="Resetuj hasło użytkownika",
 )
-def admin_reset_one_time_password(
+def admin_reset_password(
     user_id: int,
-    payload: AdminResetOneTimePasswordRequest,
+    payload: AdminResetPasswordRequest,
     db: Session = Depends(get_db),
-    _: User = Depends(require_admin),
-) -> UserCredentialsResponse:
+    _: User = Depends(require_role("admin")),
+) -> ChangePasswordResponse:
     user = get_user_by_id(db, user_id)
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-    updated = set_user_one_time_password(db, user, payload.one_time_password)
-    return UserCredentialsResponse(
-        user_id=updated.user_id,
-        login=updated.login,
-        one_time_password=updated.plain_password or payload.one_time_password,
-    )
+    set_user_password(db, user, payload.password)
+    return ChangePasswordResponse(message="Password reset successfully")
 
 
 @router.get(
@@ -286,14 +284,14 @@ def admin_reset_one_time_password(
     summary="Pobierz profil zalogowanego użytkownika",
 )
 def get_my_profile(current_user: User = Depends(get_current_user)) -> UserProfileResponse:
-    role_name = (current_user.role.name if current_user.role else "").lower()
+    role_names = get_user_role_names(current_user)
     group_code = current_user.student_profile.group.code if current_user.student_profile and current_user.student_profile.group else None
 
-    if role_name == "student":
+    if "student" in role_names:
         status = "Aktywny student"
-    elif role_name in {"wykladowca", "lecturer"}:
+    elif role_names.intersection({"wykladowca", "lecturer"}):
         status = "Pracownik dydaktyczny"
-    elif role_name in {"planista", "planner"}:
+    elif role_names.intersection({"planista", "planner"}):
         status = "Planista"
     else:
         status = "Administrator systemu"
@@ -305,10 +303,30 @@ def get_my_profile(current_user: User = Depends(get_current_user)) -> UserProfil
         semester=str(current_user.student_profile.semester) if current_user.student_profile and current_user.student_profile.semester is not None else "Nie dotyczy",
         major=current_user.department.name if current_user.department else "Nie dotyczy",
         faculty=current_user.department.name if current_user.department else "Nie dotyczy",
-        study_track="Ogolnoakademicki" if role_name == "student" else "Nie dotyczy",
-        study_mode="Stacjonarne" if role_name == "student" else "Nie dotyczy",
+        study_track="Ogolnoakademicki" if "student" in role_names else "Nie dotyczy",
+        study_mode="Stacjonarne" if "student" in role_names else "Nie dotyczy",
         title=current_user.teacher_profile.title if current_user.teacher_profile and current_user.teacher_profile.title else "Nie dotyczy",
         groups=[group_code] if group_code else [],
+    )
+
+
+@router.get(
+    "/me",
+    response_model=CurrentUserResponse,
+    summary="Dane zalogowanego użytkownika",
+)
+def me(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> CurrentUserResponse:
+    role_names = [name.lower() for name in get_related_names_for_user(db, current_user.user_id, get_roles_for_user)]
+    department_names = get_related_names_for_user(db, current_user.user_id, get_departments_for_user)
+    return CurrentUserResponse(
+        user_id=current_user.user_id,
+        login=current_user.login,
+        email=current_user.email,
+        roles=role_names,
+        departments=department_names,
     )
 
 

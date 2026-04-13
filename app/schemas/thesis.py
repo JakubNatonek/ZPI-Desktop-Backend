@@ -1,7 +1,9 @@
 from datetime import datetime
 from enum import Enum
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
+
+from app.core.thesis_datetime import format_datetime_minute
 
 
 class ThesisStatus(str, Enum):
@@ -29,6 +31,8 @@ class ThesisProposalStatusUpdateRequest(BaseModel):
 
 
 class ThesisProposalResponse(BaseModel):
+    model_config = ConfigDict(json_encoders={datetime: lambda value: format_datetime_minute(value)})
+
     id: int
     student_id: int
     student_name: str
@@ -44,12 +48,15 @@ class ThesisProposalResponse(BaseModel):
 
 
 class ThesisScheduleAvailabilityResponse(BaseModel):
+    model_config = ConfigDict(json_encoders={datetime: lambda value: format_datetime_minute(value)})
+
     tab_visible_from: datetime | None = None
     tab_visible_to: datetime | None = None
     topic_submission_from: datetime | None = None
     topic_submission_to: datetime | None = None
     proposal_selection_from: datetime | None = None
     proposal_selection_deadline: datetime | None = None
+    max_approved_proposals: int
     can_view_tab: bool
     can_submit_topics: bool
     can_select_proposals: bool

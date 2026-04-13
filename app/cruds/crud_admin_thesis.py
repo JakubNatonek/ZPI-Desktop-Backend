@@ -1,7 +1,6 @@
-from datetime import datetime, timezone
-
 from sqlalchemy.orm import Session, joinedload
 
+from app.core.thesis_datetime import utc_now_minute
 from app.models.model_thesis_proposal import ThesisProposal, ThesisProposalStatus
 from app.models.model_user import User
 
@@ -45,7 +44,7 @@ def admin_update_proposal_status(
         return None
 
     proposal.status = new_status
-    proposal.reviewed_at = datetime.now(timezone.utc)
+    proposal.reviewed_at = utc_now_minute()
     db.add(proposal)
     db.commit()
     db.refresh(proposal)

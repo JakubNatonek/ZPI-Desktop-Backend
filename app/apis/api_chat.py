@@ -363,12 +363,14 @@ def start_conversation(
 )
 def get_conversation_messages(
     conversation_id: int,
+    before_id: int | None = Query(None, description="Pobierz wiadomości starsze niż to ID"),
+    limit: int = Query(25, ge=1, le=100, description="Maksymalna liczba wiadomości do pobrania"),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> List[MessageResponse]:
-    """Get all messages for a conversation. Current user must be a member."""
+    """Get messages for a conversation with pagination support. Current user must be a member."""
     ensure_conversation_member(db, conversation_id, current_user.user_id)
-    messages = get_messages_for_conversation(db, conversation_id)
+    messages = get_messages_for_conversation(db, conversation_id, before_id, limit)
     
     return [
         MessageResponse(

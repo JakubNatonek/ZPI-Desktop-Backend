@@ -15,7 +15,11 @@ def seed_all() -> None:
         seed_model.seed_roles(db)
         seed_model.seed_titles(db)
         admin_id: int = seed_model.seed_admin(db)
+        seed_model.seed_announcements(db, author_id=admin_id)
         seed_model.seed_users(db)
+
+        seed_model.seed_activities(db)
+        seed_model.seed_special_equipment(db)
 
 
         seed_model.seed_room_types(db)
@@ -23,6 +27,8 @@ def seed_all() -> None:
 
         seed_model.seed_days(db)
         seed_model.seed_semesters(db)
+        seed_model.seed_thesis_settings(db)
+        seed_model.seed_thesis_proposals(db)
 
         # default availability preference for a test user
         seed_model.seed_dezyderata(db)

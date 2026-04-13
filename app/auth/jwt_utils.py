@@ -16,7 +16,7 @@ REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
 
 def _create_token(
     user_id: int,
-    role: str,
+    roles: list[str],
     token_type: str,
     expires_delta: timedelta,
     jti: str | None = None,
@@ -24,7 +24,7 @@ def _create_token(
     expire = datetime.now(timezone.utc) + expires_delta
     payload: dict[str, Any] = {
         "user_id": user_id,
-        "role": role,
+        "roles": roles,
         "type": token_type,
         "exp": expire,
     }
@@ -33,20 +33,20 @@ def _create_token(
     return jwt.encode(payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
 
 
-def create_access_token(user_id: int, role: str) -> str:
+def create_access_token(user_id: int, roles: list[str]) -> str:
     return _create_token(
         user_id=user_id,
-        role=role,
+        roles=roles,
         token_type="access",
         expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
     )
 
 
-def create_refresh_token(user_id: int, role: str) -> tuple[str, str]:
+def create_refresh_token(user_id: int, roles: list[str]) -> tuple[str, str]:
     refresh_jti = str(uuid4())
     token = _create_token(
         user_id=user_id,
-        role=role,
+        roles=roles,
         token_type="refresh",
         expires_delta=timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS),
         jti=refresh_jti,
