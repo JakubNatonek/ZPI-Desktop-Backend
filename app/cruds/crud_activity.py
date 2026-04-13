@@ -42,3 +42,32 @@ def get_or_create_activity(db: Session, name: str) -> Activity:
         return activity
 
     return create_activity(db, name)
+
+
+def update_activity(db: Session, activity_id: int, name: str) -> Optional[Activity]:
+    activity = get_activity_by_id(db, activity_id)
+    if activity is None:
+        return None
+
+    cleaned_name = name.strip()
+    if not cleaned_name:
+        raise ValueError("Activity name cannot be empty")
+
+    existing = get_activity_by_name(db, cleaned_name)
+    if existing is not None and existing.id != activity_id:
+        raise ValueError(f"Activity name already exists: {cleaned_name}")
+
+    activity.name = cleaned_name
+    db.commit()
+    db.refresh(activity)
+    return activity
+
+
+def delete_activity(db: Session, activity_id: int) -> bool:
+    activity = get_activity_by_id(db, activity_id)
+    if activity is None:
+        return False
+
+    db.delete(activity)
+    db.commit()
+    return True
