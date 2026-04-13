@@ -16,8 +16,8 @@ from app.apis.api_roles import router as roles_router
 from app.apis.api_chat import router as chat_router
 from app.apis.api_messages import router as messages_router
 from app.apis.api_announcements import router as announcements_router
-from app.apis.api_thesis import router as thesis_router
-from app.apis.api_admin_thesis import router as admin_thesis_router
+from app.apis.thesis.api_thesis import router as thesis_router
+from app.apis.thesis.api_admin_thesis import router as admin_thesis_router
 from app.apis.api_grades import router as grades_router
 from app.services.socket_events import create_socket_events
 from app.apis.api_rooms import router as rooms_router

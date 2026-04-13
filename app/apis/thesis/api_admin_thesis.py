@@ -15,6 +15,7 @@ from app.cruds.crud_thesis_settings import get_or_create_thesis_settings, get_th
 from app.models.model_thesis_proposal import ThesisProposal, ThesisProposalStatus
 from app.models.model_thesis_settings import ThesisScheduleSettings
 from app.models.model_user import User
+from app.dependencies.auth import require_role
 from app.schemas.admin_thesis import (
     AdminThesisProposalResponse,
     AdminThesisSettingsResponse,
@@ -25,9 +26,7 @@ from app.schemas.admin_thesis import (
 )
 from app.schemas.thesis import LecturerResponse
 
-from app.dependencies.auth import require_admin
-
-router = APIRouter(prefix="/admin/thesis", tags=["admin-thesis"])
+router = APIRouter(prefix="/admin/thesis", tags=["thesis"])
 
 
 # def _require_admin(current_user: User = Depends(get_current_user)) -> User:
@@ -86,6 +85,7 @@ def _to_settings_response(settings: ThesisScheduleSettings) -> AdminThesisSettin
         topic_submission_to=settings.topic_submission_to,
         proposal_selection_from=settings.proposal_selection_from,
         proposal_selection_deadline=settings.proposal_selection_deadline,
+        max_approved_proposals=settings.max_approved_proposals,
         tab_visible_now=flags["tab_visible_now"],
         topic_submission_open=flags["topic_submission_open"],
         proposal_selection_open=flags["proposal_selection_open"],
@@ -100,7 +100,7 @@ def _to_settings_response(settings: ThesisScheduleSettings) -> AdminThesisSettin
 )
 def get_settings(
     db: Session = Depends(get_db),
-    _: User = Depends(require_admin),
+    _: User = Depends(require_role("admin")),
 ) -> AdminThesisSettingsResponse:
     settings = get_or_create_thesis_settings(db)
     return _to_settings_response(settings)
@@ -114,7 +114,7 @@ def get_settings(
 def patch_settings(
     payload: AdminThesisSettingsUpdate,
     db: Session = Depends(get_db),
-    _: User = Depends(require_admin),
+    _: User = Depends(require_role("admin")),
 ) -> AdminThesisSettingsResponse:
     settings = update_thesis_settings(
         db,
@@ -124,6 +124,7 @@ def patch_settings(
         topic_submission_to=payload.topic_submission_to,
         proposal_selection_from=payload.proposal_selection_from,
         proposal_selection_deadline=payload.proposal_selection_deadline,
+        max_approved_proposals=payload.max_approved_proposals,
     )
     return _to_settings_response(settings)
 
@@ -136,7 +137,7 @@ def patch_settings(
 def list_all_proposals(
     status_filter: str | None = Query(None, alias="status"),
     db: Session = Depends(get_db),
-    _: User = Depends(require_admin),
+    _: User = Depends(require_role("admin")),
 ) -> list[AdminThesisProposalResponse]:
     thesis_status = None
     if status_filter:
@@ -158,7 +159,7 @@ def list_all_proposals(
 )
 def get_proposal_stats(
     db: Session = Depends(get_db),
-    _: User = Depends(require_admin),
+    _: User = Depends(require_role("admin")),
 ) -> AdminThesisStats:
     all_proposals = get_all_proposals(db)
     return AdminThesisStats(
@@ -177,7 +178,7 @@ def get_proposal_stats(
 def get_proposal_detail(
     proposal_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(require_admin),
+    _: User = Depends(require_role("admin")),
 ) -> AdminThesisProposalResponse:
     proposal = get_proposal_by_id(db, proposal_id)
     if proposal is None:
@@ -194,7 +195,7 @@ def update_proposal_status(
     proposal_id: int,
     payload: AdminThesisStatusUpdate,
     db: Session = Depends(get_db),
-    _: User = Depends(require_admin),
+    _: User = Depends(require_role("admin")),
 ) -> AdminThesisProposalResponse:
     proposal = admin_update_proposal_status(
         db,
@@ -215,7 +216,7 @@ def update_proposal_topic(
     proposal_id: int,
     payload: AdminThesisTopicUpdate,
     db: Session = Depends(get_db),
-    _: User = Depends(require_admin),
+    _: User = Depends(require_role("admin")),
 ) -> AdminThesisProposalResponse:
     proposal = admin_update_proposal_topic(
         db,
@@ -235,7 +236,7 @@ def update_proposal_topic(
 def delete_proposal(
     proposal_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(require_admin),
+    _: User = Depends(require_role("admin")),
 ) -> None:
     deleted = admin_delete_proposal(db, proposal_id)
     if not deleted:
@@ -249,7 +250,7 @@ def delete_proposal(
 )
 def list_lecturers(
     db: Session = Depends(get_db),
-    _: User = Depends(require_admin),
+    _: User = Depends(require_role("admin")),
 ) -> list[LecturerResponse]:
     lecturers = get_all_lecturers(db)
     return [

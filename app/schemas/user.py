@@ -1,5 +1,5 @@
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, PositiveInt
 from typing import Optional
 
 
@@ -8,22 +8,22 @@ class AdminUserCreate(BaseModel):
     first_name: str = Field(min_length=2, max_length=80)
     last_name: str = Field(min_length=2, max_length=80)
     email: EmailStr
-    one_time_password: str = Field(min_length=8, max_length=128)
-    role_id: int = Field(gt=0)
-    department_id: int = Field(gt=0)
+    password: str = Field(min_length=8, max_length=128)
+    role_ids: list[PositiveInt] = Field(min_length=1)
+    department_ids: list[PositiveInt] = Field(min_length=1)
+    title_ids: list[PositiveInt] = Field(default_factory=list)
 
 
 class UserCreatedResponse(BaseModel):
-    """Response after user creation — contains generated login and password."""
+    """Response after user creation."""
     user_id: int
     album_number: str
     login: str
     email: EmailStr
     first_name: str
     last_name: str
-    role: str  # role name
-    department: str  # department name
-    one_time_password: str
+    roles: list[str]  # role names
+    departments: list[str]  # department names
 
 
 class AdminUserListResponse(BaseModel):
@@ -33,8 +33,9 @@ class AdminUserListResponse(BaseModel):
     album_number: str
     login: str
     email: str
-    role: str
-    department: str
+    titles: list[str]
+    roles: list[str]
+    departments: list[str]
     must_change_password: bool
 
 
@@ -43,12 +44,12 @@ class AdminUserUpdate(BaseModel):
     last_name: str = Field(min_length=2, max_length=80)
     login: str = Field(min_length=3, max_length=64)
     email: EmailStr
-    role_id: int = Field(gt=0)
-    department_id: int = Field(gt=0)
+    role_ids: list[PositiveInt] = Field(min_length=1)
+    department_ids: list[PositiveInt] = Field(min_length=1)
 
 
-class AdminResetOneTimePasswordRequest(BaseModel):
-    one_time_password: str = Field(min_length=8, max_length=128)
+class AdminResetPasswordRequest(BaseModel):
+    password: str = Field(min_length=8, max_length=128)
 
 
 class RoleOptionResponse(BaseModel):
@@ -61,12 +62,9 @@ class DepartmentOptionResponse(BaseModel):
     name: str
 
 
-
-class UserCredentialsResponse(BaseModel):
-    """Dane logowania użytkownika (login + jednorazowe hasło)."""
-    user_id: int
-    login: str
-    one_time_password: str
+class TitleOptionResponse(BaseModel):
+    id: int
+    name: str
 
 
 
@@ -100,14 +98,22 @@ class AuthResponse(BaseModel):
     access_token_expires_in: int
     must_change_password: bool
 
+class AuthMeResponse(BaseModel):
+    """Odpowiedź dla bieżącego zalogowanego użytkownika w warstwie auth."""
+    user_id: int
+    login: str
+    email: EmailStr
+    role: str
+    dzial: str
+
 
 class CurrentUserResponse(BaseModel):
     """Current logged-in user data."""
     user_id: int
     login: str
     email: EmailStr
-    role: str  # role name
-    department: str  # department name
+    roles: list[str]  # role names
+    departments: list[str]  # department names
 
 
 

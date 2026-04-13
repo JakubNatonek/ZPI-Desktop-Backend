@@ -15,10 +15,41 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     public_key = Column(Text, nullable=True)
     password_hash = Column(String, nullable=False)
-    plain_password = Column(String, nullable=True)
     must_change_password = Column(Boolean, nullable=False, default=False)
     last_seen_at = Column(DateTime(timezone=True), nullable=True)
 
+    roles_for_user = relationship(
+        "RolesForUser",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    departments_for_user = relationship(
+        "DepartmentsForUser",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    title_assignments = relationship(
+        "TitleForUser",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    refresh_token_sessions = relationship(
+        "RefreshTokenSession",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
+    @property
+    def role(self):
+        if not self.roles_for_user:
+            return None
+        return self.roles_for_user[0].role
+
+    @property
+    def department(self):
+        if not self.departments_for_user:
+            return None
+        return self.departments_for_user[0].department
 
 
     conversation_memberships = relationship(

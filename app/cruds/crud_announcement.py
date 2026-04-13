@@ -1,9 +1,21 @@
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from app.models.model_announcement import Announcement, AnnouncementSeen
+
+
+POLAND_TIMEZONE = ZoneInfo("Europe/Warsaw")
+
+
+def format_announcement_datetime(value: datetime | None) -> str:
+    if value is None:
+        return ""
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=timezone.utc)
+    return value.astimezone(POLAND_TIMEZONE).strftime("%Y-%m-%d %H:%M")
 
 
 def list_announcements_for_user(db: Session, user_id: int) -> list[dict]:
@@ -28,19 +40,27 @@ def list_announcements_for_user(db: Session, user_id: int) -> list[dict]:
                 "subject": announcement.subject,
                 "content": announcement.content,
                 "seen": seen_entry is not None,
-                "created_at": announcement.created_at,
+                "created_at": format_announcement_datetime(announcement.created_at),
                 "author_id": announcement.author_id,
             }
         )
     return items
 
 
-def create_announcement(db: Session, author_id: int, subject: str, content: str) -> Announcement:
+def create_announcement(
+    db: Session,
+    author_id: int,
+    subject: str,
+    content: str,
+    created_at: datetime | None = None,
+) -> Announcement:
     item = Announcement(
         subject=subject.strip(),
         content=content.strip(),
         author_id=author_id,
     )
+    if created_at is not None:
+        item.created_at = created_at
     db.add(item)
     db.commit()
     db.refresh(item)

@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from pydantic import BaseModel, Field
 
 
@@ -13,7 +11,7 @@ class AnnouncementResponse(BaseModel):
     subject: str
     content: str
     seen: bool
-    created_at: datetime
+    created_at: str
     author_id: int | None = None
 
 

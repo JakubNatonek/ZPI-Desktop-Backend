@@ -11,16 +11,17 @@ from app.auth.jwt_utils import (
     REFRESH_TOKEN_EXPIRE_DAYS,
     create_access_token,
     create_refresh_token,
+    decode_access_token,
     decode_refresh_token,
     refresh_expiry_datetime,
 )
+from app.cruds.crud_departments_for_user import get_departments_for_user
 from app.cruds.crud_login import (
     authenticate_user,
-    create_user_by_admin,
-    get_user_by_email,
-    get_user_by_id,
     update_user_password,
 )
+from app.cruds.crud_roles_for_user import get_roles_for_user
+from app.cruds.crud_user import get_user_by_id
 from app.cruds.crud_refresh_token import (
     create_refresh_session,
     is_refresh_session_active,
@@ -29,18 +30,14 @@ from app.cruds.crud_refresh_token import (
 from app.core.database import get_db
 from app.models.model_user import User
 from app.schemas.user import (
-    AdminUserCreate,
     AuthResponse,
+    AuthMeResponse,
     ChangePasswordRequest,
     ChangePasswordResponse,
     CurrentUserResponse,
-    UserCreatedResponse,
-    UserCredentialsResponse,
     UserNameResponse,
     UserLogin,
 )
-
-from app.dependencies.auth import require_admin
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -63,75 +60,34 @@ def _set_refresh_cookie(response: Response, refresh_token: str) -> None:
     )
 
 
-@router.post(
-    "/create",
-    response_model=UserCreatedResponse,
-    status_code=201,
-    summary="Utwórz nowego użytkownika",
-)
-def create_user(
-    payload: AdminUserCreate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-) -> UserCreatedResponse:
-    # NOTE: Why this and note use: from app.dependencies.auth import require_admin  _: User = Depends(require_admin),
-    role_value = current_user.role.name if current_user.role else str(current_user.role)
-    if role_value != "admin":
-        raise HTTPException(status_code=403, detail="Forbidden")
+def _resolve_primary_role(role_names: list[str]) -> str:
+    normalized_roles = [role.strip().lower() for role in role_names if role and role.strip()]
 
-    # NOTE: THIS IS WERY BAD THIS SHOULD BE NEVER DONE IN THE FIRST PLACE!!!!!!!
-    normalized_email = str(payload.email).strip().lower()
+    for candidate in ("admin", "wykladowca", "lecturer", "planista", "planner", "student"):
+        if candidate in normalized_roles:
+            return candidate
 
-    existing_email = get_user_by_email(db, normalized_email)
-    if existing_email is not None:
-        raise HTTPException(status_code=409, detail="User with this email already exists")
-
-    user = create_user_by_admin(
-        db,
-        first_name=payload.first_name.strip(),
-        last_name=payload.last_name.strip(),
-        email=normalized_email,
-        one_time_password=payload.one_time_password,
-        role_id=payload.role_id,
-        department_id=payload.department_id,
-    )
-
-    return UserCreatedResponse(
-        user_id=user.user_id,
-        album_number=user.album_number,
-        login=user.login,
-        email=user.email,
-        first_name=user.first_name,
-        last_name=user.last_name,
-        role=user.role.name if user.role else None,
-        department=user.department.name if user.department else None,
-        one_time_password=user.plain_password,
-    )
+    return normalized_roles[0] if normalized_roles else "admin"
 
 
 @router.get(
-    "/credentials/{user_id}",
-    response_model=UserCredentialsResponse,
-    summary="Pobierz dane logowania użytkownika",
+    "/me",
+    response_model=AuthMeResponse,
+    summary="Dane zalogowanego użytkownika dla warstwy auth",
 )
-def get_credentials(
-    user_id: int,
-    db: Session = Depends(get_db),
+def me(
     current_user: User = Depends(get_current_user),
-) -> UserCredentialsResponse:
-    # NOTE: Why this and note use: from app.dependencies.auth import require_admin  _: User = Depends(require_admin),
-    role_value = current_user.role.name if current_user.role else str(current_user.role)
-    if role_value != "admin":
-        raise HTTPException(status_code=403, detail="Forbidden")
+    db: Session = Depends(get_db),
+) -> AuthMeResponse:
+    role_names = [role.name.strip().lower() for role in get_roles_for_user(db, current_user.user_id) if role.name]
+    department_names = [department.name.strip() for department in get_departments_for_user(db, current_user.user_id) if department.name]
 
-    user = get_user_by_id(db, user_id)
-    if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    return UserCredentialsResponse(
-        user_id=user.user_id,
-        login=user.login,
-        one_time_password=user.plain_password,
+    return AuthMeResponse(
+        user_id=current_user.user_id,
+        login=current_user.login,
+        email=current_user.email,
+        role=_resolve_primary_role(role_names),
+        dzial=department_names[0] if department_names else "",
     )
 
 
@@ -145,8 +101,9 @@ def login(payload: UserLogin, response: Response, db: Session = Depends(get_db))
     if user is None:
         raise HTTPException(status_code=401, detail="Invalid login or password")
 
-    access_token = create_access_token(user_id=user.user_id, role=user.role.name if user.role else None)
-    refresh_token, refresh_jti = create_refresh_token(user_id=user.user_id, role=user.role.name if user.role else None)
+    role_names = [role.name.strip().lower() for role in get_roles_for_user(db, user.user_id) if role.name]
+    access_token = create_access_token(user_id=user.user_id, roles=role_names)
+    refresh_token, refresh_jti = create_refresh_token(user_id=user.user_id, roles=role_names)
     create_refresh_session(
         db,
         user_id=user.user_id,
@@ -171,7 +128,7 @@ def login(payload: UserLogin, response: Response, db: Session = Depends(get_db))
         email=user.email,
         access_token=access_token,
         access_token_expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        must_change_password=user.must_change_password or user.plain_password is not None,
+        must_change_password=user.must_change_password,
     )
 
 
@@ -202,8 +159,9 @@ def refresh_tokens(request: Request, response: Response, db: Session = Depends(g
     if user is None:
         raise HTTPException(status_code=401, detail="User not found")
 
-    access_token = create_access_token(user_id=user.user_id, role=user.role.name if user.role else None)
-    new_refresh_token, new_refresh_jti = create_refresh_token(user_id=user.user_id, role=user.role.name if user.role else None)
+    role_names = [role.name.strip().lower() for role in get_roles_for_user(db, user.user_id) if role.name]
+    access_token = create_access_token(user_id=user.user_id, roles=role_names)
+    new_refresh_token, new_refresh_jti = create_refresh_token(user_id=user.user_id, roles=role_names)
 
     revoke_refresh_session(db, str(refresh_jti))
     create_refresh_session(
@@ -231,7 +189,7 @@ def refresh_tokens(request: Request, response: Response, db: Session = Depends(g
         email=user.email,
         access_token=access_token,
         access_token_expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        must_change_password=user.must_change_password or user.plain_password is not None,
+        must_change_password=user.must_change_password,
     )
 
 
@@ -270,19 +228,5 @@ def logout(request: Request, response: Response, db: Session = Depends(get_db)) 
         response.delete_cookie(key="access_token", path="/")
     return {"message": "Logged out"}
 
-
-@router.get(
-    "/me",
-    response_model=CurrentUserResponse,
-    summary="Dane zalogowanego użytkownika",
-)
-def me(current_user: User = Depends(get_current_user)) -> CurrentUserResponse:
-    return CurrentUserResponse(
-        user_id=current_user.user_id,
-        login=current_user.login,
-        email=current_user.email,
-        role=current_user.role.name if current_user.role else None,
-        department=current_user.department.name if current_user.department else None,
-    )
 
 

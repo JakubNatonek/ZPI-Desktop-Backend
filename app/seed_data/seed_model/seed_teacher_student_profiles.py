@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
 
 from app.auth.password_utils import hash_password
+from app.cruds.crud_departments_for_user import add_department_to_user
+from app.cruds.crud_roles_for_user import add_role_to_user
 from app.models.model_department import Department
 from app.models.model_role import Role
 from app.models.model_student import Student
@@ -81,13 +83,12 @@ def seed_teacher_student_profiles(db: Session) -> None:
 			email=user_payload["email"],
 			public_key=None,
 			password_hash=default_password_hash,
-			plain_password=default_password,
-			must_change_password=False,
-			role_id=role.id,
-			department_id=department.id,
+			must_change_password=True,
 		)
 		db.add(user)
 		db.flush()
+		add_role_to_user(db, user.user_id, role.id)
+		add_department_to_user(db, user.user_id, department.id)
 
 		if "teacher" in profile_data:
 			db.add(Teacher(user_id=user.user_id, **profile_data["teacher"]))

@@ -1,7 +1,9 @@
 from datetime import datetime
 from enum import Enum
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+
+from app.core.thesis_datetime import THESIS_DATETIME_FORMAT, format_datetime_minute, normalize_to_utc_minute
 
 
 class AdminThesisStatus(str, Enum):
@@ -11,6 +13,8 @@ class AdminThesisStatus(str, Enum):
 
 
 class AdminThesisProposalResponse(BaseModel):
+    model_config = ConfigDict(json_encoders={datetime: lambda value: format_datetime_minute(value)})
+
     id: int
     student_id: int
     student_name: str
@@ -50,6 +54,30 @@ class AdminThesisSettingsUpdate(BaseModel):
     topic_submission_to: datetime | None = None
     proposal_selection_from: datetime | None = None
     proposal_selection_deadline: datetime | None = None
+    max_approved_proposals: int | None = Field(default=None, ge=1)
+
+    @field_validator(
+        "tab_visible_from",
+        "tab_visible_to",
+        "topic_submission_from",
+        "topic_submission_to",
+        "proposal_selection_from",
+        "proposal_selection_deadline",
+        mode="before",
+    )
+    @classmethod
+    def parse_minute_datetime(cls, value: datetime | str | None) -> datetime | None:
+        if value is None:
+            return None
+        if isinstance(value, datetime):
+            return normalize_to_utc_minute(value)
+        if isinstance(value, str):
+            try:
+                parsed = datetime.strptime(value.strip(), THESIS_DATETIME_FORMAT)
+            except ValueError as exc:
+                raise ValueError("Datetime must match format YYYY-MM-DD HH:MM") from exc
+            return normalize_to_utc_minute(parsed)
+        return value
 
     @model_validator(mode="after")
     def validate_ranges(self) -> "AdminThesisSettingsUpdate":
@@ -78,12 +106,15 @@ class AdminThesisSettingsUpdate(BaseModel):
 
 
 class AdminThesisSettingsResponse(BaseModel):
+    model_config = ConfigDict(json_encoders={datetime: lambda value: format_datetime_minute(value)})
+
     tab_visible_from: datetime | None = None
     tab_visible_to: datetime | None = None
     topic_submission_from: datetime | None = None
     topic_submission_to: datetime | None = None
     proposal_selection_from: datetime | None = None
     proposal_selection_deadline: datetime | None = None
+    max_approved_proposals: int
     tab_visible_now: bool
     topic_submission_open: bool
     proposal_selection_open: bool

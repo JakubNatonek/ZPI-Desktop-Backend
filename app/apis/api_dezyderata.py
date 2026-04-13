@@ -3,7 +3,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
-from app.auth.current_user import get_current_user
+from app.auth.current_user import get_current_user, user_has_role
 from app.core.database import get_db
 from app.cruds.crud_dezyderata import (
     create_semestr,
@@ -34,19 +34,15 @@ router = APIRouter(prefix="/dezyderaty", tags=["dezyderaty"])
 
 
 def _require_lecturer_or_admin(current_user: User = Depends(get_current_user)) -> User:
-    role_value = current_user.role.name if current_user.role else str(current_user.role)
-    role_lower = role_value.lower() if role_value else ""
     # NOTE: Please use data from seed_data or db
     allowed_roles = ("admin", "wykładowca", "lecturer", "wykladowca", "planner")
-    if role_lower not in allowed_roles:
+    if not user_has_role(current_user, allowed_roles):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     return current_user
 
 # NOTE: Why this and note use: from app.dependencies.auth import require_admin  _: User = Depends(require_admin),
 def _require_admin(current_user: User = Depends(get_current_user)) -> User:
-    role_value = current_user.role.name if current_user.role else str(current_user.role)
-    role_lower = role_value.lower() if role_value else ""
-    if role_lower != "admin":
+    if not user_has_role(current_user, "admin"):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     return current_user
 
@@ -116,11 +112,8 @@ def list_dezyderaty(
     db: Session = Depends(get_db),
     current_user: User = Depends(_require_lecturer_or_admin),
 ) -> DezyderataListResponse:
-    role_value = current_user.role.name if current_user.role else str(current_user.role)
-    role_lower = role_value.lower() if role_value else ""
-
     # Wykładowca widzi tylko swoje dezyderaty
-    if role_lower in ("wykładowca", "wykladowca", "lecturer"):
+    if user_has_role(current_user, ("wykładowca", "wykladowca", "lecturer")):
         effective_user_id = current_user.user_id
     else:
         # Admin może filtrować po dowolnym użytkowniku
@@ -154,10 +147,8 @@ def get_dezyderata(
     if dezyderata is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dezyderata not found")
 
-    role_value = current_user.role.name if current_user.role else str(current_user.role)
     # NOTE: Static data to chenge
-    role_lower = role_value.lower() if role_value else ""
-    if role_lower in ("wykładowca", "wykladowca", "lecturer") and dezyderata.user_id != current_user.user_id:
+    if user_has_role(current_user, ("wykładowca", "wykladowca", "lecturer")) and dezyderata.user_id != current_user.user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
 
     return DezyderataResponse(**map_dezyderata_to_response(dezyderata))
@@ -203,10 +194,8 @@ def delete_dezyderata_entry(
     if dezyderata is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dezyderata not found")
 
-    role_value = current_user.role.name if current_user.role else str(current_user.role)
-    role_lower = role_value.lower() if role_value else ""
     # NOTE: Why ststic data here
-    if role_lower in ("wykładowca", "wykladowca", "lecturer") and dezyderata.user_id != current_user.user_id:
+    if user_has_role(current_user, ("wykładowca", "wykladowca", "lecturer")) and dezyderata.user_id != current_user.user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
 
     delete_dezyderata(db, dezyderata)

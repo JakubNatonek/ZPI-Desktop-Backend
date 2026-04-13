@@ -3,6 +3,7 @@
 # @brief Association model mapping users to roles (many-to-many).
 
 from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy.orm import relationship
 
 from app.core.database import Base
 
@@ -14,3 +15,6 @@ class RolesForUser(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.user_id"), index=True, nullable=False)
     role_id = Column(Integer, ForeignKey("roles.id"), index=True, nullable=False)
+
+    user = relationship("User", back_populates="roles_for_user")
+    role = relationship("Role")

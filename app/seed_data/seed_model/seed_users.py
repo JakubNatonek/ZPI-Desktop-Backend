@@ -140,7 +140,7 @@ def seed_users(db: Session, path: str = "data/JSON DATA/nauczyciele.json") -> No
     with open(path, "r", encoding="utf-8") as fh:
         data = json.load(fh)
 
-    default_password = "qwerty12345!"
+    default_password = "test123"
     pw_hash = hash_password(default_password)
 
     for entry in data:
@@ -167,7 +167,6 @@ def seed_users(db: Session, path: str = "data/JSON DATA/nauczyciele.json") -> No
                 login=login,
                 email=email,
                 password_hash=pw_hash,
-                plain_password=None,
                 must_change_password=True,
             )
             _assign_role_to_user(db, user)
