@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
@@ -21,8 +21,14 @@ from app.cruds.crud_dezyderata import dezyderaty_to_schema
 router = APIRouter(prefix="/rapla", tags=["rapla"])
 
 
-@router.get("/file", summary="Generate and download Rapla XML")
-def generate_rapla_file(db: Session = Depends(get_db)) -> FileResponse:
+@router.get(
+		"/file/export", 
+		summary="Generate and download Rapla XML"
+	)
+def generate_rapla_file(
+		db: Session = Depends(get_db)
+	) -> FileResponse:
+	
 	output_path = Path(__file__).resolve().parents[3] / "data" / "rapla_files" / "data.xml"
 	output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -45,3 +51,34 @@ def generate_rapla_file(db: Session = Depends(get_db)) -> FileResponse:
 		media_type="application/xml",
 		filename="data.xml",
 	)
+
+
+@router.post(
+		"/file/import", 
+		summary="Import Rapla XML file into DB"
+	)
+async def import_rapla_file(
+		file: UploadFile = File(...), 
+		db: Session = Depends(get_db)
+	):
+	# Basic content-type check
+	if file.content_type not in ("application/xml", "text/xml", "application/octet-stream"):
+		raise HTTPException(status_code=400, detail="Expected an XML file")
+
+	content = await file.read()
+	try:
+		xml_text = content.decode("utf-8")
+	except Exception:
+		raise HTTPException(status_code=400, detail="Unable to decode file as UTF-8")
+
+	try:
+		r = parse_rapla_xml(xml_text)
+	except Exception as e:
+		raise HTTPException(status_code=400, detail=f"Failed to parse Rapla XML: {e}")
+
+	try:
+		summary = import_rapla_file_to_db(db, r)
+	except Exception as e:
+		raise HTTPException(status_code=500, detail=f"Failed to import Rapla data: {e}")
+
+	return {"status": "ok", "summary": summary}
