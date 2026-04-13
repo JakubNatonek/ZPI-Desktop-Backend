@@ -4,17 +4,31 @@ from sqlalchemy.orm import Session
 from app.auth.current_user import get_current_user, user_has_role
 from app.core.database import get_db
 from app.cruds.crud_admin_thesis import admin_update_proposal_status, get_all_proposals
+from app.cruds.crud_lecturer_topic import (
+    count_own_proposals_for_student,
+    count_selected_topics_for_student,
+    create_lecturer_topic,
+    delete_lecturer_topic,
+    get_available_lecturer_topics,
+    get_lecturer_topic_by_id,
+    get_lecturer_topics_by_lecturer,
+    mark_lecturer_topic_taken,
+)
 from app.cruds.crud_thesis import (
     count_approved_for_lecturer,
     create_thesis_proposal,
     get_lecturers,
     get_proposals_for_lecturer,
+    get_proposals_for_student,
     update_proposal_status,
+    withdraw_proposal,
 )
 from app.cruds.crud_thesis_settings import get_or_create_thesis_settings, get_thesis_schedule_flags
 from app.dependencies.auth import require_role
+from app.models.model_lecturer_topic import LecturerTopic
 from app.models.model_thesis_proposal import ThesisProposal, ThesisProposalStatus
 from app.models.model_user import User
+from app.schemas.lecturer_topic import LecturerTopicCreateRequest, LecturerTopicResponse
 from app.schemas.thesis import (
     LecturerResponse,
     ThesisProposalCreateRequest,
@@ -157,6 +171,14 @@ def submit_proposal(
 ) -> ThesisProposalResponse:
     _ensure_submission_open(db, current_user)
 
+    if not _is_admin(current_user):
+        own_count = count_own_proposals_for_student(db, current_user.user_id)
+        if own_count >= 1:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Możesz złożyć maksymalnie 1 własną propozycję tematu pracy.",
+            )
+
     try:
         proposal = create_thesis_proposal(
             db,
@@ -185,6 +207,38 @@ def list_lecturer_proposals(
         proposals = get_proposals_for_lecturer(db, current_user.user_id)
 
     return [_to_response(proposal) for proposal in proposals]
+
+
+@router.get("/my-proposals", response_model=list[ThesisProposalResponse], summary="List student's own thesis proposals")
+def list_student_proposals(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(("admin", "student"))),
+) -> list[ThesisProposalResponse]:
+    _ensure_tab_visible(db, current_user)
+
+    proposals = get_proposals_for_student(db, current_user.user_id)
+    return [_to_response(proposal) for proposal in proposals]
+
+
+@router.delete(
+    "/proposals/{proposal_id}/withdraw",
+    status_code=204,
+    summary="Student withdraws their own pending proposal",
+)
+def student_withdraw_proposal(
+    proposal_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(("admin", "student"))),
+) -> None:
+    _ensure_tab_visible(db, current_user)
+
+    try:
+        result = withdraw_proposal(db, proposal_id, current_user.user_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+    if result is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Proposal not found")
 
 
 @router.patch(
@@ -231,5 +285,135 @@ def review_proposal(
 
     if proposal is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Proposal not found")
+
+    return _to_response(proposal)
+
+
+# ==================== LECTURER TOPICS ====================
+
+def _to_topic_response(topic: LecturerTopic) -> LecturerTopicResponse:
+    lecturer_name = ""
+    if topic.lecturer:
+        lecturer_name = f"{topic.lecturer.first_name} {topic.lecturer.last_name}".strip()
+    return LecturerTopicResponse(
+        id=topic.id,
+        lecturer_id=topic.lecturer_id,
+        lecturer_name=lecturer_name,
+        topic=topic.topic,
+        description=topic.description,
+        is_taken=topic.is_taken,
+        created_at=topic.created_at,
+    )
+
+
+@router.post(
+    "/lecturer-topics",
+    response_model=LecturerTopicResponse,
+    status_code=201,
+    summary="Lecturer proposes a thesis topic",
+)
+def create_topic(
+    payload: LecturerTopicCreateRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("wykladowca")),
+) -> LecturerTopicResponse:
+    _ensure_selection_open(db, current_user)
+
+    topic = create_lecturer_topic(
+        db,
+        lecturer_id=current_user.user_id,
+        topic=payload.topic,
+        description=payload.description,
+    )
+    db.refresh(topic)
+    topic = get_lecturer_topic_by_id(db, topic.id)
+    return _to_topic_response(topic)  # type: ignore[arg-type]
+
+
+@router.get(
+    "/lecturer-topics",
+    response_model=list[LecturerTopicResponse],
+    summary="List lecturer's own proposed topics",
+)
+def list_own_topics(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("wykladowca")),
+) -> list[LecturerTopicResponse]:
+    _ensure_tab_visible(db, current_user)
+
+    topics = get_lecturer_topics_by_lecturer(db, current_user.user_id)
+    return [_to_topic_response(t) for t in topics]
+
+
+@router.get(
+    "/lecturer-topics/available",
+    response_model=list[LecturerTopicResponse],
+    summary="List all available lecturer-proposed topics for students",
+)
+def list_available_topics(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(("admin", "student"))),
+) -> list[LecturerTopicResponse]:
+    _ensure_tab_visible(db, current_user)
+
+    topics = get_available_lecturer_topics(db)
+    return [_to_topic_response(t) for t in topics]
+
+
+@router.delete(
+    "/lecturer-topics/{topic_id}",
+    status_code=204,
+    summary="Delete lecturer's own proposed topic",
+)
+def remove_own_topic(
+    topic_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role("wykladowca")),
+) -> None:
+    deleted = delete_lecturer_topic(db, topic_id, current_user.user_id)
+    if not deleted:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Nie można usunąć tematu (nie istnieje, nie należy do Ciebie lub został już wybrany).",
+        )
+
+
+@router.post(
+    "/lecturer-topics/{topic_id}/select",
+    response_model=ThesisProposalResponse,
+    status_code=201,
+    summary="Student selects a lecturer-proposed topic",
+)
+def select_lecturer_topic(
+    topic_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(("admin", "student"))),
+) -> ThesisProposalResponse:
+    _ensure_submission_open(db, current_user)
+
+    if not _is_admin(current_user):
+        selected_count = count_selected_topics_for_student(db, current_user.user_id)
+        if selected_count >= 1:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Możesz wybrać maksymalnie 1 proponowany temat wykładowcy.",
+            )
+
+    topic = get_lecturer_topic_by_id(db, topic_id)
+    if topic is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Temat nie został znaleziony.")
+    if topic.is_taken:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Ten temat został już wybrany przez innego studenta.")
+
+    proposal = create_thesis_proposal(
+        db,
+        student_id=current_user.user_id,
+        lecturer_id=topic.lecturer_id,
+        topic=topic.topic,
+        justification=topic.description or "Temat zaproponowany przez promotora.",
+        student_average_grade=0.0,
+        lecturer_topic_id=topic.id,
+    )
+    mark_lecturer_topic_taken(db, topic.id)
 
     return _to_response(proposal)

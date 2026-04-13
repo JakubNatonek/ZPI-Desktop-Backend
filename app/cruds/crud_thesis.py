@@ -34,6 +34,7 @@ def create_thesis_proposal(
     topic: str,
     justification: str,
     student_average_grade: float,
+    lecturer_topic_id: int | None = None,
 ) -> ThesisProposal:
     lecturer = db.query(User).filter(User.user_id == lecturer_id).first()
     if lecturer is None:
@@ -48,6 +49,7 @@ def create_thesis_proposal(
         topic=topic.strip(),
         justification=justification.strip(),
         status=ThesisProposalStatus.PENDING,
+        lecturer_topic_id=lecturer_topic_id,
     )
     db.add(proposal)
     db.commit()
@@ -64,6 +66,15 @@ def get_proposals_for_lecturer(db: Session, lecturer_id: int) -> list[ThesisProp
     )
 
 
+def get_proposals_for_student(db: Session, student_id: int) -> list[ThesisProposal]:
+    return (
+        db.query(ThesisProposal)
+        .filter(ThesisProposal.student_id == student_id)
+        .order_by(ThesisProposal.submitted_at.desc())
+        .all()
+    )
+
+
 def count_approved_for_lecturer(db: Session, lecturer_id: int) -> int:
     return (
         db.query(ThesisProposal)
@@ -73,6 +84,36 @@ def count_approved_for_lecturer(db: Session, lecturer_id: int) -> int:
         )
         .count()
     )
+
+
+def withdraw_proposal(db: Session, proposal_id: int, student_id: int) -> ThesisProposal | None:
+    """Student withdraws their own PENDING proposal."""
+    proposal = (
+        db.query(ThesisProposal)
+        .filter(
+            ThesisProposal.id == proposal_id,
+            ThesisProposal.student_id == student_id,
+        )
+        .first()
+    )
+    if proposal is None:
+        return None
+
+    if proposal.status != ThesisProposalStatus.PENDING:
+        raise ValueError("Można wycofać tylko propozycję ze statusem 'oczekująca'.")
+
+    # If the proposal was for a lecturer topic, release it
+    lecturer_topic_id = proposal.lecturer_topic_id
+    if lecturer_topic_id:
+        from app.models.model_lecturer_topic import LecturerTopic
+        topic = db.query(LecturerTopic).filter(LecturerTopic.id == lecturer_topic_id).first()
+        if topic:
+            topic.is_taken = False
+            db.add(topic)
+
+    db.delete(proposal)
+    db.commit()
+    return proposal
 
 
 def update_proposal_status(
@@ -92,8 +133,13 @@ def update_proposal_status(
     if proposal is None:
         return None
 
-    if proposal.status != ThesisProposalStatus.PENDING:
-        raise ValueError("Only pending proposals can be reviewed")
+    # Allow reverting: APPROVED/REJECTED → PENDING, and PENDING → APPROVED/REJECTED
+    if status == ThesisProposalStatus.PENDING:
+        if proposal.status not in (ThesisProposalStatus.APPROVED, ThesisProposalStatus.REJECTED):
+            raise ValueError("Only approved or rejected proposals can be reverted")
+    else:
+        if proposal.status != ThesisProposalStatus.PENDING:
+            raise ValueError("Only pending proposals can be reviewed")
 
     proposal.status = status
     proposal.reviewed_at = utc_now_minute()

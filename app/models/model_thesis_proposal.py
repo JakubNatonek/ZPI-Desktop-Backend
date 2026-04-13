@@ -41,5 +41,8 @@ class ThesisProposal(Base):
     submitted_at = Column(DateTime(timezone=True), nullable=False, default=_utcnow)
     reviewed_at = Column(DateTime(timezone=True), nullable=True)
 
+    lecturer_topic_id = Column(Integer, ForeignKey("thesis_lecturer_topics.id", ondelete="SET NULL"), nullable=True, index=True)
+
     student = relationship("User", foreign_keys=[student_id])
     lecturer = relationship("User", foreign_keys=[lecturer_id])
+    lecturer_topic = relationship("LecturerTopic", foreign_keys=[lecturer_topic_id])

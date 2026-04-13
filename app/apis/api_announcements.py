@@ -17,7 +17,7 @@ from app.schemas.announcement import AnnouncementCreateRequest, AnnouncementResp
 router = APIRouter(prefix="/announcements", tags=["announcements"])
 
 
-def _is_lecturer(user: User, db: Session) -> bool:
+def _is_lecturer_or_admin(user: User, db: Session) -> bool:
     user_role_ids = [role_for_user.role_id for role_for_user in user.roles_for_user]
     if not user_role_ids:
         return False
@@ -25,7 +25,7 @@ def _is_lecturer(user: User, db: Session) -> bool:
     return (
         db.query(Role)
         .filter(Role.id.in_(user_role_ids))
-        .filter(Role.is_lecturer.is_(True))
+        .filter(Role.name.in_(["wykladowca", "admin"]))
         .first()
         is not None
     )
@@ -46,8 +46,8 @@ def create_announcement_entry(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> AnnouncementResponse:
-    if not _is_lecturer(current_user, db):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only lecturers can create announcements")
+    if not _is_lecturer_or_admin(current_user, db):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Tylko wykładowcy i administratorzy mogą dodawać ogłoszenia")
 
     created = create_announcement(
         db,

@@ -87,7 +87,7 @@ def me(
         login=current_user.login,
         email=current_user.email,
         role=_resolve_primary_role(role_names),
-        dzial=department_names[0] if department_names else "",
+        department=department_names[0] if department_names else "",
     )
 
 

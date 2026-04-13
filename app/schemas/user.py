@@ -97,7 +97,7 @@ class AuthMeResponse(BaseModel):
     login: str
     email: EmailStr
     role: str
-    dzial: str
+    department: str
 
 
 class CurrentUserResponse(BaseModel):

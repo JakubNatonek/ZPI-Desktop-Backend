@@ -5,8 +5,6 @@ import os
 from contextlib import asynccontextmanager
 from collections.abc import AsyncIterator
 
-from fastapi.middleware.cors import CORSMiddleware
-
 from app.core.database import init_database
 
 from app.apis.api_login import router as login_router
@@ -67,6 +65,8 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
+    max_age=3600,
 )
 
 
