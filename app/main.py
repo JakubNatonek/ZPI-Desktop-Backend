@@ -22,6 +22,8 @@ from app.apis.api_rooms import router as rooms_router
 from app.apis.rapla.api_rapla_file import router as rapla_file_router
 
 from app.apis.api_dezyderata import router as dezyderata_router
+from app.apis.api_field_of_study import router as field_of_study_router
+from app.apis.api_specialization import router as specialization_router
 
 # NOTE: Semi example data to use and maybe import to proper app.
 from app.seed_data.seed_all import seed_all
@@ -88,6 +90,8 @@ app.include_router(dezyderata_router)
 app.include_router(thesis_router)
 app.include_router(admin_thesis_router)
 app.include_router(grades_router)
+app.include_router(field_of_study_router)
+app.include_router(specialization_router)
 
 
 

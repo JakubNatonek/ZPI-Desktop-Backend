@@ -11,6 +11,7 @@ class AdminUserCreate(BaseModel):
     password: str = Field(min_length=8, max_length=128)
     role_ids: list[PositiveInt] = Field(min_length=1)
     department_ids: list[PositiveInt] = Field(min_length=1)
+    group_id: Optional[PositiveInt] = None
 
 
 class UserCreatedResponse(BaseModel):

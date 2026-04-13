@@ -19,6 +19,8 @@ from app.models.rapla.model_rapla_app_user_to_resourc import RaplaAppUserToResou
 from app.models.rapla.model_rapla_user_to_app_user import RaplaUserToAppUser
 from app.models.model_role import Role
 from app.models.model_department import Department
+from app.models.model_student import Student
+from app.models.model_group import Group
 from app.core.text_normalization import normalize_lookup_value
 
 ## NOTE/TODO: Chenge to use dedicated cruds
@@ -112,6 +114,7 @@ def create_user_by_admin(
     role_ids: list[int],
     department_ids: list[int],
     password: str,
+    group_id: Optional[int] = None,
 ) -> User:
     """Create a user with auto-generated album number, login and password."""
     album_number = _generate_album_number(db)
@@ -158,6 +161,18 @@ def create_user_by_admin(
         db.add(RolesForUser(user_id=user.user_id, role_id=role.id))
     for department in departments:
         db.add(DepartmentsForUser(user_id=user.user_id, department_id=department.id))
+
+    if group_id is not None:
+        group = db.query(Group).filter(Group.id == group_id).first()
+        if not group:
+            raise ValueError(f"Group not found: {group_id}")
+        student = Student(
+            user_id=user.user_id,
+            index_number=album_number,
+            group_id=group_id,
+        )
+        db.add(student)
+
     db.commit()
     db.refresh(user)
     return user

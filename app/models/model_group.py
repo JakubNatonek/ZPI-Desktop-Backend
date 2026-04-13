@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
@@ -11,7 +11,9 @@ class Group(Base):
     # Map English ORM attributes to legacy DB column names from initial migration.
     specialization = Column("spec", String, nullable=False)
     code = Column("kod", String, nullable=False)
-    year = Column("rok", Integer, nullable=False)
-    studies_type = Column("studia", String, nullable=False)
+    year = Column("rok", Integer, nullable=True)
+    studies_type = Column("studia", String, nullable=True)
+    department_id = Column(Integer, ForeignKey("departments.id", ondelete="SET NULL"), nullable=True, index=True)
 
-    students = relationship("Student", back_populates="group") # <- NOTE: Why do this??
+    department = relationship("Department", backref="groups")
+    students = relationship("Student", back_populates="group")
