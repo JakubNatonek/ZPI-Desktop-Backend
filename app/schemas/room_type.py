@@ -1,15 +1,17 @@
 from pydantic import BaseModel
 
-class DepartmentCreate(BaseModel):
+
+class RoomTypeCreate(BaseModel):
     name: str
     abbreviation: str
 
 
-class DepartmentUpdate(BaseModel):
+class RoomTypeUpdate(BaseModel):
     name: str
     abbreviation: str
 
-class DepartmentResponse(BaseModel):
+
+class RoomTypeResponse(BaseModel):
     id: int
     name: str
     abbreviation: str

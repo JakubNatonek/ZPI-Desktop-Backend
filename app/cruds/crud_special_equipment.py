@@ -41,3 +41,32 @@ def get_special_equipment_by_ids(db: Session, special_equipment_ids: list[int]) 
         return []
 
     return db.query(SpecialEquipment).filter(SpecialEquipment.id.in_(special_equipment_ids)).all()
+
+
+def update_special_equipment(db: Session, special_equipment_id: int, name: str) -> Optional[SpecialEquipment]:
+    equipment = get_special_equipment_by_id(db, special_equipment_id)
+    if equipment is None:
+        return None
+
+    cleaned_name = name.strip()
+    if not cleaned_name:
+        raise ValueError("Special equipment name cannot be empty")
+
+    existing = get_special_equipment_by_name(db, cleaned_name)
+    if existing is not None and existing.id != special_equipment_id:
+        raise ValueError(f"Special equipment name already exists: {cleaned_name}")
+
+    equipment.name = cleaned_name
+    db.commit()
+    db.refresh(equipment)
+    return equipment
+
+
+def delete_special_equipment(db: Session, special_equipment_id: int) -> bool:
+    equipment = get_special_equipment_by_id(db, special_equipment_id)
+    if equipment is None:
+        return False
+
+    db.delete(equipment)
+    db.commit()
+    return True

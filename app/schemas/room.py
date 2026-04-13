@@ -35,10 +35,14 @@ class RoomResponse(BaseModel):
     id: int
     room_number: str
     seats_count: int
+    room_type_id: int | None = None
     room_type: str
     special_equipment: list[int]
+    special_equipment_names: list[str] = Field(default_factory=list)
     activities: list[int]
+    activity_names: list[str] = Field(default_factory=list)
     departments: list[int]
+    department_names: list[str] = Field(default_factory=list)
 
 
 class RoomListResponse(BaseModel):

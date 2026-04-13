@@ -21,6 +21,9 @@ from app.apis.thesis.api_admin_thesis import router as admin_thesis_router
 from app.apis.api_grades import router as grades_router
 from app.services.socket_events import create_socket_events
 from app.apis.api_rooms import router as rooms_router
+from app.apis.api_room_types import router as room_types_router
+from app.apis.api_activities import router as activities_router
+from app.apis.api_special_equipment import router as special_equipment_router
 from app.apis.rapla.api_rapla_file import router as rapla_file_router
 
 from app.apis.api_dezyderata import router as dezyderata_router
@@ -79,6 +82,9 @@ app.include_router(roles_router)
 app.include_router(chat_router)
 app.include_router(announcements_router)
 app.include_router(rooms_router)
+app.include_router(room_types_router)
+app.include_router(activities_router)
+app.include_router(special_equipment_router)
 
 # NOTE: Not fully implemented
 app.include_router(rapla_file_router)

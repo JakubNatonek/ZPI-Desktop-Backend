@@ -143,8 +143,12 @@ def map_room_to_response(room: Room) -> dict:
         "id": room.id,
         "room_number": room.number,
         "seats_count": room.seats,
+        "room_type_id": room.room_type.id if room.room_type else None,
         "room_type": room.room_type.type if room.room_type else "inna",
         "special_equipment": [equipment.id for equipment in room.special_equipment],
+        "special_equipment_names": [equipment.name for equipment in room.special_equipment],
         "activities": [activity.id for activity in room.activities],
+        "activity_names": [activity.name for activity in room.activities],
         "departments": [department.id for department in room.departments],
+        "department_names": [department.name for department in room.departments],
     }
