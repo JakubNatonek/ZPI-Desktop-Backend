@@ -1,6 +1,6 @@
 from typing import Callable, Optional, TypeVar
 from sqlalchemy.orm import Session
-from sqlalchemy import cast, func, Integer
+from sqlalchemy import MetaData, Table, cast, func, Integer, insert, update
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
 
@@ -106,8 +106,31 @@ def _generate_login(first_name: str, last_name: str, album_number: str) -> str:
     return first_name[0].lower() + last_name[0].lower() + album_number
 
 
+def _get_users_table(db: Session) -> Table:
+    metadata = MetaData()
+    return Table("users", metadata, autoload_with=db.get_bind())
+
+
+def _legacy_user_fk_values(users_table: Table, role_id: int, department_id: int) -> dict[str, int]:
+    values: dict[str, int] = {}
+    if "role_id" in users_table.c:
+        values["role_id"] = role_id
+    if "department_id" in users_table.c:
+        values["department_id"] = department_id
+    return values
+
+
 def _map_user_integrity_error(exc: IntegrityError) -> ValueError:
     error_text = str(getattr(exc, "orig", exc)).lower()
+
+    if 'null value in column "department_id"' in error_text:
+        return ValueError("Primary department is required by current database schema")
+    if 'null value in column "role_id"' in error_text:
+        return ValueError("Primary role is required by current database schema")
+    if "foreign key" in error_text and "department_id" in error_text:
+        return ValueError("Selected primary department does not exist")
+    if "foreign key" in error_text and "role_id" in error_text:
+        return ValueError("Selected primary role does not exist")
 
     if "users_login_key" in error_text or "login" in error_text:
         return ValueError("User with this login already exists")
@@ -155,30 +178,35 @@ def create_user_by_admin(
             raise ValueError(f"Department not found: {department_id}")
         departments.append(department)
 
-    user = User(
-        first_name=first_name,
-        last_name=last_name,
-        album_number=album_number,
-        login=login,
-        email=email,
-        password_hash=hash_password(password),
-        must_change_password=False,
-    )
-    db.add(user)
-    db.flush()
-
-    for role in roles:
-        db.add(RolesForUser(user_id=user.user_id, role_id=role.id))
-    for department in departments:
-        db.add(DepartmentsForUser(user_id=user.user_id, department_id=department.id))
+    users_table = _get_users_table(db)
+    insert_values = {
+        "first_name": first_name,
+        "last_name": last_name,
+        "album_number": album_number,
+        "login": login,
+        "email": email,
+        "password_hash": hash_password(password),
+        "must_change_password": True,
+    }
+    insert_values.update(_legacy_user_fk_values(users_table, roles[0].id, departments[0].id))
 
     try:
+        insert_stmt = insert(users_table).values(**insert_values).returning(users_table.c.user_id)
+        user_id = int(db.execute(insert_stmt).scalar_one())
+
+        for role in roles:
+            db.add(RolesForUser(user_id=user_id, role_id=role.id))
+        for department in departments:
+            db.add(DepartmentsForUser(user_id=user_id, department_id=department.id))
+
         db.commit()
     except IntegrityError as exc:
         db.rollback()
         raise _map_user_integrity_error(exc) from exc
 
-    db.refresh(user)
+    user = get_user_by_id(db, user_id)
+    if user is None:
+        raise ValueError("User was created but could not be loaded")
     return user
 
 
@@ -224,7 +252,17 @@ def update_user_by_admin(
     for department in departments:
         db.add(DepartmentsForUser(user_id=user.user_id, department_id=department.id))
 
+    users_table = _get_users_table(db)
+    legacy_fk_values = _legacy_user_fk_values(users_table, roles[0].id, departments[0].id)
+
     try:
+        if legacy_fk_values:
+            db.execute(
+                update(users_table)
+                .where(users_table.c.user_id == user.user_id)
+                .values(**legacy_fk_values)
+            )
+
         db.commit()
     except IntegrityError as exc:
         db.rollback()
