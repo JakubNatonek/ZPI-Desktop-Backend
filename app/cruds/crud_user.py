@@ -33,6 +33,10 @@ def get_user_by_email(db: Session, email: str) -> Optional[User]:
     return db.query(User).filter(User.email == email).first()
 
 
+def get_user_by_album_number(db: Session, album_number: str) -> Optional[User]:
+    return db.query(User).filter(User.album_number == album_number).first()
+
+
 def create_user(
     db: Session,
     first_name: str,
