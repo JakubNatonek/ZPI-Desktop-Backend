@@ -46,6 +46,7 @@ from app.models.model_title import TitleModel
 from app.models.model_title_for_user import TitleForUser
 from app.models.model_teacher import Teacher
 from app.models.model_subject import Subject
+from app.models.model_subject_activity import SubjectActivity
 from app.models.model_announcement import Announcement, AnnouncementSeen
 from app.models.model_activity import Activity
 from app.models.model_special_equipment import SpecialEquipment
@@ -86,6 +87,7 @@ __all__ = [
     "Department",
     "Student",
     "Subject",
+    "SubjectActivity",
     "TitleForUser",
     "TitleModel",
     "Teacher",
