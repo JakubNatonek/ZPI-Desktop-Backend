@@ -4,7 +4,7 @@ from sqlalchemy import MetaData, Table, cast, func, Integer, insert, update
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
 
-from app.auth.password_utils import hash_password
+from app.auth.password_utils import apply_password_to_user, hash_password
 from app.models.model_department import Department
 from app.models.model_department_for_user import DepartmentsForUser
 from app.models.model_refresh_token import RefreshTokenSession
@@ -300,8 +300,7 @@ def delete_user_by_admin(db: Session, user: User) -> None:
 
 
 def set_user_password(db: Session, user: User, password: str) -> User:
-    user.password_hash = hash_password(password)
-    user.must_change_password = True
+    apply_password_to_user(user, password, must_change_password=True)
 
     db.add(user)
     db.commit()
