@@ -1,6 +1,7 @@
 from typing import Optional
 
 from fastapi import HTTPException, status
+from sqlalchemy import text
 from sqlalchemy.orm import Session, selectinload
 
 from app.cruds.crud_activity import get_activity_by_id
@@ -41,6 +42,14 @@ def _load_subject_with_relations(db: Session, subject_id: int) -> Optional[Subje
         )
         .filter(Subject.id == subject_id)
         .first()
+    )
+
+
+def _sync_subject_id_sequence(db: Session) -> None:
+    db.execute(
+        text(
+            "SELECT setval(pg_get_serial_sequence('subject', 'id'), COALESCE((SELECT MAX(id) FROM subject), 0) + 1, false)"
+        )
     )
 
 
@@ -144,6 +153,7 @@ def create_subject(db: Session, payload: SubjectCreate) -> Subject:
         raise ValueError("Subject name cannot be empty")
 
     activity_id = _resolve_activity_id(db, payload.activity_id)
+    _sync_subject_id_sequence(db)
 
     subject = Subject(
         name=cleaned_name,
