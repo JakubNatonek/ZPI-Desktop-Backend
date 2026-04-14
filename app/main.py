@@ -59,13 +59,13 @@ create_socket_events(sio)
 # Enable CORS for frontend development
 cors_origins = os.getenv(
     "CORS_ORIGINS",
-    "http://localhost:8100,http://127.0.0.1:8100,http://localhost:4200,http://127.0.0.1:4200",
+    "http://localhost:8100,http://127.0.0.1:8100,http://localhost:4200,http://127.0.0.1:4200,http://localhost,capacitor://localhost,http://192.168.1.65:8000",
 )
 
 # Enable CORS for frontend development
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[origin.strip() for origin in cors_origins.split(",") if origin.strip()],
+    allow_origin_regex=r".*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

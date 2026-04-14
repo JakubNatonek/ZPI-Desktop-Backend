@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, Security
+from fastapi import Depends, HTTPException, Request, Security
 from fastapi.security import APIKeyCookie
 from jose import ExpiredSignatureError, JWTError
 from sqlalchemy.orm import Session
@@ -44,17 +44,26 @@ def user_has_role(user: User, required_role: str | list[str] | set[str] | tuple[
 
 
 def get_current_user(
+    request: Request,
     access_token: str | None = Security(access_token_cookie),
     db: Session = Depends(get_db),
 ) -> User:
-    if not access_token:
+    # Try Bearer header first, then cookie
+    token = None
+    auth_header = request.headers.get("authorization", "")
+    if auth_header.lower().startswith("bearer "):
+        token = auth_header[7:].strip()
+    if not token:
+        token = access_token
+
+    if not token:
         raise HTTPException(
             status_code=401,
-            detail="Missing access token cookie",
+            detail="Missing access token",
         )
 
     try:
-        payload = decode_access_token(access_token)
+        payload = decode_access_token(token)
     except ExpiredSignatureError as exc:
         raise HTTPException(
             status_code=401,
