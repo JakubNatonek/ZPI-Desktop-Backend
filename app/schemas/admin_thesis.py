@@ -12,6 +12,13 @@ class AdminThesisStatus(str, Enum):
     REJECTED = "REJECTED"
 
 
+class ThesisPrintListItem(BaseModel):
+    own_topic: bool
+    student_name: str
+    topic: str
+    promotor_name: str
+
+
 class AdminThesisProposalResponse(BaseModel):
     model_config = ConfigDict(json_encoders={datetime: lambda value: format_datetime_minute(value)})
 

@@ -1,10 +1,13 @@
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
-from sqlalchemy import and_
-from sqlalchemy.orm import Session
+from sqlalchemy import and_, func
+from sqlalchemy.orm import Session, joinedload
 
 from app.models.model_announcement import Announcement, AnnouncementSeen
+from app.models.model_role import Role
+from app.models.model_role_for_user import RolesForUser
+from app.models.model_user import User
 
 
 POLAND_TIMEZONE = ZoneInfo("Europe/Warsaw")
@@ -16,6 +19,36 @@ def format_announcement_datetime(value: datetime | None) -> str:
     if value.tzinfo is None:
         value = value.replace(tzinfo=timezone.utc)
     return value.astimezone(POLAND_TIMEZONE).strftime("%Y-%m-%d %H:%M")
+
+
+def _resolve_author_name(db: Session, author_id: int | None) -> str:
+    """Return display name for the announcement author."""
+    if author_id is None:
+        return "Dziekanat"
+
+    user = (
+        db.query(User)
+        .options(joinedload(User.teacher_profile), joinedload(User.roles_for_user))
+        .filter(User.user_id == author_id)
+        .first()
+    )
+    if user is None:
+        return "Dziekanat"
+
+    role_names = set()
+    for rfu in user.roles_for_user:
+        role = db.query(Role).filter(Role.id == rfu.role_id).first()
+        if role:
+            role_names.add(role.name.lower())
+
+    if "admin" in role_names:
+        return "Dziekanat"
+
+    title = ""
+    if user.teacher_profile and user.teacher_profile.title:
+        title = user.teacher_profile.title + " "
+
+    return f"{title}{user.first_name} {user.last_name}"
 
 
 def list_announcements_for_user(db: Session, user_id: int) -> list[dict]:
@@ -42,6 +75,7 @@ def list_announcements_for_user(db: Session, user_id: int) -> list[dict]:
                 "seen": seen_entry is not None,
                 "created_at": format_announcement_datetime(announcement.created_at),
                 "author_id": announcement.author_id,
+                "author_name": _resolve_author_name(db, announcement.author_id),
             }
         )
     return items

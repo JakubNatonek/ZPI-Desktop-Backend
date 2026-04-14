@@ -1,0 +1,5169 @@
+[
+  {
+    "nazwa": "Konsultacje doradcy zawodowego",
+    "rodzaj": "s",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": null
+  },
+  {
+    "nazwa": "Ergonomia, B, 15h, zdalne",
+    "rodzaj": "w",
+    "opis": "(ostatni wykład stac.)",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Janisz",
+      "imie": "Karina"
+    }
+  },
+  {
+    "nazwa": "Niezawodność układów mechatronicznych, B, 15 godz, zdalne",
+    "rodzaj": "w",
+    "opis": "ost wykład stac.",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Janisz",
+      "imie": "Karina"
+    }
+  },
+  {
+    "nazwa": "Lean Management w IT, A, 15 godz, zdalne",
+    "rodzaj": "w",
+    "opis": "ost wykład stac.",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Janisz",
+      "imie": "Karina"
+    }
+  },
+  {
+    "nazwa": "Modelowanie i symulacja komputerowa, B, 15 godz, zdalne",
+    "rodzaj": "w",
+    "opis": "(ost. wykład stac)",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Janisz",
+      "imie": "Karina"
+    }
+  },
+  {
+    "nazwa": "Modelowanie i symulacja komputerowa, 15, B, L1",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.1 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Janisz",
+      "imie": "Karina"
+    }
+  },
+  {
+    "nazwa": "Niezawodnośc układów mechatronicznych, 15, B",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Janisz",
+      "imie": "Karina"
+    }
+  },
+  {
+    "nazwa": "Lean Management w IT, tydz. A,, P1, 15 godz",
+    "rodzaj": "p",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.1 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Janisz",
+      "imie": "Karina"
+    }
+  },
+  {
+    "nazwa": "Lean Management w IT, tydz. A, P2, 15 godz",
+    "rodzaj": "p",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.1 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Janisz",
+      "imie": "Karina"
+    }
+  },
+  {
+    "nazwa": "Ergonomia, B, 15h, stac",
+    "rodzaj": "w",
+    "opis": "(ostatni wykład stac.)",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Janisz",
+      "imie": "Karina"
+    }
+  },
+  {
+    "nazwa": "Niezawodność układów mechatronicznych, B, 15 godz, stac",
+    "rodzaj": "w",
+    "opis": "ost wykład stac.",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Janisz",
+      "imie": "Karina"
+    }
+  },
+  {
+    "nazwa": "Modelowanie i symulacja komputerowa, B, 15 godz, stac",
+    "rodzaj": "w",
+    "opis": "(ost. wykład stac)",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Janisz",
+      "imie": "Karina"
+    }
+  },
+  {
+    "nazwa": "Lean Management w IT, A, 15 godz, stac.",
+    "rodzaj": "w",
+    "opis": "ost wykład stac.",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Janisz",
+      "imie": "Karina"
+    }
+  },
+  {
+    "nazwa": "Zarządzanie projektem i innowacjami, 15, A, zdalne",
+    "rodzaj": "w",
+    "opis": "(ost. w. stac)",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Janisz",
+      "imie": "Karina"
+    }
+  },
+  {
+    "nazwa": "Zarządzanie projektem i innowacjami, 15, A, stac",
+    "rodzaj": "w",
+    "opis": "(ost. w. stac)",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Janisz",
+      "imie": "Karina"
+    }
+  },
+  {
+    "nazwa": "Inteligentne systemy budynkowe*",
+    "rodzaj": "P",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.6 Elektrotechnika i elektronika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Mikulski",
+      "imie": "Mariusz"
+    }
+  },
+  {
+    "nazwa": "Sieci informatyczne w pojazdach*",
+    "rodzaj": "P",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.6 Elektrotechnika i elektronika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Mikulski",
+      "imie": "Mariusz"
+    }
+  },
+  {
+    "nazwa": "Inteligentne systemy budynkowe*",
+    "rodzaj": "P",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.6 Elektrotechnika i elektronika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Mikulski",
+      "imie": "Mariusz"
+    }
+  },
+  {
+    "nazwa": "Sieci informatyczne w pojazdach*",
+    "rodzaj": "P",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.6 Elektrotechnika i elektronika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Mikulski",
+      "imie": "Mariusz"
+    }
+  },
+  {
+    "nazwa": "Elektrotechnika i elektronika",
+    "rodzaj": "C",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Mikulski",
+      "imie": "Mariusz"
+    }
+  },
+  {
+    "nazwa": "Programowanie aplikacji WEB (tydz B)",
+    "rodzaj": "L",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.6 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Wójcik",
+      "imie": "Józef"
+    }
+  },
+  {
+    "nazwa": "Programowanie aplikacji WEB (tydz B)",
+    "rodzaj": "L",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.6 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Wójcik",
+      "imie": "Józef"
+    }
+  },
+  {
+    "nazwa": "Programowanie aplikacji WEB (tydz A)",
+    "rodzaj": "P",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.6 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Wójcik",
+      "imie": "Józef"
+    }
+  },
+  {
+    "nazwa": "Programowanie aplikacji WEB (tydz A)",
+    "rodzaj": "P",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.6 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Wójcik",
+      "imie": "Józef"
+    }
+  },
+  {
+    "nazwa": "Inżynieria oprogramowania A* (tydz A) 15h",
+    "rodzaj": "C",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Wójcik",
+      "imie": "Józef"
+    }
+  },
+  {
+    "nazwa": "Inżynieria oprogramowania A* (tydz A) 15h",
+    "rodzaj": "L",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.6 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Wójcik",
+      "imie": "Józef"
+    }
+  },
+  {
+    "nazwa": "Inżynieria oprogramowania A* (tydz A) 15h",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.6 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Wójcik",
+      "imie": "Józef"
+    }
+  },
+  {
+    "nazwa": "Elektrotechnika i elektronika, 30 godz, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. stac.",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Aleksander",
+      "imie": "Marek"
+    }
+  },
+  {
+    "nazwa": "Elektrotechnika i elektronika, 30, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. w. stac.",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Aleksander",
+      "imie": "Marek"
+    }
+  },
+  {
+    "nazwa": "Elektrotechnika i elektronika, 30, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. w. stac.",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Aleksander",
+      "imie": "Marek"
+    }
+  },
+  {
+    "nazwa": "Elektrotechnika i elektronika, 30, stac",
+    "rodzaj": "w",
+    "opis": "ost. w. stac.",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Aleksander",
+      "imie": "Marek"
+    }
+  },
+  {
+    "nazwa": "Elektrotechnika i elektronika, 30, stac",
+    "rodzaj": "w",
+    "opis": "ost. w. stac.",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Aleksander",
+      "imie": "Marek"
+    }
+  },
+  {
+    "nazwa": "Elektrotechika i elektronika w środkach transportu, 15, B, zdalne",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Aleksander",
+      "imie": "Marek"
+    }
+  },
+  {
+    "nazwa": "Elektrotechika i elektronika w środkach transportu, 15, B,, stac",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Aleksander",
+      "imie": "Marek"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie II / Przygotowanie pracy magisterskiej, 6h zdalne",
+    "rodzaj": "s",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Aleksander",
+      "imie": "Marek"
+    }
+  },
+  {
+    "nazwa": "Finansowanie projektów informatycznych, 15, A, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Aleksander",
+      "imie": "Marek"
+    }
+  },
+  {
+    "nazwa": "Finansowanie projektów informatycznych, 15, stac",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Aleksander",
+      "imie": "Marek"
+    }
+  },
+  {
+    "nazwa": "Rozwój innowacyjnego produktu, 15, B, zdalny",
+    "rodzaj": "w",
+    "opis": "ost stac",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Aleksander",
+      "imie": "Marek"
+    }
+  },
+  {
+    "nazwa": "Rozwój innowacyjnego produktu, 15, B, stac",
+    "rodzaj": "w",
+    "opis": "ost stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Aleksander",
+      "imie": "Marek"
+    }
+  },
+  {
+    "nazwa": "Rozwój innowacyjnego produktu, 15, B, stac",
+    "rodzaj": "w",
+    "opis": "ost stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Aleksander",
+      "imie": "Marek"
+    }
+  },
+  {
+    "nazwa": "Rozwój innowacyjnego produktu, 15, B, stac",
+    "rodzaj": "w",
+    "opis": "ost stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Aleksander",
+      "imie": "Marek"
+    }
+  },
+  {
+    "nazwa": "Rozwój innowacyjnego produktu, 15 godz. B",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.6 Elektrotechnika i elektronika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Aleksander",
+      "imie": "Marek"
+    }
+  },
+  {
+    "nazwa": "Modelowanie i symulacja komputerowa, 15, B L2",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.1 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Janisz",
+      "imie": "Karina"
+    }
+  },
+  {
+    "nazwa": "Doradztwo i informacja techniczna, 15, zdalny",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Mikulec",
+      "imie": "Anna"
+    }
+  },
+  {
+    "nazwa": "Doradztwo i informacja techniczna, 15",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.10"
+    },
+    "nauczyciel": {
+      "nazwisko": "Mikulec",
+      "imie": "Anna"
+    }
+  },
+  {
+    "nazwa": "Zintegrowane systemy zarządzania, 15",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.10"
+    },
+    "nauczyciel": {
+      "nazwisko": "Mikulec",
+      "imie": "Anna"
+    }
+  },
+  {
+    "nazwa": "Zintegrowane systemy zarządzania, 15, zdalne",
+    "rodzaj": "w",
+    "opis": "ost stac",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Mikulec",
+      "imie": "Anna"
+    }
+  },
+  {
+    "nazwa": "Doradztwo i informacja techniczna, 15, stac",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Mikulec",
+      "imie": "Anna"
+    }
+  },
+  {
+    "nazwa": "Zintegrowane systemy zarządzania, 15, stac",
+    "rodzaj": "w",
+    "opis": "ost stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.10"
+    },
+    "nauczyciel": {
+      "nazwisko": "Mikulec",
+      "imie": "Anna"
+    }
+  },
+  {
+    "nazwa": "Elektrotechnika i elektronika, 30 godz, stac",
+    "rodzaj": "w",
+    "opis": "ost. stac.",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Aleksander",
+      "imie": "Marek"
+    }
+  },
+  {
+    "nazwa": "Finansowanie projektów informatycznych, 30 P1",
+    "rodzaj": "p",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.6 Elektrotechnika i elektronika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Aleksander",
+      "imie": "Marek"
+    }
+  },
+  {
+    "nazwa": "Finansowanie projektów informatycznych, 30 P2",
+    "rodzaj": "p",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.6 Elektrotechnika i elektronika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Aleksander",
+      "imie": "Marek"
+    }
+  },
+  {
+    "nazwa": "Fizyka 13h zdalnie (Tydz.B) 5 spotkań",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Kożuch",
+      "imie": "Anna"
+    }
+  },
+  {
+    "nazwa": "Fizyka 15h 6 spotkań (Tydz.A)",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kożuch",
+      "imie": "Anna"
+    }
+  },
+  {
+    "nazwa": "Fizyka 2h ostatni wykład (Tydz.A)",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kożuch",
+      "imie": "Anna"
+    }
+  },
+  {
+    "nazwa": "Fizyka 15h (Tydz.A) 5 spotań",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.9 Fizyka laboratorium"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kożuch",
+      "imie": "Anna"
+    }
+  },
+  {
+    "nazwa": "Fizyka 15h (Tydz.B)",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.9 Fizyka laboratorium"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kożuch",
+      "imie": "Anna"
+    }
+  },
+  {
+    "nazwa": "Programowanie obiektowe 30h - 10 spotkań zdalnie",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Przygoda",
+      "imie": "Witold"
+    }
+  },
+  {
+    "nazwa": "Wprowadzenie do programowania 30h - 10 spotkań zdalnie",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Przygoda",
+      "imie": "Witold"
+    }
+  },
+  {
+    "nazwa": "Widzenie maszynowe i sztuczna inteligencja w zastosowaniach bezpieczeństwa 30h",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Przygoda",
+      "imie": "Witold"
+    }
+  },
+  {
+    "nazwa": "Widzenie maszynowe i sztuczna inteligencja w zastosowaniach bezpieczeństwa 30h",
+    "rodzaj": "w",
+    "opis": "ostatni wykład",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Przygoda",
+      "imie": "Witold"
+    }
+  },
+  {
+    "nazwa": "Programowanie współbieżne i rozproszone 15h zdalnie (Tydz.A)",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Przygoda",
+      "imie": "Witold"
+    }
+  },
+  {
+    "nazwa": "Programowanie współbieżne i rozproszone 15h ostatni wykład",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Przygoda",
+      "imie": "Witold"
+    }
+  },
+  {
+    "nazwa": "Identyfikacja zagrożeń w systemach sztucznej inteligencji 15h zdalnie (tydz.B)",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Przygoda",
+      "imie": "Witold"
+    }
+  },
+  {
+    "nazwa": "Identyfikacja zagrożeń w systemach sztucznej inteligencji 15h ostatni wykład",
+    "rodzaj": "w",
+    "opis": "ostatni wykład",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Przygoda",
+      "imie": "Witold"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie II S6 / Przygotowanie pracy magisterskiej 15h",
+    "rodzaj": "s",
+    "opis": "zdalnie",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Przygoda",
+      "imie": "Witold"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie II S7 / Przygotowanie pracy magisterskiej 18h",
+    "rodzaj": "s",
+    "opis": "zdalnie",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Przygoda",
+      "imie": "Witold"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie II S8 / Przygotowanie pracy magisterskiej 3h (Tydz.B)",
+    "rodzaj": "s",
+    "opis": "zdalnie",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Przygoda",
+      "imie": "Witold"
+    }
+  },
+  {
+    "nazwa": "Seminarium dyplomowe S4 /Przygotowanie pracy dyplomowej (Tydz.B)",
+    "rodzaj": "s",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.9 Fizyka laboratorium"
+    },
+    "nauczyciel": {
+      "nazwisko": "Przygoda",
+      "imie": "Witold"
+    }
+  },
+  {
+    "nazwa": "Praca przejściowa",
+    "rodzaj": "s",
+    "opis": "S1 10x3h",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.1 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Ciuła",
+      "imie": "Józef"
+    }
+  },
+  {
+    "nazwa": "Praca przejściowa",
+    "rodzaj": "s",
+    "opis": "S2 10x3h",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.1 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Ciuła",
+      "imie": "Józef"
+    }
+  },
+  {
+    "nazwa": "Projektowanie centrów logistycznych",
+    "rodzaj": "P",
+    "opis": "bez 5VI",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Wota",
+      "imie": "Aldona"
+    }
+  },
+  {
+    "nazwa": "Teoria podejmowania decyzji",
+    "rodzaj": "C",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Wota",
+      "imie": "Aldona"
+    }
+  },
+  {
+    "nazwa": "Teoria podejmowania decyzji*",
+    "rodzaj": "C",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Wota",
+      "imie": "Aldona"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie II",
+    "rodzaj": "s",
+    "opis": "S8 -zdalne",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Wota",
+      "imie": "Aldona"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie II",
+    "rodzaj": "s",
+    "opis": "S9 -zdalne",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Wota",
+      "imie": "Aldona"
+    }
+  },
+  {
+    "nazwa": "Projektowanie centrów logistycznych",
+    "rodzaj": "W",
+    "opis": "zdalne",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Wota",
+      "imie": "Aldona"
+    }
+  },
+  {
+    "nazwa": "Projektowanie centrów logistycznych",
+    "rodzaj": "W",
+    "opis": "stacjonarne",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Wota",
+      "imie": "Aldona"
+    }
+  },
+  {
+    "nazwa": "Teoria podejmowania decyzji",
+    "rodzaj": "W",
+    "opis": "zdalne",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Wota",
+      "imie": "Aldona"
+    }
+  },
+  {
+    "nazwa": "Teoria podejmowania decyzji",
+    "rodzaj": "W",
+    "opis": "stacjonarne",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Wota",
+      "imie": "Aldona"
+    }
+  },
+  {
+    "nazwa": "Teoria podejmowania decyzji",
+    "rodzaj": "W",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Wota",
+      "imie": "Aldona"
+    }
+  },
+  {
+    "nazwa": "Teoria podejmowania decyzji",
+    "rodzaj": "W",
+    "opis": "stacjonarne",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Wota",
+      "imie": "Aldona"
+    }
+  },
+  {
+    "nazwa": "Teoria podejmowania decyzji",
+    "rodzaj": "W",
+    "opis": "zdalne",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Wota",
+      "imie": "Aldona"
+    }
+  },
+  {
+    "nazwa": "Teoria podejmowania decyzji",
+    "rodzaj": "W",
+    "opis": "stacjonarne",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Wota",
+      "imie": "Aldona"
+    }
+  },
+  {
+    "nazwa": "Prognozowanie i symulacje w przedsiębiorstwie",
+    "rodzaj": "W",
+    "opis": "Zdalne",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Wota",
+      "imie": "Aldona"
+    }
+  },
+  {
+    "nazwa": "Prognozowanie i symulacje w przedsiębiorstwie",
+    "rodzaj": "W",
+    "opis": "stacjonarne",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Wota",
+      "imie": "Aldona"
+    }
+  },
+  {
+    "nazwa": "Zarządzanie wiedzą i systemy wspomagania decyzji",
+    "rodzaj": "W",
+    "opis": "Zdalne",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Wota",
+      "imie": "Aldona"
+    }
+  },
+  {
+    "nazwa": "Zarządzanie wiedzą i systemy wspomagania decyzji",
+    "rodzaj": "W",
+    "opis": "Stacjonarne",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Wota",
+      "imie": "Aldona"
+    }
+  },
+  {
+    "nazwa": "Bazy danych",
+    "rodzaj": "L",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.5 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Bulanda",
+      "imie": "Nikodem"
+    }
+  },
+  {
+    "nazwa": "Bazy danych",
+    "rodzaj": "P",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.5 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Bulanda",
+      "imie": "Nikodem"
+    }
+  },
+  {
+    "nazwa": "Bazy danych",
+    "rodzaj": "L",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.5 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Bulanda",
+      "imie": "Nikodem"
+    }
+  },
+  {
+    "nazwa": "Bazy danych",
+    "rodzaj": "P",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.5 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Bulanda",
+      "imie": "Nikodem"
+    }
+  },
+  {
+    "nazwa": "Zespołowe przedsięwzięcie inżynierskie 55h",
+    "rodzaj": "P",
+    "opis": "11 spotkań do 15V",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.5 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Bulanda",
+      "imie": "Nikodem"
+    }
+  },
+  {
+    "nazwa": "Zaawansowane programowanie webowe 30h zdalnie",
+    "rodzaj": "W",
+    "opis": "zdalne",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Bulanda",
+      "imie": "Nikodem"
+    }
+  },
+  {
+    "nazwa": "Programowanie aplikacji WEB 15h (Tydz.A)",
+    "rodzaj": "w",
+    "opis": "zdalne",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Bulanda",
+      "imie": "Nikodem"
+    }
+  },
+  {
+    "nazwa": "Współrzędnościowa technika pomiarowa, 15, A, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. w. stac",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Jurkowski",
+      "imie": "Sławomir"
+    }
+  },
+  {
+    "nazwa": "Układy mechatroniczne w systemach transportowych, 30, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. w. stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Madej",
+      "imie": "Wiesław"
+    }
+  },
+  {
+    "nazwa": "Mechatroniczne układy wykonawcze, 15, A,  zdalne",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Madej",
+      "imie": "Wiesław"
+    }
+  },
+  {
+    "nazwa": "Normy techniczne w transporcie i projektowanie układów mechatronicznych systemów transportowych, 15, B, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Opoka",
+      "imie": "Kazimierz"
+    }
+  },
+  {
+    "nazwa": "Telematyka w środkach transportowych i logistyce, 10, B, zdalne",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Opoka",
+      "imie": "Kazimierz"
+    }
+  },
+  {
+    "nazwa": "Programowanie robotów technologicznych, 30, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Radzik",
+      "imie": "Michał"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie II, S3, zdalne",
+    "rodzaj": "s",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Kowalski",
+      "imie": "Sławomir"
+    }
+  },
+  {
+    "nazwa": "Systemy automatyzacji produkcji, 15, A, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. stac.",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Madej",
+      "imie": "Wiesław"
+    }
+  },
+  {
+    "nazwa": "Metody diagnostyki maszyn i urządzeń, 15, B, zdalne",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Langman",
+      "imie": "Jerzy"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie II, S4, zdalne",
+    "rodzaj": "s",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Madej",
+      "imie": "Wiesław"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie II, S2, 12, zdalne",
+    "rodzaj": "s",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Jurkowski",
+      "imie": "Sławomir"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie II, S1, 6h",
+    "rodzaj": "s",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Buraś",
+      "imie": "Janusz"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie II, S4, zdalne",
+    "rodzaj": "s",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Cieślikowski",
+      "imie": "Bogusław"
+    }
+  },
+  {
+    "nazwa": "Badanie materiałów i konstrukcji, 10, stac",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.8A Inzynieria materialowa"
+    },
+    "nauczyciel": {
+      "nazwisko": "Pytel",
+      "imie": "Stanisław"
+    }
+  },
+  {
+    "nazwa": "Badanie materiałów i konstrukcji, 10, l",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.8A Inzynieria materialowa"
+    },
+    "nauczyciel": {
+      "nazwisko": "Pytel",
+      "imie": "Stanisław"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie II, 30, S4, zdalne",
+    "rodzaj": "s",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Kowalski",
+      "imie": "Sławomir"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie II, A, zdalne (12h) S5",
+    "rodzaj": "s",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Kowalski",
+      "imie": "Sławomir"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie II, 24h, S1, zdalne",
+    "rodzaj": "s",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Cieślikowski",
+      "imie": "Bogusław"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie II, S7, 12h, zdalne",
+    "rodzaj": "s",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Opoka",
+      "imie": "Kazimierz"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie II, S6, 24h, zdalne",
+    "rodzaj": "s",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Opoka",
+      "imie": "Kazimierz"
+    }
+  },
+  {
+    "nazwa": "Przepisy prawne w transporcie osób i rzeczy, 60, zdalnie",
+    "rodzaj": "w",
+    "opis": "ost stac.",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Zwolenik",
+      "imie": "Agnieszka"
+    }
+  },
+  {
+    "nazwa": "Przepisy prawne w transporcie osób i rzeczy, 60, stac",
+    "rodzaj": "w",
+    "opis": "ost stac.",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.7"
+    },
+    "nauczyciel": {
+      "nazwisko": "Zwolenik",
+      "imie": "Agnieszka"
+    }
+  },
+  {
+    "nazwa": "Współrzędnościowa technika pomiarowa, 15, A, stac",
+    "rodzaj": "w",
+    "opis": "ost. w. stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.7"
+    },
+    "nauczyciel": {
+      "nazwisko": "Jurkowski",
+      "imie": "Sławomir"
+    }
+  },
+  {
+    "nazwa": "Układy mechatroniczne w systemach transportowych, 30, stac",
+    "rodzaj": "w",
+    "opis": "ost. w. stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Madej",
+      "imie": "Wiesław"
+    }
+  },
+  {
+    "nazwa": "Mechatroniczne układy wykonawcze, 15, A,  zdalne",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Madej",
+      "imie": "Wiesław"
+    }
+  },
+  {
+    "nazwa": "Systemy automatyzacji produkcji, 15, A, stac",
+    "rodzaj": "w",
+    "opis": "ost. stac.",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.10"
+    },
+    "nauczyciel": {
+      "nazwisko": "Madej",
+      "imie": "Wiesław"
+    }
+  },
+  {
+    "nazwa": "Programowanie robotów technologicznych, 30, stac",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.10"
+    },
+    "nauczyciel": {
+      "nazwisko": "Radzik",
+      "imie": "Michał"
+    }
+  },
+  {
+    "nazwa": "Metody diagnostyki maszyn i urządzeń, 15, B, stac",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Langman",
+      "imie": "Jerzy"
+    }
+  },
+  {
+    "nazwa": "Normy techniczne w transporcie i projektowanie układów mechatronicznych systemów transportowych, 15, B, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Opoka",
+      "imie": "Kazimierz"
+    }
+  },
+  {
+    "nazwa": "Mechatroniczne układy sterowania napędem i trakcją, 30 godz, zdalne",
+    "rodzaj": "w",
+    "opis": "3x10, ost w. stac",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Cieślikowski",
+      "imie": "Bogusław"
+    }
+  },
+  {
+    "nazwa": "Nowoczesne źródła napędu, 30, zdalne",
+    "rodzaj": "w",
+    "opis": "10x3godz, ost. w. stac",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Cieślikowski",
+      "imie": "Bogusław"
+    }
+  },
+  {
+    "nazwa": "Mechatronika układów pomocniczych, 15, A, zdalne",
+    "rodzaj": "w",
+    "opis": "ost stac.",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Cieślikowski",
+      "imie": "Bogusław"
+    }
+  },
+  {
+    "nazwa": "Inżynieria wytwarzania, 30, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Cieślikowski",
+      "imie": "Bogusław"
+    }
+  },
+  {
+    "nazwa": "Budowa pojazdów samochodowych, 30, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. stac.",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Cieślikowski",
+      "imie": "Bogusław"
+    }
+  },
+  {
+    "nazwa": "Mikro i nanotechnologie w mechatronice, 10, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Cieślikowski",
+      "imie": "Bogusław"
+    }
+  },
+  {
+    "nazwa": "Inteligentne systemy transportowe, 15, B, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. w. stac.",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Cieślikowski",
+      "imie": "Bogusław"
+    }
+  },
+  {
+    "nazwa": "Technika cieplna, 30, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Cyklis",
+      "imie": "Piotr"
+    }
+  },
+  {
+    "nazwa": "Termodynamika, 15, A, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. stac.",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Cyklis",
+      "imie": "Piotr"
+    }
+  },
+  {
+    "nazwa": "Mechanika płynów i maszyny przepływowe, 15, A, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. stac.",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Cyklis",
+      "imie": "Piotr"
+    }
+  },
+  {
+    "nazwa": "Mechanika płynów i maszyny przepływowe, 15, A, stac",
+    "rodzaj": "w",
+    "opis": "ost. stac.",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Cyklis",
+      "imie": "Piotr"
+    }
+  },
+  {
+    "nazwa": "Termodynamika, 15, A, stac",
+    "rodzaj": "w",
+    "opis": "ost. stac.",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Cyklis",
+      "imie": "Piotr"
+    }
+  },
+  {
+    "nazwa": "Mechanika płynów i maszyny przepływowe, 15, A, stac",
+    "rodzaj": "w",
+    "opis": "ost. stac.",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Cyklis",
+      "imie": "Piotr"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie - Przygotowanie pracy magisterskiej, S1, 12h, zdalne",
+    "rodzaj": "s",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Cyklis",
+      "imie": "Piotr"
+    }
+  },
+  {
+    "nazwa": "Eksploatacja pojazdów samochodowych, 15, A, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. stac.",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Langman",
+      "imie": "Jerzy"
+    }
+  },
+  {
+    "nazwa": "Systemy mikroprocesorowe w mechatronice, 10, B, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Langman",
+      "imie": "Jerzy"
+    }
+  },
+  {
+    "nazwa": "Systemy mikroprocesorowe w mechatronice, 10, B, stac",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Langman",
+      "imie": "Jerzy"
+    }
+  },
+  {
+    "nazwa": "Metody diagnostyki maszyn i urządzeń, 15, B, stac",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Langman",
+      "imie": "Jerzy"
+    }
+  },
+  {
+    "nazwa": "Eksploatacja pojazdów samochodowych, 15, A, stac",
+    "rodzaj": "w",
+    "opis": "ost. stac.",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Langman",
+      "imie": "Jerzy"
+    }
+  },
+  {
+    "nazwa": "Serwisowanie systemów mechatronicznych, 30 zdalne",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Madej",
+      "imie": "Wiesław"
+    }
+  },
+  {
+    "nazwa": "Metody numeryczne i modelowanie matematyczne w mechatronice, 15, B, zdalne",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Madej",
+      "imie": "Wiesław"
+    }
+  },
+  {
+    "nazwa": "Metody numeryczne i modelowanie matematyczne w mechatronice, 15, B, stac",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Madej",
+      "imie": "Wiesław"
+    }
+  },
+  {
+    "nazwa": "Rynek transportu osób i rzeczy, 30 zdalne",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Opoka",
+      "imie": "Kazimierz"
+    }
+  },
+  {
+    "nazwa": "Praca przejściowa, 30,",
+    "rodzaj": "s",
+    "opis": "3x10",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Opoka",
+      "imie": "Kazimierz"
+    }
+  },
+  {
+    "nazwa": "Nauka o materiałach, 30, stac",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.8A Inzynieria materialowa"
+    },
+    "nauczyciel": {
+      "nazwisko": "Pytel",
+      "imie": "Stanisław"
+    }
+  },
+  {
+    "nazwa": "Nauka o materiałach, 30, stac",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.8A Inzynieria materialowa"
+    },
+    "nauczyciel": {
+      "nazwisko": "Pytel",
+      "imie": "Stanisław"
+    }
+  },
+  {
+    "nazwa": "Programowanie sterowników przemysłowych, 30,",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.4 Automatyka Robotyka"
+    },
+    "nauczyciel": {
+      "nazwisko": "Smajdor",
+      "imie": "Zbigniew"
+    }
+  },
+  {
+    "nazwa": "Teoria ruchu pojazdów, 15, B, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Kowalski",
+      "imie": "Sławomir"
+    }
+  },
+  {
+    "nazwa": "Mechatronika w systemach transportowych, 30, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Radzik",
+      "imie": "Michał"
+    }
+  },
+  {
+    "nazwa": "Technologia MEMS (Mikro Electro-Mechanical Systems), 15, A,  zdalne",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Radzik",
+      "imie": "Michał"
+    }
+  },
+  {
+    "nazwa": "Napęd i sterowanie elektryczne, 15, A, zdalne",
+    "rodzaj": "ost. stac",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Radzik",
+      "imie": "Michał"
+    }
+  },
+  {
+    "nazwa": "Napęd i sterowanie pneumatyczne oraz hydrauliczne, 15, B, zdalne",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Radzik",
+      "imie": "Michał"
+    }
+  },
+  {
+    "nazwa": "Inteligentne przetworniki sygnałów i programowalne kontrolery logiczne, 15, , zdalne",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Radzik",
+      "imie": "Michał"
+    }
+  },
+  {
+    "nazwa": "Mechanika płynów i maszyny przepływowe, 15",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.10 Inzynieria srodowiska"
+    },
+    "nauczyciel": {
+      "nazwisko": "Radzik",
+      "imie": "Michał"
+    }
+  },
+  {
+    "nazwa": "Technologia MEMS (Mikro Electro-Mechanical Systems), 15 B",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Radzik",
+      "imie": "Michał"
+    }
+  },
+  {
+    "nazwa": "Ekologia i zarządzanie środowiskowe, 15godz, B, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. w. stac.",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Wiewiórska",
+      "imie": "Iwona"
+    }
+  },
+  {
+    "nazwa": "Ekologia i zarządzanie środowiskowe, 15 godz, B, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. w. stac.",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Wiewiórska",
+      "imie": "Iwona"
+    }
+  },
+  {
+    "nazwa": "Ekologia i zarządzanie środowiskowe, 15 godz, B, stac",
+    "rodzaj": "w",
+    "opis": "ost. w. stac.",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.10"
+    },
+    "nauczyciel": {
+      "nazwisko": "Wiewiórska",
+      "imie": "Iwona"
+    }
+  },
+  {
+    "nazwa": "Ekologia i zarządzanie środowiskowe, 15 godz, B, stac",
+    "rodzaj": "w",
+    "opis": "ost. w. stac.",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.10"
+    },
+    "nauczyciel": {
+      "nazwisko": "Wiewiórska",
+      "imie": "Iwona"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie - Przygotowanie pracy magisterskiej, S6, 18h, B,zdalne",
+    "rodzaj": "s",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Wiewiórska",
+      "imie": "Iwona"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie - Przygotowanie pracy magisterskiej, 18h, B, zdalne",
+    "rodzaj": "s",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Przydatek",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Recykling i utylizacja, 15h, A, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Przydatek",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Zarządzanie gospodarką odpadami, 10h, zdalne",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Przydatek",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Podstawy budownictwa, 30, p",
+    "rodzaj": "p",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2A Bionika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Przydatek",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Podstawy budownictwa, 15, A",
+    "rodzaj": "w",
+    "opis": "ost. stac.",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Przydatek",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Podstawy zarządzania i marketingu, 15,",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Golonka",
+      "imie": "Monika"
+    }
+  },
+  {
+    "nazwa": "Termodynamika, 15,",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Golonka",
+      "imie": "Monika"
+    }
+  },
+  {
+    "nazwa": "Technika cieplna, 15",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.10 Inzynieria srodowiska"
+    },
+    "nauczyciel": {
+      "nazwisko": "Golonka",
+      "imie": "Monika"
+    }
+  },
+  {
+    "nazwa": "Metrologia techniczna i systemy pomiarowe, 30",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.1 Metrologia"
+    },
+    "nauczyciel": {
+      "nazwisko": "Jurkowski",
+      "imie": "Sławomir"
+    }
+  },
+  {
+    "nazwa": "Szybkie prototypowanie (ang. Rapid Prototyping), 15, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Jurkowski",
+      "imie": "Sławomir"
+    }
+  },
+  {
+    "nazwa": "Inżynieria systemów technicznych, 30, zdalne",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Jurkowski",
+      "imie": "Sławomir"
+    }
+  },
+  {
+    "nazwa": "Metrologia techniczna i systemy pomiarowe, 15h, A zdalne,",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Jurkowski",
+      "imie": "Sławomir"
+    }
+  },
+  {
+    "nazwa": "Metrologia techniczna i systemy pomiarowe, 8h, B stac",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Jurkowski",
+      "imie": "Sławomir"
+    }
+  },
+  {
+    "nazwa": "Metody diagnostyki maszyn i urządzeń, 20",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.4 Mechatronika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Janczura",
+      "imie": "Józef"
+    }
+  },
+  {
+    "nazwa": "Mechatronika układów pomocniczych, 15, A",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.4 Mechatronika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Janczura",
+      "imie": "Józef"
+    }
+  },
+  {
+    "nazwa": "Mechatroniczne układy sterowania napędem i trakcją, 15, A",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.4 Mechatronika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Janczura",
+      "imie": "Józef"
+    }
+  },
+  {
+    "nazwa": "Mechatroniczne układy sterowania napędem i trakcją, 15, A",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.4 Mechatronika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Janczura",
+      "imie": "Józef"
+    }
+  },
+  {
+    "nazwa": "Integracja systemów mechatronicznych, 15, B, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Ryniewicz",
+      "imie": "Andrzej"
+    }
+  },
+  {
+    "nazwa": "Inteligentne systemy transportowe, 15, B, stac",
+    "rodzaj": "w",
+    "opis": "ost. w. stac.",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Cieślikowski",
+      "imie": "Bogusław"
+    }
+  },
+  {
+    "nazwa": "Inżynieria wytwarzania, 30, stac",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Cieślikowski",
+      "imie": "Bogusław"
+    }
+  },
+  {
+    "nazwa": "Budowa pojazdów samochodowych, 30, stac",
+    "rodzaj": "w",
+    "opis": "ost. stac.",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Cieślikowski",
+      "imie": "Bogusław"
+    }
+  },
+  {
+    "nazwa": "Mikro i nanotechnologie w mechatronice, 10, stac",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Cieślikowski",
+      "imie": "Bogusław"
+    }
+  },
+  {
+    "nazwa": "Mechatronika układów pomocniczych, 15, A, stac",
+    "rodzaj": "w",
+    "opis": "ost stac.",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8A NIE CZYNNA"
+    },
+    "nauczyciel": {
+      "nazwisko": "Cieślikowski",
+      "imie": "Bogusław"
+    }
+  },
+  {
+    "nazwa": "Nowoczesne źródła napędu, 30, stac",
+    "rodzaj": "w",
+    "opis": "10x3godz, ost. w. stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Cieślikowski",
+      "imie": "Bogusław"
+    }
+  },
+  {
+    "nazwa": "Mechatroniczne układy sterowania napędem i trakcją, 30 godz, stac",
+    "rodzaj": "w",
+    "opis": "3x10, ost w. stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Cieślikowski",
+      "imie": "Bogusław"
+    }
+  },
+  {
+    "nazwa": "Technika cieplna, 30, stac",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Cyklis",
+      "imie": "Piotr"
+    }
+  },
+  {
+    "nazwa": "Projektowanie procesów technologicznych, 15, A, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. w stac.",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Jurkowski",
+      "imie": "Sławomir"
+    }
+  },
+  {
+    "nazwa": "Inżynieria systemów technicznych, 30, stac",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.10 Inzynieria srodowiska"
+    },
+    "nauczyciel": {
+      "nazwisko": "Jurkowski",
+      "imie": "Sławomir"
+    }
+  },
+  {
+    "nazwa": "Projektowanie procesów technologicznych, 15, A, stac",
+    "rodzaj": "w",
+    "opis": "ost. w stac.",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Jurkowski",
+      "imie": "Sławomir"
+    }
+  },
+  {
+    "nazwa": "Szybkie prototypowanie (ang. Rapid Prototyping), 15, stac",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Jurkowski",
+      "imie": "Sławomir"
+    }
+  },
+  {
+    "nazwa": "Inżynieria systemów technicznych, 30, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Jurkowski",
+      "imie": "Sławomir"
+    }
+  },
+  {
+    "nazwa": "Inżynieria systemów technicznych, 30, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Jurkowski",
+      "imie": "Sławomir"
+    }
+  },
+  {
+    "nazwa": "Inżynieria systemów technicznych, 30",
+    "rodzaj": "p",
+    "opis": "(14 z 30h)",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2A Bionika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Jurkowski",
+      "imie": "Sławomir"
+    }
+  },
+  {
+    "nazwa": "Teoria ruchu pojazdów, 15, B, stac",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.10"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kowalski",
+      "imie": "Sławomir"
+    }
+  },
+  {
+    "nazwa": "Teoria ruchu pojazdów, 15, B, stac",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.10"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kowalski",
+      "imie": "Sławomir"
+    }
+  },
+  {
+    "nazwa": "Metody numeryczne i modelowanie matematyczne w mechatronice, 15, B, stac",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Madej",
+      "imie": "Wiesław"
+    }
+  },
+  {
+    "nazwa": "Serwisowanie systemów mechatronicznych, 30 stac",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Madej",
+      "imie": "Wiesław"
+    }
+  },
+  {
+    "nazwa": "Rynek transportu osób i rzeczy, 30 stac",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.6 Pracownia CNC"
+    },
+    "nauczyciel": {
+      "nazwisko": "Opoka",
+      "imie": "Kazimierz"
+    }
+  },
+  {
+    "nazwa": "Telematyka w środkach transportowych i logistyce, 10, B, stac",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.10"
+    },
+    "nauczyciel": {
+      "nazwisko": "Opoka",
+      "imie": "Kazimierz"
+    }
+  },
+  {
+    "nazwa": "Zarządzanie gospodarką odpadami, 10h, stac",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Przydatek",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Podstawy budownictwa, 15, A, stac",
+    "rodzaj": "w",
+    "opis": "ost. stac.",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.10"
+    },
+    "nauczyciel": {
+      "nazwisko": "Przydatek",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Podstawy budownictwa, 15, A",
+    "rodzaj": "w",
+    "opis": "ost. stac.",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.10"
+    },
+    "nauczyciel": {
+      "nazwisko": "Przydatek",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Recykling i utylizacja, 15h, A,  stac",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Przydatek",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Mechatronika w systemach transportowych, 30, stac",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.6 Pracownia CNC"
+    },
+    "nauczyciel": {
+      "nazwisko": "Radzik",
+      "imie": "Michał"
+    }
+  },
+  {
+    "nazwa": "Technologia MEMS (Mikro Electro-Mechanical Systems), 15, A,  stac",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.6 Pracownia CNC"
+    },
+    "nauczyciel": {
+      "nazwisko": "Radzik",
+      "imie": "Michał"
+    }
+  },
+  {
+    "nazwa": "Inteligentne przetworniki sygnałów i programowalne kontrolery logiczne, 15, stac",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.6 Pracownia CNC"
+    },
+    "nauczyciel": {
+      "nazwisko": "Radzik",
+      "imie": "Michał"
+    }
+  },
+  {
+    "nazwa": "Napęd i sterowanie pneumatyczne oraz hydrauliczne, 15, B, stac",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.6 Pracownia CNC"
+    },
+    "nauczyciel": {
+      "nazwisko": "Radzik",
+      "imie": "Michał"
+    }
+  },
+  {
+    "nazwa": "Napęd i sterowanie elektryczne, 15, A, stac",
+    "rodzaj": "ost. stac",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.6 Pracownia CNC"
+    },
+    "nauczyciel": {
+      "nazwisko": "Radzik",
+      "imie": "Michał"
+    }
+  },
+  {
+    "nazwa": "Integracja systemów mechatronicznych, 15, B, stac",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Ryniewicz",
+      "imie": "Andrzej"
+    }
+  },
+  {
+    "nazwa": "Ekologia i zarządzanie środowiskowe, 15godz, B, stac.",
+    "rodzaj": "w",
+    "opis": "ost. w. stac.",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.10"
+    },
+    "nauczyciel": {
+      "nazwisko": "Wiewiórska",
+      "imie": "Iwona"
+    }
+  },
+  {
+    "nazwa": "Przedsiębiorczość innowacyjna, 15, A, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. w stac.",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Buraś",
+      "imie": "Janusz"
+    }
+  },
+  {
+    "nazwa": "Przedsiębiorczość innowacyjna, 15, A, stac",
+    "rodzaj": "w",
+    "opis": "ost. w stac.",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Buraś",
+      "imie": "Janusz"
+    }
+  },
+  {
+    "nazwa": "Rachunek kosztów w transporcie i logistyce, 15, B, zdalne",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Buraś",
+      "imie": "Janusz"
+    }
+  },
+  {
+    "nazwa": "Rachunek kosztów w transporcie i logistyce, 15, B, stac",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.6 Pracownia CNC"
+    },
+    "nauczyciel": {
+      "nazwisko": "Buraś",
+      "imie": "Janusz"
+    }
+  },
+  {
+    "nazwa": "Nauka o materiałach, 15 B",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Buraś",
+      "imie": "Janusz"
+    }
+  },
+  {
+    "nazwa": "Nauka o materiałach, 15 B",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Buraś",
+      "imie": "Janusz"
+    }
+  },
+  {
+    "nazwa": "Rachunek kosztów w transporcie i logistyce, 15, B",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.10"
+    },
+    "nauczyciel": {
+      "nazwisko": "Buraś",
+      "imie": "Janusz"
+    }
+  },
+  {
+    "nazwa": "Nauka o materiałach, 15",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.8A Inzynieria materialowa"
+    },
+    "nauczyciel": {
+      "nazwisko": "Chronowski",
+      "imie": "Wojciech"
+    }
+  },
+  {
+    "nazwa": "Nauka o materiałach, 15",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.8A Inzynieria materialowa"
+    },
+    "nauczyciel": {
+      "nazwisko": "Chronowski",
+      "imie": "Wojciech"
+    }
+  },
+  {
+    "nazwa": "Nauka o materiałach, 15",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.8A Inzynieria materialowa"
+    },
+    "nauczyciel": {
+      "nazwisko": "Chronowski",
+      "imie": "Wojciech"
+    }
+  },
+  {
+    "nazwa": "Algebra liniowa 15h (Tydz.B)",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.7"
+    },
+    "nauczyciel": {
+      "nazwisko": "Jabłoński",
+      "imie": "Zenon"
+    }
+  },
+  {
+    "nazwa": "Analiza matematyczna 15h (Tydz.A)",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.7"
+    },
+    "nauczyciel": {
+      "nazwisko": "Jabłoński",
+      "imie": "Zenon"
+    }
+  },
+  {
+    "nazwa": "Algebra liniowa 15h (Tydz.A) zdalnie",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Jabłoński",
+      "imie": "Zenon"
+    }
+  },
+  {
+    "nazwa": "Analiza matematyczna 15h zdalnie (Tydz.B)",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Jabłoński",
+      "imie": "Zenon"
+    }
+  },
+  {
+    "nazwa": "Algorytmy i struktury danych 30h zdalnie",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Jabłoński",
+      "imie": "Zenon"
+    }
+  },
+  {
+    "nazwa": "Metody numeryczne 15h zdalnie",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Jabłoński",
+      "imie": "Zenon"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie II S2 / Przygotowanie pracy magisterskiej (zdalnie) 12h",
+    "rodzaj": "s",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Jabłoński",
+      "imie": "Zenon"
+    }
+  },
+  {
+    "nazwa": "Metody numeryczne 30h",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.1 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Jabłoński",
+      "imie": "Zenon"
+    }
+  },
+  {
+    "nazwa": "Metody numeryczne 30h",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.1 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Jabłoński",
+      "imie": "Zenon"
+    }
+  },
+  {
+    "nazwa": "Metody numeryczne 15h (Tydz.B)",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.7"
+    },
+    "nauczyciel": {
+      "nazwisko": "Jabłoński",
+      "imie": "Zenon"
+    }
+  },
+  {
+    "nazwa": "Seminarium dyplomowe S2/Przygotowanie pracy dyplomowej 5h (Tydz.A)",
+    "rodzaj": "s",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.7"
+    },
+    "nauczyciel": {
+      "nazwisko": "Jabłoński",
+      "imie": "Zenon"
+    }
+  },
+  {
+    "nazwa": "Wykrywanie incydentów i analiza powłamaniowa 15h (Tydz.B) zdalnie",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Surówka",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Uczenie maszynowe 30h zdalnie",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Surówka",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie II S9 / Przygotowanie pracy magisterskiej 9h (Tydz.B) zdalnie",
+    "rodzaj": "s",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Surówka",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Sztuczna inteligencja 30h",
+    "rodzaj": "l",
+    "opis": "ma być sala ćwiczeniowa",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Surówka",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Sztuczna inteligencja 30h",
+    "rodzaj": "l",
+    "opis": "ma być sala ćwiczeniowa",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Surówka",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Seminarium dyplomowe S2 /Przygotowanie pracy dyplomowej 5h (Tydz.A)",
+    "rodzaj": "s",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.4 Mechatronika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Surówka",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Sztuczna inteligencja 30h zdalne",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Surówka",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Bazy danych 30h zdalne",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Surówka",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Widzenie maszynowe i sztuczna inteligencja w zastosowaniach bezpieczeństwa 15h (Tydz.B)",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.5 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Drozd",
+      "imie": "Daniel"
+    }
+  },
+  {
+    "nazwa": "Widzenie maszynowe i sztuczna inteligencja w zastosowaniach bezpieczeństwa 15h (Tydz.B)",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.5 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Drozd",
+      "imie": "Daniel"
+    }
+  },
+  {
+    "nazwa": "Widzenie maszynowe i sztuczna inteligencja w zastosowaniach bezpieczeństwa 15h (Tydz.A)",
+    "rodzaj": "p",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.5 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Drozd",
+      "imie": "Daniel"
+    }
+  },
+  {
+    "nazwa": "Widzenie maszynowe i sztuczna inteligencja w zastosowaniach bezpieczeństwa 15h (Tydz.A)",
+    "rodzaj": "p",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.5 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Drozd",
+      "imie": "Daniel"
+    }
+  },
+  {
+    "nazwa": "Programowanie współbieżne i rozproszone 30h",
+    "rodzaj": "p",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.6 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Drozd",
+      "imie": "Daniel"
+    }
+  },
+  {
+    "nazwa": "Programowanie współbieżne i rozproszone 30h",
+    "rodzaj": "p",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.6 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Drozd",
+      "imie": "Daniel"
+    }
+  },
+  {
+    "nazwa": "Zespołowe przedsięwzięcie inżynierskie 60h",
+    "rodzaj": "P",
+    "opis": "12 spokań do 15V",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.5 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Bulanda",
+      "imie": "Nikodem"
+    }
+  },
+  {
+    "nazwa": "Zespołowe przedsięwzięcie inżynierskie 60h",
+    "rodzaj": "P",
+    "opis": "11 spokań do 15V",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.5 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Bulanda",
+      "imie": "Nikodem"
+    }
+  },
+  {
+    "nazwa": "Zespołowe przedsięwzięcie inżynierskie 55h",
+    "rodzaj": "P",
+    "opis": "11 spotkań do 15V",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.5 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Bulanda",
+      "imie": "Nikodem"
+    }
+  },
+  {
+    "nazwa": "Zespołowe przedsięwzięcie inżynierskie 5h",
+    "rodzaj": "P",
+    "opis": "3 spotkania do 16IV",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.5 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Bulanda",
+      "imie": "Nikodem"
+    }
+  },
+  {
+    "nazwa": "Seminarium dyplomowe S1 /Przygotowanie pracy dyplomowej 5h",
+    "rodzaj": "s",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.5 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Bulanda",
+      "imie": "Nikodem"
+    }
+  },
+  {
+    "nazwa": "Bezpieczeństwo systemów informatycznych 30h",
+    "rodzaj": "p",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.7 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kaleta",
+      "imie": "Jacek"
+    }
+  },
+  {
+    "nazwa": "Bezpieczeństwo systemów informatycznych 30h",
+    "rodzaj": "p",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.7 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kaleta",
+      "imie": "Jacek"
+    }
+  },
+  {
+    "nazwa": "Wprowadzenie do programowania 30h",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.6 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Drozd",
+      "imie": "Daniel"
+    }
+  },
+  {
+    "nazwa": "Wprowadzenie do programowania 30h",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.6 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Drozd",
+      "imie": "Daniel"
+    }
+  },
+  {
+    "nazwa": "Technologia sieciowa 30h",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.7 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kaleta",
+      "imie": "Jacek"
+    }
+  },
+  {
+    "nazwa": "Technologia sieciowa 30h",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.7 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kaleta",
+      "imie": "Jacek"
+    }
+  },
+  {
+    "nazwa": "Technologia sieciowa 15h zdalnie (Tydz.A)",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Litawa",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Bezpieczeństwo infrastruktury systemów sterowania przemysłowego 15h zdalnie (Tydz.A)",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Litawa",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie II S3/ Przygotowanie pracy magisterskiej 18h zdalnie",
+    "rodzaj": "s",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Litawa",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Seminarium dyplomowe S2 /Przygotowanie pracy dyplomowej 5h (Tydz.A)",
+    "rodzaj": "s",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.10A komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Litawa",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Algorytmy i struktury danych 30h",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Plichta",
+      "imie": "Stanisława"
+    }
+  },
+  {
+    "nazwa": "Systemy operacyjne 30h zdalnie",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Plichta",
+      "imie": "Stanisława"
+    }
+  },
+  {
+    "nazwa": "Technologie informatyczne w inżynierii produkcji 15h zdalnie (Tydz.A)",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Plichta",
+      "imie": "Stanisława"
+    }
+  },
+  {
+    "nazwa": "Technologie informatyczne w inżynierii produkcji 15h (Tydz.A)",
+    "rodzaj": "w",
+    "opis": "ostatni wykład",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Plichta",
+      "imie": "Stanisława"
+    }
+  },
+  {
+    "nazwa": "Inżynieria systemów technicznych, 30",
+    "rodzaj": "w",
+    "opis": "ostatni wykład",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Jurkowski",
+      "imie": "Sławomir"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie II S5 / Przygotowanie pracy magisterskiej 15h zdalnie",
+    "rodzaj": "s",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Plichta",
+      "imie": "Stanisława"
+    }
+  },
+  {
+    "nazwa": "Seminarium dyplomowe S2/Przygotowanie pracy dyplomowej (Tydz.A) 5h",
+    "rodzaj": "s",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.6 Pracownia CNC"
+    },
+    "nauczyciel": {
+      "nazwisko": "Plichta",
+      "imie": "Stanisława"
+    }
+  },
+  {
+    "nazwa": "Zarządzanie bezpieczeństwem informacji* 30h zdalnie",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Korostil",
+      "imie": "Jerzy"
+    }
+  },
+  {
+    "nazwa": "Architektura internetu rzeczy 30h zdalnie",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Korostil",
+      "imie": "Jerzy"
+    }
+  },
+  {
+    "nazwa": "Architektura internetu rzeczy 30h",
+    "rodzaj": "w",
+    "opis": "ostatni wykład",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Korostil",
+      "imie": "Jerzy"
+    }
+  },
+  {
+    "nazwa": "Bezpieczeństwo systemów informatycznych 15h zdalnie (Tydz.B)",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Korostil",
+      "imie": "Jerzy"
+    }
+  },
+  {
+    "nazwa": "Systemy operacyjne 30h",
+    "rodzaj": "w",
+    "opis": "ostatni wykład",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Plichta",
+      "imie": "Stanisława"
+    }
+  },
+  {
+    "nazwa": "Programowanie obiektowe 30h - 10 spotkań zdalnie",
+    "rodzaj": "w",
+    "opis": "ostatni wykład",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Przygoda",
+      "imie": "Witold"
+    }
+  },
+  {
+    "nazwa": "Wprowadzenie do programowania 30h - 10 spotkań zdalnie",
+    "rodzaj": "w",
+    "opis": "ostatni wykład",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Przygoda",
+      "imie": "Witold"
+    }
+  },
+  {
+    "nazwa": "Programowanie aplikacji WEB 15h",
+    "rodzaj": "w",
+    "opis": "ostatni wykład",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Bulanda",
+      "imie": "Nikodem"
+    }
+  },
+  {
+    "nazwa": "Zaawansowane programowanie webowe 30h",
+    "rodzaj": "W",
+    "opis": "ostatni wykład",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Bulanda",
+      "imie": "Nikodem"
+    }
+  },
+  {
+    "nazwa": "Sztuczna inteligencja 30h",
+    "rodzaj": "w",
+    "opis": "ostatni wykład",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Surówka",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Wykrywanie incydentów i analiza powłamaniowa 15h",
+    "rodzaj": "w",
+    "opis": "ostatni wykład",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Surówka",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Zarządzanie bezpieczeństwem informacji* 30h",
+    "rodzaj": "w",
+    "opis": "ostatni wykład",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Korostil",
+      "imie": "Jerzy"
+    }
+  },
+  {
+    "nazwa": "Bezpieczeństwo systemów informatycznych 15h",
+    "rodzaj": "w",
+    "opis": "ostatni wykład",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Korostil",
+      "imie": "Jerzy"
+    }
+  },
+  {
+    "nazwa": "Bazy danych 30h",
+    "rodzaj": "w",
+    "opis": "ostatni wyład",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Surówka",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Uczenie maszynowe 30h",
+    "rodzaj": "w",
+    "opis": "ostatni wykład",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Surówka",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Technologia sieciowa 15h",
+    "rodzaj": "w",
+    "opis": "ostatni wykład",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Litawa",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Bezpieczeństwo infrastruktury systemów sterowania przemysłowego 15h",
+    "rodzaj": "w",
+    "opis": "ostatni wykład",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Litawa",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Algorytmy i struktury danych 30h ostatni wykład",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.7"
+    },
+    "nauczyciel": {
+      "nazwisko": "Jabłoński",
+      "imie": "Zenon"
+    }
+  },
+  {
+    "nazwa": "Analiza matematyczna 15h ostatni wykład",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.7"
+    },
+    "nauczyciel": {
+      "nazwisko": "Jabłoński",
+      "imie": "Zenon"
+    }
+  },
+  {
+    "nazwa": "Algebra liniowa 15h ostatni wykład",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.7"
+    },
+    "nauczyciel": {
+      "nazwisko": "Jabłoński",
+      "imie": "Zenon"
+    }
+  },
+  {
+    "nazwa": "Metody numeryczne 15h",
+    "rodzaj": "w",
+    "opis": "ostatni wykład",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.7"
+    },
+    "nauczyciel": {
+      "nazwisko": "Jabłoński",
+      "imie": "Zenon"
+    }
+  },
+  {
+    "nazwa": "Język angielski Lek2",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8A NIE CZYNNA"
+    },
+    "nauczyciel": {
+      "nazwisko": "Sowa",
+      "imie": "Teresa"
+    }
+  },
+  {
+    "nazwa": "Język angielski Lek1",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8A NIE CZYNNA"
+    },
+    "nauczyciel": {
+      "nazwisko": "Sowa",
+      "imie": "Teresa"
+    }
+  },
+  {
+    "nazwa": "Systemy operacyjne",
+    "rodzaj": "p",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.2 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kozieński",
+      "imie": "Jan"
+    }
+  },
+  {
+    "nazwa": "Systemy operacyjne",
+    "rodzaj": "p",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.2 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kozieński",
+      "imie": "Jan"
+    }
+  },
+  {
+    "nazwa": "Programowanie obiektowe 30h",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.10A komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kotlarski",
+      "imie": "Dawid"
+    }
+  },
+  {
+    "nazwa": "Programowanie obiektowe 30h",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.10A komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kotlarski",
+      "imie": "Dawid"
+    }
+  },
+  {
+    "nazwa": "Systemy operacyjne 15h (Tydz.B)",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.2 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kozieński",
+      "imie": "Jan"
+    }
+  },
+  {
+    "nazwa": "Systemy operacyjne 15h (Tydz.A)",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.2 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kozieński",
+      "imie": "Jan"
+    }
+  },
+  {
+    "nazwa": "Wykrywanie incydentów i analiza powłamaniowa* 30h",
+    "rodzaj": "p",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.2 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kozieński",
+      "imie": "Jan"
+    }
+  },
+  {
+    "nazwa": "Wykrywanie incydentów i analiza powłamaniowa* 30h",
+    "rodzaj": "p",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.2 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kozieński",
+      "imie": "Jan"
+    }
+  },
+  {
+    "nazwa": "Zaawansowane programowanie webowe 30h",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.1 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kotlarski",
+      "imie": "Dawid"
+    }
+  },
+  {
+    "nazwa": "Zaawansowane programowanie webowe 30h",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.1 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kotlarski",
+      "imie": "Dawid"
+    }
+  },
+  {
+    "nazwa": "Zarządzanie bezpieczeństwem informacji* 30h",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kotlarski",
+      "imie": "Dawid"
+    }
+  },
+  {
+    "nazwa": "Identyfikacja zagrożeń w systemach sztucznej inteligencji 15h (Tydz.B)",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.2 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kozieński",
+      "imie": "Jan"
+    }
+  },
+  {
+    "nazwa": "Identyfikacja zagrożeń w systemach sztucznej inteligencji 15h (Tydz.B)",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.2 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kozieński",
+      "imie": "Jan"
+    }
+  },
+  {
+    "nazwa": "Identyfikacja zagrożeń w systemach sztucznej inteligencji 15h (Tydz.B)",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kozieński",
+      "imie": "Jan"
+    }
+  },
+  {
+    "nazwa": "Język angielski Lek1 30h",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.6 Pracownia CNC"
+    },
+    "nauczyciel": {
+      "nazwisko": "Mordarski",
+      "imie": "Krzysztof"
+    }
+  },
+  {
+    "nazwa": "Język angielski Lek2 30h",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.4 Mechatronika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Duło",
+      "imie": "Marek"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie II S4 / Przygotowanie pracy magisterskiej 12h zdalnie (Tydz.A)",
+    "rodzaj": "s",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Pazdriy",
+      "imie": "Ihor"
+    }
+  },
+  {
+    "nazwa": "Inżynieria oprogramowania A* 15h  zdalnie (Tydz.B)",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Pazdriy",
+      "imie": "Ihor"
+    }
+  },
+  {
+    "nazwa": "Elektrotechnika i elektronika 15h (Tydz.B)",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Pazdriy",
+      "imie": "Ihor"
+    }
+  },
+  {
+    "nazwa": "Systemy automatyki i sterowania* 15h zdalnie (Tydz.B)",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Pazdriy",
+      "imie": "Ihor"
+    }
+  },
+  {
+    "nazwa": "Systemy automatyki i sterowania* 30h",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.4 Automatyka Robotyka"
+    },
+    "nauczyciel": {
+      "nazwisko": "Pazdriy",
+      "imie": "Ihor"
+    }
+  },
+  {
+    "nazwa": "Systemy automatyki i sterowania* 15h",
+    "rodzaj": "w",
+    "opis": "ostatni wykład",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.4 Automatyka Robotyka"
+    },
+    "nauczyciel": {
+      "nazwisko": "Pazdriy",
+      "imie": "Ihor"
+    }
+  },
+  {
+    "nazwa": "Mechanika techniczna i wytrzymałość materiałów 30h zdalnie",
+    "rodzaj": "w",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Cygnar",
+      "imie": "Mariusz"
+    }
+  },
+  {
+    "nazwa": "Mechanika techniczna i wytrzymałość materiałów 30h",
+    "rodzaj": "w",
+    "opis": "ostatni wykład",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Cygnar",
+      "imie": "Mariusz"
+    }
+  },
+  {
+    "nazwa": "Mechanika techniczna i wytrzymałość materiałów 30h zdalnie",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Cygnar",
+      "imie": "Mariusz"
+    }
+  },
+  {
+    "nazwa": "Podstawy projektowania inżynierskiego, 30",
+    "rodzaj": "p",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.10"
+    },
+    "nauczyciel": {
+      "nazwisko": "Ślipek",
+      "imie": "Zbigniew"
+    }
+  },
+  {
+    "nazwa": "Normatywy prawne w transporcie i spedycji, 15",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.10"
+    },
+    "nauczyciel": {
+      "nazwisko": "Ślipek",
+      "imie": "Zbigniew"
+    }
+  },
+  {
+    "nazwa": "Ochrona własności intelektualnej z etyką, 15, zdalne",
+    "rodzaj": "w",
+    "opis": "ost stac.",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Ślipek",
+      "imie": "Zbigniew"
+    }
+  },
+  {
+    "nazwa": "Podstawy projektowania inżynierskiego, 15, zdalne",
+    "rodzaj": "w",
+    "opis": "ost stac.",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Ślipek",
+      "imie": "Zbigniew"
+    }
+  },
+  {
+    "nazwa": "Ochrona własności intelektualnej, 15, zdalne",
+    "rodzaj": "w",
+    "opis": "ost stac",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Ślipek",
+      "imie": "Zbigniew"
+    }
+  },
+  {
+    "nazwa": "Normatywy prawne w transporcie i spedycji, 15, zdalne",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Ślipek",
+      "imie": "Zbigniew"
+    }
+  },
+  {
+    "nazwa": "Normatywy prawne w transporcie i spedycji, 15, stac",
+    "rodzaj": "w",
+    "opis": "ost. stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Ślipek",
+      "imie": "Zbigniew"
+    }
+  },
+  {
+    "nazwa": "Ochrona własności intelektualnej, 15, zdalne",
+    "rodzaj": "w",
+    "opis": "ost stac",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.7"
+    },
+    "nauczyciel": {
+      "nazwisko": "Ślipek",
+      "imie": "Zbigniew"
+    }
+  },
+  {
+    "nazwa": "Podstawy projektowania inżynierskiego, 15, stac",
+    "rodzaj": "w",
+    "opis": "ost stac.",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Ślipek",
+      "imie": "Zbigniew"
+    }
+  },
+  {
+    "nazwa": "Ochrona własności intelektualnej z etyką, 15, zdalne",
+    "rodzaj": "w",
+    "opis": "ost stac.",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Ślipek",
+      "imie": "Zbigniew"
+    }
+  },
+  {
+    "nazwa": "Ochrona własności intelektualnej, 15, stac",
+    "rodzaj": "w",
+    "opis": "ost stac",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Ślipek",
+      "imie": "Zbigniew"
+    }
+  },
+  {
+    "nazwa": "Podstawy projektowania inżynierskiego, 15, stac",
+    "rodzaj": "w",
+    "opis": "ost stac.",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Ślipek",
+      "imie": "Zbigniew"
+    }
+  },
+  {
+    "nazwa": "Ochrona własności intelektualnej z etyką, 15, stac",
+    "rodzaj": "w",
+    "opis": "ost stac.",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Ślipek",
+      "imie": "Zbigniew"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie - Przygotowanie pracy magisterskiej, 12 zdalne",
+    "rodzaj": "s",
+    "opis": "",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Ślipek",
+      "imie": "Zbigniew"
+    }
+  },
+  {
+    "nazwa": "Budowa pojazdów samochodowych, 15, B",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.4 Mechatronika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Sławecki",
+      "imie": "Artur"
+    }
+  },
+  {
+    "nazwa": "Teoria ruchu pojazdów, 15, B",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.4 Mechatronika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Sławecki",
+      "imie": "Artur"
+    }
+  },
+  {
+    "nazwa": "Eksploatacja pojazdów samochodowych, 15",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.4 Mechatronika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Sławecki",
+      "imie": "Artur"
+    }
+  },
+  {
+    "nazwa": "Finansowanie projektów informatycznych, 30 P2",
+    "rodzaj": "p",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.6 Elektrotechnika i elektronika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Aleksander",
+      "imie": "Marek"
+    }
+  },
+  {
+    "nazwa": "Finansowanie projektów informatycznych, 30 P1",
+    "rodzaj": "p",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.6 Elektrotechnika i elektronika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Aleksander",
+      "imie": "Marek"
+    }
+  },
+  {
+    "nazwa": "Seminarium dyplomowe/Przygotowanie pracy dyplomowej, 7h,",
+    "rodzaj": "s",
+    "opis": "Sem S7(S3)",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.6 Elektrotechnika i elektronika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Aleksander",
+      "imie": "Marek"
+    }
+  },
+  {
+    "nazwa": "Szybkie prototypowanie (ang. Rapid Prototyping), 30, L1",
+    "rodzaj": "l",
+    "opis": "10x",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.8 Druk 3D"
+    },
+    "nauczyciel": {
+      "nazwisko": "Lachowski",
+      "imie": "Piotr"
+    }
+  },
+  {
+    "nazwa": "Szybkie prototypowanie (ang. Rapid Prototyping), 30, L2",
+    "rodzaj": "l",
+    "opis": "10x",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.8 Druk 3D"
+    },
+    "nauczyciel": {
+      "nazwisko": "Lachowski",
+      "imie": "Piotr"
+    }
+  },
+  {
+    "nazwa": "Język angielski, 45",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.10"
+    },
+    "nauczyciel": {
+      "nazwisko": "Duło",
+      "imie": "Marek"
+    }
+  },
+  {
+    "nazwa": "Nowoczesne źródła napędu, 30",
+    "rodzaj": "c",
+    "opis": "8 x 4",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.6 Pracownia CNC"
+    },
+    "nauczyciel": {
+      "nazwisko": "Lachowski",
+      "imie": "Piotr"
+    }
+  },
+  {
+    "nazwa": "Grafika inżynierska, 30",
+    "rodzaj": "p",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.5 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Lachowski",
+      "imie": "Piotr"
+    }
+  },
+  {
+    "nazwa": "Elektrotechnika i elektronika, 30",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.6 Elektrotechnika i elektronika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kantor",
+      "imie": "Tadeusz"
+    }
+  },
+  {
+    "nazwa": "Elektrotechika i elektronika w środkach transportu, 15 l",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.6 Elektrotechnika i elektronika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kantor",
+      "imie": "Tadeusz"
+    }
+  },
+  {
+    "nazwa": "Elektrotechika i elektronika w środkach transportu, 15 c",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.6 Elektrotechnika i elektronika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kantor",
+      "imie": "Tadeusz"
+    }
+  },
+  {
+    "nazwa": "Elektrotechika i elektronika w środkach transportu, 15 c",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.6 Elektrotechnika i elektronika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kantor",
+      "imie": "Tadeusz"
+    }
+  },
+  {
+    "nazwa": "Elektrotechika i elektronika w środkach transportu, 15 l",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.6 Elektrotechnika i elektronika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kantor",
+      "imie": "Tadeusz"
+    }
+  },
+  {
+    "nazwa": "Elektrotechnika i elektronika, zw 15",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.6 Elektrotechnika i elektronika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kantor",
+      "imie": "Tadeusz"
+    }
+  },
+  {
+    "nazwa": "Ergonomia",
+    "rodzaj": "L",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.1 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Basta",
+      "imie": "Emilia"
+    }
+  },
+  {
+    "nazwa": "Podstawy projektowania 3D",
+    "rodzaj": "P",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.1 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Basta",
+      "imie": "Emilia"
+    }
+  },
+  {
+    "nazwa": "Technika cieplna",
+    "rodzaj": "L",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.10 Inzynieria srodowiska"
+    },
+    "nauczyciel": {
+      "nazwisko": "Basta",
+      "imie": "Emilia"
+    }
+  },
+  {
+    "nazwa": "Ekologia i zarządzanie środowiskowe",
+    "rodzaj": "P",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.10"
+    },
+    "nauczyciel": {
+      "nazwisko": "Basta",
+      "imie": "Emilia"
+    }
+  },
+  {
+    "nazwa": "Ekologia i zarządzanie środowiskowe",
+    "rodzaj": "P",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.1 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Basta",
+      "imie": "Emilia"
+    }
+  },
+  {
+    "nazwa": "Gospodarka magazynowa",
+    "rodzaj": "C",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kądziołka",
+      "imie": "Tomasz"
+    }
+  },
+  {
+    "nazwa": "Gospodarka magazynowa",
+    "rodzaj": "L",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.1 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kądziołka",
+      "imie": "Tomasz"
+    }
+  },
+  {
+    "nazwa": "Projektowanie systemów logistycznych",
+    "rodzaj": "P",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kądziołka",
+      "imie": "Tomasz"
+    }
+  },
+  {
+    "nazwa": "Środki transportu wewnętrznego",
+    "rodzaj": "P",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.6 Pracownia CNC"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kądziołka",
+      "imie": "Tomasz"
+    }
+  },
+  {
+    "nazwa": "Inteligentne systemy transportowe",
+    "rodzaj": "L",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.6 Pracownia CNC"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kądziołka",
+      "imie": "Tomasz"
+    }
+  },
+  {
+    "nazwa": "Środki transportu wewnętrznego",
+    "rodzaj": "W",
+    "opis": "zdalne",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Kądziołka",
+      "imie": "Tomasz"
+    }
+  },
+  {
+    "nazwa": "Środki transportu wewnętrznego",
+    "rodzaj": "W",
+    "opis": "stacjonarne",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kądziołka",
+      "imie": "Tomasz"
+    }
+  },
+  {
+    "nazwa": "Projektowanie systemów logistycznych",
+    "rodzaj": "W",
+    "opis": "stacjonarne",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kądziołka",
+      "imie": "Tomasz"
+    }
+  },
+  {
+    "nazwa": "Gospodarka magazynowa",
+    "rodzaj": "W",
+    "opis": "stacjonarne",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kądziołka",
+      "imie": "Tomasz"
+    }
+  },
+  {
+    "nazwa": "Gospodarka magazynowa",
+    "rodzaj": "W",
+    "opis": "zdalne",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Kądziołka",
+      "imie": "Tomasz"
+    }
+  },
+  {
+    "nazwa": "Projektowanie systemów logistycznych",
+    "rodzaj": "W",
+    "opis": "zdalne",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Kądziołka",
+      "imie": "Tomasz"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie II",
+    "rodzaj": "s",
+    "opis": "zdalne S2",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Kądziołka",
+      "imie": "Tomasz"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie II",
+    "rodzaj": "S",
+    "opis": "zdalne S3",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Kądziołka",
+      "imie": "Tomasz"
+    }
+  },
+  {
+    "nazwa": "Badania operacyjne i statystyka",
+    "rodzaj": "C",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.7"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kochanek",
+      "imie": "Anna"
+    }
+  },
+  {
+    "nazwa": "Badania operacyjne i statystyka",
+    "rodzaj": "P",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.1 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kochanek",
+      "imie": "Anna"
+    }
+  },
+  {
+    "nazwa": "Matematyka ze statystyką",
+    "rodzaj": "C",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kochanek",
+      "imie": "Anna"
+    }
+  },
+  {
+    "nazwa": "Matematyka",
+    "rodzaj": "C",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kochanek",
+      "imie": "Anna"
+    }
+  },
+  {
+    "nazwa": "Matematyka",
+    "rodzaj": "C",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.7"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kochanek",
+      "imie": "Anna"
+    }
+  },
+  {
+    "nazwa": "Systemy informacji przestrzennej w transporcie",
+    "rodzaj": "L",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.2 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kochanek",
+      "imie": "Anna"
+    }
+  },
+  {
+    "nazwa": "Systemy informacji przestrzennej w transporcie",
+    "rodzaj": "W",
+    "opis": "zdalne",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Kochanek",
+      "imie": "Anna"
+    }
+  },
+  {
+    "nazwa": "Systemy informacji przestrzennej w transporcie",
+    "rodzaj": "W",
+    "opis": "stacjonarne",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.7"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kochanek",
+      "imie": "Anna"
+    }
+  },
+  {
+    "nazwa": "Badania operacyjne i statystyka",
+    "rodzaj": "W",
+    "opis": "zdalne",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Kochanek",
+      "imie": "Anna"
+    }
+  },
+  {
+    "nazwa": "Badania operacyjne i statystyka",
+    "rodzaj": "W",
+    "opis": "stacjinarne",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.7"
+    },
+    "nauczyciel": {
+      "nazwisko": "Kochanek",
+      "imie": "Anna"
+    }
+  },
+  {
+    "nazwa": "Seminarium magisterskie - Przygotowanie pracy magisterskiej",
+    "rodzaj": "S",
+    "opis": "S2 ( zdalne)",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Kochanek",
+      "imie": "Anna"
+    }
+  },
+  {
+    "nazwa": "Inżynieria wytwarzania",
+    "rodzaj": "C",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Szewczyk",
+      "imie": "Wiesław"
+    }
+  },
+  {
+    "nazwa": "Mechatronika w systemach transportowych",
+    "rodzaj": "C",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.5 Mechatronika silniki"
+    },
+    "nauczyciel": {
+      "nazwisko": "Szewczyk",
+      "imie": "Wiesław"
+    }
+  },
+  {
+    "nazwa": "Mechatronika w systemach transportowych",
+    "rodzaj": "L",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.5 Mechatronika silniki"
+    },
+    "nauczyciel": {
+      "nazwisko": "Szewczyk",
+      "imie": "Wiesław"
+    }
+  },
+  {
+    "nazwa": "Inżynieria wytwarzania",
+    "rodzaj": "L",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.6 Pracownia CNC"
+    },
+    "nauczyciel": {
+      "nazwisko": "Szewczyk",
+      "imie": "Wiesław"
+    }
+  },
+  {
+    "nazwa": "Organizacja i funkcjonowanie transportu i spedycji",
+    "rodzaj": "C",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.10"
+    },
+    "nauczyciel": {
+      "nazwisko": "Wesołowski",
+      "imie": "Tomasz"
+    }
+  },
+  {
+    "nazwa": "Organizacja i funkcjonowanie transportu i spedycji",
+    "rodzaj": "P",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.10"
+    },
+    "nauczyciel": {
+      "nazwisko": "Wesołowski",
+      "imie": "Tomasz"
+    }
+  },
+  {
+    "nazwa": "Rynek usług logistycznych",
+    "rodzaj": "W",
+    "opis": "zdalne",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Smolarski",
+      "imie": "Dariusz"
+    }
+  },
+  {
+    "nazwa": "Rynek usług logistycznych",
+    "rodzaj": "P",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.10"
+    },
+    "nauczyciel": {
+      "nazwisko": "Smolarski",
+      "imie": "Dariusz"
+    }
+  },
+  {
+    "nazwa": "Rynek usług logistycznych",
+    "rodzaj": "W",
+    "opis": "stacjonarne",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Smolarski",
+      "imie": "Dariusz"
+    }
+  },
+  {
+    "nazwa": "Zarządzanie łańcuchem dostaw",
+    "rodzaj": "P",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.7"
+    },
+    "nauczyciel": {
+      "nazwisko": "Smolarski",
+      "imie": "Dariusz"
+    }
+  },
+  {
+    "nazwa": "Zarządzanie łańcuchem dostaw",
+    "rodzaj": "W",
+    "opis": "stacjonarne",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Smolarski",
+      "imie": "Dariusz"
+    }
+  },
+  {
+    "nazwa": "Zarządzanie łańcuchem dostaw",
+    "rodzaj": "W",
+    "opis": "Zdalne",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Smolarski",
+      "imie": "Dariusz"
+    }
+  },
+  {
+    "nazwa": "Zarządzanie łańcuchem dostaw",
+    "rodzaj": "W",
+    "opis": "Zdalne",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Smolarski",
+      "imie": "Dariusz"
+    }
+  },
+  {
+    "nazwa": "Technologie informatyczne w inżynierii produkcji",
+    "rodzaj": "P",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.6 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Sułkowski",
+      "imie": "Krzysztof"
+    }
+  },
+  {
+    "nazwa": "Informatyka",
+    "rodzaj": "P",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.6 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Sułkowski",
+      "imie": "Krzysztof"
+    }
+  },
+  {
+    "nazwa": "Matematyka",
+    "rodzaj": "w",
+    "opis": "zdalne",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Pogoda",
+      "imie": "Zdzisław"
+    }
+  },
+  {
+    "nazwa": "Matematyka ze statystyką",
+    "rodzaj": "W",
+    "opis": "zdalne",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Pogoda",
+      "imie": "Zdzisław"
+    }
+  },
+  {
+    "nazwa": "Matematyka ze statystyką",
+    "rodzaj": "W",
+    "opis": "stacjonarne",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Pogoda",
+      "imie": "Zdzisław"
+    }
+  },
+  {
+    "nazwa": "Matematyka",
+    "rodzaj": "w",
+    "opis": "stacjonarne",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Pogoda",
+      "imie": "Zdzisław"
+    }
+  },
+  {
+    "nazwa": "Matematyka",
+    "rodzaj": "W",
+    "opis": "zdalne",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Pogoda",
+      "imie": "Zdzisław"
+    }
+  },
+  {
+    "nazwa": "Matematyka",
+    "rodzaj": "W",
+    "opis": "stacjonarne",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Pogoda",
+      "imie": "Zdzisław"
+    }
+  },
+  {
+    "nazwa": "Język niemiecki",
+    "rodzaj": "L",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Nowak",
+      "imie": "Sylwia"
+    }
+  },
+  {
+    "nazwa": "Język niemiecki",
+    "rodzaj": "L",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Nowak",
+      "imie": "Sylwia"
+    }
+  },
+  {
+    "nazwa": "Język niemiecki",
+    "rodzaj": "L",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.9"
+    },
+    "nauczyciel": {
+      "nazwisko": "Nowak",
+      "imie": "Sylwia"
+    }
+  },
+  {
+    "nazwa": "Rynek transportu osób i rzeczy",
+    "rodzaj": "P",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Skrzypiec",
+      "imie": "Małgorzata"
+    }
+  },
+  {
+    "nazwa": "Spedycja i transport ładunków specjalnych",
+    "rodzaj": "C",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Skrzypiec",
+      "imie": "Małgorzata"
+    }
+  },
+  {
+    "nazwa": "Inżynieria ruchu",
+    "rodzaj": "P",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.6 komp"
+    },
+    "nauczyciel": {
+      "nazwisko": "Skrzypiec",
+      "imie": "Małgorzata"
+    }
+  },
+  {
+    "nazwa": "Inżynieria ruchu",
+    "rodzaj": "W",
+    "opis": "zdalne",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Skrzypiec",
+      "imie": "Małgorzata"
+    }
+  },
+  {
+    "nazwa": "Inżynieria ruchu",
+    "rodzaj": "W",
+    "opis": "stacjonarne",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.7"
+    },
+    "nauczyciel": {
+      "nazwisko": "Skrzypiec",
+      "imie": "Małgorzata"
+    }
+  },
+  {
+    "nazwa": "Spedycja i transport ładunków specjalnych",
+    "rodzaj": "W",
+    "opis": "zdalne",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Skrzypiec",
+      "imie": "Małgorzata"
+    }
+  },
+  {
+    "nazwa": "Spedycja i transport ładunków specjalnych",
+    "rodzaj": "W",
+    "opis": "stacjonarne",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.7"
+    },
+    "nauczyciel": {
+      "nazwisko": "Skrzypiec",
+      "imie": "Małgorzata"
+    }
+  },
+  {
+    "nazwa": "Organizacja i funkcjonowanie transportu i spedycji",
+    "rodzaj": "W",
+    "opis": "zdalne",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Skrzypiec",
+      "imie": "Małgorzata"
+    }
+  },
+  {
+    "nazwa": "Organizacja i funkcjonowanie transportu i spedycji",
+    "rodzaj": "W",
+    "opis": "stacjonarne",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Skrzypiec",
+      "imie": "Małgorzata"
+    }
+  },
+  {
+    "nazwa": "Język angielski",
+    "rodzaj": "L",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Mordarski",
+      "imie": "Krzysztof"
+    }
+  },
+  {
+    "nazwa": "Język angielski",
+    "rodzaj": "L",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Mordarski",
+      "imie": "Krzysztof"
+    }
+  },
+  {
+    "nazwa": "Język angielski",
+    "rodzaj": "L",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.3 Instalacje elektryczne"
+    },
+    "nauczyciel": {
+      "nazwisko": "Mordarski",
+      "imie": "Krzysztof"
+    }
+  },
+  {
+    "nazwa": "Język angielski",
+    "rodzaj": "L",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Majka",
+      "imie": "Magdalena"
+    }
+  },
+  {
+    "nazwa": "Język angielski",
+    "rodzaj": "L",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Mania",
+      "imie": "Halina"
+    }
+  },
+  {
+    "nazwa": "Język angielski",
+    "rodzaj": "L",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.8"
+    },
+    "nauczyciel": {
+      "nazwisko": "Mania",
+      "imie": "Halina"
+    }
+  },
+  {
+    "nazwa": "Język angielski",
+    "rodzaj": "L",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Duło",
+      "imie": "Marek"
+    }
+  },
+  {
+    "nazwa": "WF",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IKF Hala",
+      "nr": "1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Jasielec Janusz mgr (IKF)",
+      "imie": ""
+    }
+  },
+  {
+    "nazwa": "Język angielski",
+    "rodzaj": "Lek",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "0.4 Mechatronika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Duło",
+      "imie": "Marek"
+    }
+  },
+  {
+    "nazwa": "WF",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IKF Hala",
+      "nr": "2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Jasielec Janusz mgr (IKF)",
+      "imie": ""
+    }
+  },
+  {
+    "nazwa": "WF",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IKF Hala",
+      "nr": "2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Jasielec Janusz mgr (IKF)",
+      "imie": ""
+    }
+  },
+  {
+    "nazwa": "WF",
+    "rodzaj": "c",
+    "opis": "",
+    "sala": {
+      "budynek": "IKF Hala",
+      "nr": "3"
+    },
+    "nauczyciel": {
+      "nazwisko": "Jasielec Janusz mgr (IKF)",
+      "imie": ""
+    }
+  },
+  {
+    "nazwa": "WF",
+    "rodzaj": "l",
+    "opis": "",
+    "sala": {
+      "budynek": "IKF Hala",
+      "nr": "2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Jasielec Janusz mgr (IKF)",
+      "imie": ""
+    }
+  },
+  {
+    "nazwa": "Podstawy zarządzania i marketingu",
+    "rodzaj": "W",
+    "opis": "Zdalne",
+    "sala": null,
+    "nauczyciel": {
+      "nazwisko": "Trzcińska",
+      "imie": "Honorata"
+    }
+  },
+  {
+    "nazwa": "Podstawy zarządzania i marketingu",
+    "rodzaj": "W",
+    "opis": "stacjonarne",
+    "sala": {
+      "budynek": "IT",
+      "nr": "1.9"
+    },
+    "nauczyciel": null
+  },
+  {
+    "nazwa": "Podstawy zarządzania i marketingu",
+    "rodzaj": "W",
+    "opis": "stacjonarne",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2"
+    },
+    "nauczyciel": {
+      "nazwisko": "Trzcińska",
+      "imie": "Honorata"
+    }
+  },
+  {
+    "nazwa": "Podstawy budownictwa, 30, p",
+    "rodzaj": "p",
+    "opis": "",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.2A Bionika"
+    },
+    "nauczyciel": {
+      "nazwisko": "Przydatek",
+      "imie": "Grzegorz"
+    }
+  },
+  {
+    "nazwa": "Inżynieria oprogramowania A* 15h   (Tydz.B)",
+    "rodzaj": "w",
+    "opis": "ostatni wykład",
+    "sala": {
+      "budynek": "IT",
+      "nr": "2.1"
+    },
+    "nauczyciel": {
+      "nazwisko": "Pazdriy",
+      "imie": "Ihor"
+    }
+  }
+]

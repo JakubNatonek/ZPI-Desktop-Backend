@@ -101,6 +101,9 @@ def login(payload: UserLogin, response: Response, db: Session = Depends(get_db))
     if user is None:
         raise HTTPException(status_code=401, detail="Invalid login or password")
 
+    if getattr(user, "is_blocked", False):
+        raise HTTPException(status_code=403, detail="Twoje konto zostało zablokowane. Skontaktuj się z administratorem.")
+
     role_names = [role.name.strip().lower() for role in get_roles_for_user(db, user.user_id) if role.name]
     access_token = create_access_token(user_id=user.user_id, roles=role_names)
     refresh_token, refresh_jti = create_refresh_token(user_id=user.user_id, roles=role_names)

@@ -1,0 +1,158 @@
+[
+  {
+    "spec": "IS",
+    "rok": "2",
+    "studia": "s",
+    "kod": "C1L2P2W1"
+  },
+  {
+    "spec": "IS",
+    "rok": "3",
+    "studia": "s",
+    "kod": "C1L1P1W1"
+  },
+  {
+    "spec": "IS",
+    "rok": "2",
+    "studia": "s",
+    "kod": "C1L1P1W1"
+  },
+  {
+    "spec": "TIL-ITiS",
+    "rok": "3",
+    "studia": "s",
+    "kod": "C1L1P1W1"
+  },
+  {
+    "spec": "MT-MPS",
+    "rok": "3",
+    "studia": "s",
+    "kod": "C1L1P1W1"
+  },
+  {
+    "spec": "MT",
+    "rok": "1",
+    "studia": "s",
+    "kod": "C1L1P1W1"
+  },
+  {
+    "spec": "IS",
+    "rok": "1",
+    "studia": "s",
+    "kod": "C1L2P2W1"
+  },
+  {
+    "spec": "TIL",
+    "rok": "1",
+    "studia": "s",
+    "kod": "C1L1P1W1"
+  },
+  {
+    "spec": "MT-II-MwSP",
+    "rok": "2",
+    "studia": "s",
+    "a1": "C1L1P1S1W1"
+  },
+  {
+    "spec": "MT-II-MwTIL",
+    "rok": "2",
+    "studia": "s",
+    "kod": "C1L1P1W1"
+  },
+  {
+    "spec": "MT-MPS",
+    "rok": "2",
+    "studia": "s",
+    "kod": "C1L1P1W1"
+  },
+  {
+    "spec": "TIL-ITIS",
+    "rok": "2",
+    "studia": "s",
+    "kod": "C1L1P1W1"
+  },
+  {
+    "spec": "IS",
+    "rok": "1",
+    "studia": "s",
+    "kod": "C1L1P1W1"
+  },
+  {
+    "spec": "SIiC",
+    "rok": "2",
+    "studia": "s",
+    "kod": "C1L1P1W1"
+  },
+  {
+    "spec": "SIiC",
+    "rok": "2",
+    "studia": "s",
+    "kod": "C1L2P2W1"
+  },
+  {
+    "spec": "TPEST",
+    "rok": "2",
+    "studia": "s",
+    "kod": "C1L1P1W1"
+  },
+  {
+    "spec": "ENG",
+    "rok": "1",
+    "studia": "s",
+    "kod": "C1L1P1W1"
+  },
+  {
+    "spec": "MT-II-MwTIL",
+    "rok": "2",
+    "studia": "s",
+    "kod": "C1L2P2W1"
+  },
+  {
+    "spec": "IS",
+    "rok": "3",
+    "studia": "s",
+    "kod": "C2L2P2W1"
+  },
+  {
+    "spec": "GD",
+    "rok": "2",
+    "studia": "s",
+    "kod": "C1L1P1W1"
+  },
+  {
+    "spec": "GD",
+    "rok": "2",
+    "studia": "s",
+    "kod": "C2L2P2W1"
+  },
+  {
+    "spec": "MTII",
+    "rok": "1",
+    "studia": "s",
+    "kod": "C1L1P1W1"
+  },
+  {
+    "spec": "INFII",
+    "rok": "1",
+    "studia": "s",
+    "kod": "C1L1P1W1"
+  },
+  {
+    "spec": "ZIPII",
+    "rok": "1",
+    "studia": "s",
+    "kod": "C1L1P1W1"
+  },
+  {
+    "spec": "INFII",
+    "rok": "1",
+    "studia": "s",
+    "kod": "C1L2P2W1"
+  },
+  {
+    "spec": "MTII",
+    "rok": "1",
+    "studia": "s",
+    "kod": "C1L2P2W1"
+  }
+]

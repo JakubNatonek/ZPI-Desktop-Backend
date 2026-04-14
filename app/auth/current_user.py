@@ -1,4 +1,5 @@
-from fastapi import Depends, HTTPException, Request
+from fastapi import Depends, HTTPException, Security
+from fastapi.security import APIKeyCookie
 from jose import ExpiredSignatureError, JWTError
 from sqlalchemy.orm import Session
 
@@ -7,6 +8,14 @@ from app.cruds.crud_login import get_user_by_id
 from app.cruds.crud_roles_for_user import get_roles_for_user
 from app.core.database import get_db
 from app.models.model_user import User
+
+
+access_token_cookie = APIKeyCookie(
+    name="access_token",
+    scheme_name="AccessTokenCookie",
+    description="HttpOnly cookie with access token.",
+    auto_error=False,
+)
 
 
 def get_user_role_names(user: User) -> set[str]:
@@ -35,10 +44,9 @@ def user_has_role(user: User, required_role: str | list[str] | set[str] | tuple[
 
 
 def get_current_user(
-    request: Request,
+    access_token: str | None = Security(access_token_cookie),
     db: Session = Depends(get_db),
 ) -> User:
-    access_token = request.cookies.get("access_token")
     if not access_token:
         raise HTTPException(
             status_code=401,

@@ -1,0 +1,245 @@
+[
+  {
+    "nr": "1",
+    "miejsca": "35",
+    "dzial": "NAUK_O_KULTURZE_FIZYCZNEJ_I_BEZPIECZENSTWIE",
+    "dzial_code": "WKFiB",
+    "nazwa": "Hala"
+  },
+  {
+    "nr": "0.10",
+    "miejsca": "18",
+    "dzial": "NAUK_INZYNIERYJNYCH",
+    "dzial_code": "WI",
+    "nazwa": "Inzynieria srodowiska",
+    "wyposazenie": "Tablica, rzutnik - spaliny, przeplywy - zapach spalin"
+  },
+  {
+    "nr": "0.1",
+    "miejsca": "24",
+    "dzial": "NAUK_INZYNIERYJNYCH",
+    "dzial_code": "WI",
+    "nazwa": "Metrologia",
+    "wyposazenie": "Biala tablica, TV"
+  },
+  {
+    "nr": "0.3",
+    "miejsca": "12",
+    "dzial": "NAUK_INZYNIERYJNYCH",
+    "dzial_code": "WI",
+    "nazwa": "Produkcja zywnosci",
+    "wyposazenie": "TV polaczony z mikroskopem elektronowym"
+  },
+  {
+    "nr": "0.4",
+    "miejsca": "20",
+    "dzial": "NAUK_INZYNIERYJNYCH",
+    "dzial_code": "WI",
+    "nazwa": "Mechatronika",
+    "wyposazenie": "TV, biala tablica"
+  },
+  {
+    "nr": "0.5",
+    "miejsca": "17",
+    "dzial": "NAUK_INZYNIERYJNYCH",
+    "dzial_code": "WI",
+    "nazwa": "Mechatronika silniki",
+    "wyposazenie": "TV, zielona tablica, SILNIKI- zapach smaru"
+  },
+  {
+    "nr": "0.6",
+    "miejsca": "25",
+    "dzial": "NAUK_INZYNIERYJNYCH",
+    "dzial_code": "WI",
+    "nazwa": "Pracownia CNC",
+    "wyposazenie": "7 komputerow z officem, TV, zielona tablica,"
+  },
+  {
+    "nr": "0.7",
+    "miejsca": "272",
+    "opis": "Wykladowa (aula)",
+    "dzial": "NAUK_INZYNIERYJNYCH",
+    "dzial_code": "WI",
+    "wyposazenie": "TV, rzutnik+ekran, zielona tablica 4 szt"
+  },
+  {
+    "nr": "0.8",
+    "miejsca": "72",
+    "opis": "Wykladowa",
+    "dzial": "NAUK_INZYNIERYJNYCH",
+    "dzial_code": "WI",
+    "wyposazenie": "TV, zielona tablica"
+  },
+  {
+    "nr": "0.9",
+    "miejsca": "26",
+    "opis": "cwiczeniowa",
+    "dzial": "NAUK_INZYNIERYJNYCH",
+    "dzial_code": "WI",
+    "wyposazenie": "Rzutnik, zielona mala tablica"
+  },
+  {
+    "nr": "1.1",
+    "miejsca": "20",
+    "dzial": "NAUK_INZYNIERYJNYCH",
+    "dzial_code": "WI",
+    "nazwa": "komp",
+    "wyposazenie": "Rzutnik, tablica interaktywna, Maple, Zarzadzanie projektami"
+  },
+  {
+    "nr": "1.10",
+    "miejsca": "32",
+    "opis": "cwiczeniowa",
+    "dzial": "NAUK_INZYNIERYJNYCH",
+    "dzial_code": "WI"
+  },
+  {
+    "nr": "1.2",
+    "miejsca": "17",
+    "dzial": "NAUK_INZYNIERYJNYCH",
+    "dzial_code": "WI",
+    "nazwa": "komp",
+    "wyposazenie": "Rzutnik, biala tablica, Statystyka, AutoCad"
+  },
+  {
+    "nr": "1.5",
+    "miejsca": "17",
+    "dzial": "NAUK_INZYNIERYJNYCH",
+    "dzial_code": "WI",
+    "nazwa": "komp",
+    "wyposazenie": "Nie ma offica, rzutnik, biala tablica, Statystyka, AutoCad, Ansys"
+  },
+  {
+    "nr": "1.6",
+    "miejsca": "16",
+    "dzial": "NAUK_INZYNIERYJNYCH",
+    "dzial_code": "WI",
+    "nazwa": "komp",
+    "wyposazenie": "Rzutnik, biala tablica, Programowanie, Phyton, Bazy danych"
+  },
+  {
+    "nr": "1.7",
+    "miejsca": "16",
+    "dzial": "NAUK_INZYNIERYJNYCH",
+    "dzial_code": "WI",
+    "nazwa": "komp",
+    "wyposazenie": "Rzutnik, biala tablica, Sieci"
+  },
+  {
+    "nr": "2.1",
+    "miejsca": "64",
+    "opis": "wykładowa",
+    "dzial": "NAUK_INZYNIERYJNYCH",
+    "dzial_code": "WI",
+    "wyposazenie": "TV, zielona tablica"
+  },
+  {
+    "nr": "1.9",
+    "miejsca": "132",
+    "opis": "wykladowa",
+    "dzial": "NAUK_INZYNIERYJNYCH",
+    "dzial_code": "WI",
+    "wyposazenie": "TV, duza zielona tablica 4 szt, rzutnik"
+  },
+  {
+    "nr": "2.3",
+    "miejsca": "20",
+    "opis": "Pracownia",
+    "dzial": "NAUK_INZYNIERYJNYCH",
+    "dzial_code": "WI",
+    "nazwa": "Instalacje elektryczne",
+    "wyposazenie": "6 komputerow, TV, biala tablica"
+  },
+  {
+    "nr": "2.2",
+    "miejsca": "48",
+    "opis": "cwiczeniowa",
+    "dzial": "NAUK_INZYNIERYJNYCH",
+    "dzial_code": "WI",
+    "wyposazenie": "Rzutnik, zielona tablica"
+  },
+  {
+    "nr": "2.6",
+    "miejsca": "16",
+    "dzial": "NAUK_INZYNIERYJNYCH",
+    "dzial_code": "WI",
+    "nazwa": "Elektrotechnika i elektronika",
+    "wyposazenie": "8 komputerow, rzutnik, tablica interaktywna, ewidenc odpadow, kosztorysowanie"
+  },
+  {
+    "nr": "2.4",
+    "miejsca": "23",
+    "dzial": "NAUK_INZYNIERYJNYCH",
+    "dzial_code": "WI",
+    "nazwa": "Automatyka Robotyka",
+    "wyposazenie": "10 komputerow, Rzutnik, biala tablica"
+  },
+  {
+    "nr": "2.9",
+    "miejsca": "18",
+    "dzial": "NAUK_INZYNIERYJNYCH",
+    "dzial_code": "WI",
+    "nazwa": "Fizyka laboratorium",
+    "wyposazenie": "Rzutnik, zielona tablica, 6 kwadratowych stolikow ze sprzetem po 3 osoby"
+  },
+  {
+    "nr": "2.8A",
+    "miejsca": "24",
+    "dzial": "NAUK_INZYNIERYJNYCH",
+    "dzial_code": "WI",
+    "nazwa": "Inzynieria materialowa",
+    "wyposazenie": "TV"
+  },
+  {
+    "nr": "2.8",
+    "miejsca": "16",
+    "dzial": "NAUK_INZYNIERYJNYCH",
+    "dzial_code": "WI",
+    "nazwa": "Druk 3D",
+    "wyposazenie": "TV"
+  },
+  {
+    "nr": "17",
+    "miejsca": "20",
+    "dzial": "NAUK_O_KULTURZE_FIZYCZNEJ_I_BEZPIECZENSTWIE",
+    "dzial_code": "WKFiB",
+    "nazwa": "Chemia lab"
+  },
+  {
+    "nr": "2.2A",
+    "miejsca": "27",
+    "dzial": "NAUK_INZYNIERYJNYCH",
+    "dzial_code": "WI",
+    "nazwa": "Bionika",
+    "wyposazenie": "11 komputerow, mikroskopy"
+  },
+  {
+    "nr": "2",
+    "miejsca": "35",
+    "dzial": "NAUK_O_KULTURZE_FIZYCZNEJ_I_BEZPIECZENSTWIE",
+    "dzial_code": "WKFiB",
+    "nazwa": "Hala"
+  },
+  {
+    "nr": "3",
+    "miejsca": "35",
+    "dzial": "NAUK_O_KULTURZE_FIZYCZNEJ_I_BEZPIECZENSTWIE",
+    "dzial_code": "WKFiB",
+    "nazwa": "Hala"
+  },
+  {
+    "nr": "0.8A",
+    "miejsca": "36",
+    "dzial": "NAUK_INZYNIERYJNYCH",
+    "dzial_code": "WI",
+    "nazwa": "NIE CZYNNA"
+  },
+  {
+    "nr": "1.10A",
+    "miejsca": "32",
+    "opis": "wykładowa",
+    "dzial": "NAUK_INZYNIERYJNYCH",
+    "dzial_code": "WI",
+    "nazwa": "komp"
+  }
+]

@@ -33,6 +33,9 @@ def seed_all() -> None:
         # default availability preference for a test user
         seed_model.seed_dezyderata(db)
 
+        # ---- Mobile app sample data (groups, subjects, students, grades) ----
+        # seed_model.seed_mobile_data(db)
+
         #for rapla
         seed_rapla_all(db = db, admin_id = admin_id)
 

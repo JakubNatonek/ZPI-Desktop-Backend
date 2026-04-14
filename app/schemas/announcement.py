@@ -13,6 +13,7 @@ class AnnouncementResponse(BaseModel):
     seen: bool
     created_at: str
     author_id: int | None = None
+    author_name: str = "Dziekanat"
 
 
 class AnnouncementSeenResponse(BaseModel):

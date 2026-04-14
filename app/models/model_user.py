@@ -16,6 +16,7 @@ class User(Base):
     public_key = Column(Text, nullable=True)
     password_hash = Column(String, nullable=False)
     must_change_password = Column(Boolean, nullable=False, default=False)
+    is_blocked = Column(Boolean, nullable=False, default=False, server_default="false")
     last_seen_at = Column(DateTime(timezone=True), nullable=True)
 
     roles_for_user = relationship(

@@ -115,6 +115,7 @@ def create_user_by_admin(
     department_ids: list[int],
     password: str,
     group_id: Optional[int] = None,
+    studies_type: Optional[str] = None,
 ) -> User:
     """Create a user with auto-generated album number, login and password."""
     album_number = _generate_album_number(db)
@@ -166,6 +167,8 @@ def create_user_by_admin(
         group = db.query(Group).filter(Group.id == group_id).first()
         if not group:
             raise ValueError(f"Group not found: {group_id}")
+        if studies_type is not None:
+            group.studies_type = studies_type.strip()
         student = Student(
             user_id=user.user_id,
             index_number=album_number,

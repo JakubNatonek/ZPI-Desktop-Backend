@@ -8,10 +8,11 @@ class AdminUserCreate(BaseModel):
     first_name: str = Field(min_length=2, max_length=80)
     last_name: str = Field(min_length=2, max_length=80)
     email: EmailStr
-    password: str = Field(min_length=8, max_length=128)
+    password: str = Field(min_length=6, max_length=128)
     role_ids: list[PositiveInt] = Field(min_length=1)
     department_ids: list[PositiveInt] = Field(min_length=1)
     group_id: Optional[PositiveInt] = None
+    studies_type: Optional[str] = None
 
 
 class UserCreatedResponse(BaseModel):
@@ -48,7 +49,7 @@ class AdminUserUpdate(BaseModel):
 
 
 class AdminResetPasswordRequest(BaseModel):
-    password: str = Field(min_length=8, max_length=128)
+    password: str = Field(min_length=6, max_length=128)
 
 
 class RoleOptionResponse(BaseModel):

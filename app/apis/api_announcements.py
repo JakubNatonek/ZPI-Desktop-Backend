@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.auth.current_user import get_current_user
 from app.core.database import get_db
 from app.cruds.crud_announcement import (
+    _resolve_author_name,
     create_announcement,
     format_announcement_datetime,
     list_announcements_for_user,
@@ -63,6 +64,7 @@ def create_announcement_entry(
         seen=False,
         created_at=format_announcement_datetime(created.created_at),
         author_id=created.author_id,
+        author_name=_resolve_author_name(db, created.author_id),
     )
 
 

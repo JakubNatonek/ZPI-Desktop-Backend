@@ -65,6 +65,7 @@ def create_user_as_admin(
             role_ids=payload.role_ids,
             department_ids=payload.department_ids,
             group_id=payload.group_id,
+            studies_type=payload.studies_type,
         )
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
@@ -286,7 +287,9 @@ def admin_reset_password(
 )
 def get_my_profile(current_user: User = Depends(get_current_user)) -> UserProfileResponse:
     role_names = get_user_role_names(current_user)
-    group_code = current_user.student_profile.group.code if current_user.student_profile and current_user.student_profile.group else None
+    student = current_user.student_profile
+    group = student.group if student else None
+    group_code = group.code if group else None
 
     if "student" in role_names:
         status = "Aktywny student"
@@ -299,13 +302,13 @@ def get_my_profile(current_user: User = Depends(get_current_user)) -> UserProfil
 
     return UserProfileResponse(
         status=status,
-        album_number=current_user.student_profile.index_number if current_user.student_profile and current_user.student_profile.index_number else "Nie dotyczy",
-        year=str(current_user.student_profile.group.year) if current_user.student_profile and current_user.student_profile.group else "Nie dotyczy",
-        semester=str(current_user.student_profile.semester) if current_user.student_profile and current_user.student_profile.semester is not None else "Nie dotyczy",
-        major=current_user.department.name if current_user.department else "Nie dotyczy",
+        album_number=student.index_number if student and student.index_number else "Nie dotyczy",
+        year=str(group.year) if group and group.year else "Nie dotyczy",
+        semester=str(student.semester) if student and student.semester is not None else "Nie dotyczy",
+        major=group.department.name if group and group.department else "Nie dotyczy",
         faculty=current_user.department.name if current_user.department else "Nie dotyczy",
-        study_track="Ogolnoakademicki" if "student" in role_names else "Nie dotyczy",
-        study_mode="Stacjonarne" if "student" in role_names else "Nie dotyczy",
+        study_track=group.specialization if group and group.specialization else "Nie dotyczy",
+        study_mode=group.studies_type if group and group.studies_type else "Nie dotyczy",
         title=current_user.teacher_profile.title if current_user.teacher_profile and current_user.teacher_profile.title else "Nie dotyczy",
         groups=[group_code] if group_code else [],
     )

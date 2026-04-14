@@ -9,6 +9,7 @@ from app.cruds.crud_admin_thesis import (
     admin_update_proposal_topic,
     get_all_lecturers,
     get_all_proposals,
+    get_approved_proposals_for_print,
     get_proposal_by_id,
 )
 from app.cruds.crud_thesis_settings import get_or_create_thesis_settings, get_thesis_schedule_flags, update_thesis_settings
@@ -23,6 +24,7 @@ from app.schemas.admin_thesis import (
     AdminThesisStats,
     AdminThesisStatusUpdate,
     AdminThesisTopicUpdate,
+    ThesisPrintListItem,
 )
 from app.schemas.thesis import LecturerResponse
 
@@ -171,6 +173,41 @@ def get_proposal_stats(
 
 
 @router.get(
+    "/proposals/print-list",
+    response_model=list[ThesisPrintListItem],
+    summary="Lista zatwierdzonych prac dyplomowych do wydruku",
+)
+def get_print_list(
+    department_id: int = Query(..., description="ID kierunku (departamentu)"),
+    studies_type: str | None = Query(None, description="Typ studiów, np. Stacjonarne lub Niestacjonarne"),
+    db: Session = Depends(get_db),
+    _: User = Depends(require_role("admin")),
+) -> list[ThesisPrintListItem]:
+    proposals = get_approved_proposals_for_print(db, department_id, studies_type)
+    result: list[ThesisPrintListItem] = []
+    for proposal in proposals:
+        student_name = ""
+        if proposal.student:
+            student_name = f"{proposal.student.last_name} {proposal.student.first_name}".strip()
+
+        lecturer_name = ""
+        if proposal.lecturer:
+            lecturer_name = f"{proposal.lecturer.last_name} {proposal.lecturer.first_name}".strip()
+
+        own_topic = proposal.lecturer_topic_id is None
+
+        result.append(
+            ThesisPrintListItem(
+                own_topic=own_topic,
+                student_name=student_name,
+                topic=proposal.topic,
+                promotor_name=lecturer_name,
+            )
+        )
+    return result
+
+
+@router.get(
     "/proposals/{proposal_id}",
     response_model=AdminThesisProposalResponse,
     summary="Szczegóły propozycji pracy dyplomowej",
@@ -262,3 +299,6 @@ def list_lecturers(
         )
         for l in lecturers
     ]
+
+
+
