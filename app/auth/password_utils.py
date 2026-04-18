@@ -1,10 +1,10 @@
 from passlib.context import CryptContext
 
-pwd_context = CryptContext(schemes=["bcrypt"], bcrypt__rounds=12, deprecated="auto")
+pwd_context = CryptContext(schemes=["argon2"], argon2__type="ID", deprecated="auto")
 
 
 def hash_password(password: str) -> str:
-    """Hash a plain password using bcrypt."""
+    """Hash a plain password using Argon2."""
     return pwd_context.hash(password)
 
 
