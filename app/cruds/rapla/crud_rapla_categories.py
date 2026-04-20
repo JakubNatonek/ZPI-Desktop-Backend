@@ -30,6 +30,9 @@ def get_all_rapla_categories(db: Session) -> list[RaplaCategory]:
 def get_rapla_category_by_id(db: Session, category_id: int) -> RaplaCategory | None:
     return db.query(RaplaCategory).filter(RaplaCategory.id == category_id).first()
 
+def get_rapla_category_by_key(db: Session, key: str) -> RaplaCategory | None:
+    return db.query(RaplaCategory).filter(RaplaCategory.key == key).first()
+
 
 ##
 # @brief Find a category by Rapla UUID.

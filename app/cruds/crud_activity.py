@@ -3,7 +3,8 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from app.models.model_activity import Activity
-
+from app.schemas.rapla.schema_rapla_categories import RaplaCategory
+from app.cruds.rapla.crud_rapla_categories import get_rapla_category_by_key
 
 def get_all_activities(db: Session) -> list[Activity]:
     return db.query(Activity).order_by(Activity.name.asc()).all()

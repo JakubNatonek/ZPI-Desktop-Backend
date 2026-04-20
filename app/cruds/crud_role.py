@@ -16,3 +16,9 @@ def create_role(db: Session, name: str) -> Role:
 
 def get_roles(db: Session) -> list[Role]:
     return db.query(Role).all()
+
+def get_role_by_id(db: Session, id:int) -> Role | None:
+    return db.query(Role).filter(Role.id == id).first()
+
+def get_role_by_name(db: Session, name:str) -> Role | None:
+    return db.query(Role).filter(Role.name == name).first()

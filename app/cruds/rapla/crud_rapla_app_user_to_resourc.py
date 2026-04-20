@@ -5,7 +5,7 @@ from typing import cast
 from app.models.rapla.model_rapla_app_user_to_resourc import RaplaAppUserToResourc
 from app.models.rapla.model_rapla_resourc import ModelRaplaResourc
 from app.models.model_user import User as AppUser
-from app.cruds.crud_user import get_user_by_id
+
 from app.schemas.rapla.resorces.schema_rapla_resourc_nauczyciel import (
     SchemaRaplaResourcNauczyciel,
 )
@@ -82,6 +82,7 @@ def all_app_user_to_resourc_schema(db: Session) -> list[SchemaRaplaResourcNauczy
     return schemas
 
 def app_user_to_resourc_schema(db: Session, app_user_id: int) -> SchemaRaplaResourcNauczyciel:
+    from app.cruds.crud_user import get_user_by_id
     resource = get_resorsc_by_user_id(db, app_user_id)
     app_user = get_user_by_id(db, app_user_id)
     title = get_title_for_user(db, app_user_id)
@@ -102,7 +103,7 @@ def app_user_to_resourc_schema(db: Session, app_user_id: int) -> SchemaRaplaReso
         department_category= get_department_category_by_department_id(db, cast(int, department.id ))
         departments_names.append( cast(str, department_category.key) )
 
-    print(cast(str, resource.uuid))
+    #print(cast(str, resource.uuid))
     # build schema
     schema = SchemaRaplaResourcNauczyciel(
         uuid = cast(str, resource.uuid),

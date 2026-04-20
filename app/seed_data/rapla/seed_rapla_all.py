@@ -8,6 +8,7 @@ from app.seed_data.rapla.seed_model.seed_rapla_departments import seed_rapla_dep
 from app.seed_data.rapla.seed_model.seed_rapla_titles import seed_rapla_titles
 from app.seed_data.rapla.seed_model.seed_define_nauczyciel_from_example import seed_define_nauczyciel
 from app.seed_data.rapla.seed_model.seed_define_dezyteraty_from_example import seed_define_dezyderata
+from app.seed_data.rapla.seed_model.seed_rapla_category_prents import seed_rapla_category_parent
 
 
 def seed_rapla_all(db: Session, admin_id: int) -> None:
@@ -17,6 +18,8 @@ def seed_rapla_all(db: Session, admin_id: int) -> None:
 
     seed_language_abbreviations(db)
     seed_rapla_user_groups(db)
+    # top category for futer use
+    # seed_rapla_category_parent(db)
     seed_rapla_departments(db)
     seed_rapla_titles(db)
     seed_define_nauczyciel(db, rapla_admin_uuid)

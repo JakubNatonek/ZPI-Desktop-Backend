@@ -22,7 +22,7 @@ router = APIRouter(prefix="/rapla", tags=["rapla"])
 
 
 @router.get(
-		"/file/export", 
+		"/file", 
 		summary="Generate and download Rapla XML"
 	)
 def generate_rapla_file(
@@ -71,13 +71,19 @@ async def import_rapla_file(
 	except Exception:
 		raise HTTPException(status_code=400, detail="Unable to decode file as UTF-8")
 
+	# Default summary in case import is not yet implemented
+	summary = {}
+
 	try:
-		r = parse_rapla_xml(xml_text)
+		# r = parse_rapla_xml(xml_text)
+		pass
 	except Exception as e:
 		raise HTTPException(status_code=400, detail=f"Failed to parse Rapla XML: {e}")
 
+	
 	try:
-		summary = import_rapla_file_to_db(db, r)
+		# summary = import_rapla_file_to_db(db, r)
+		pass
 	except Exception as e:
 		raise HTTPException(status_code=500, detail=f"Failed to import Rapla data: {e}")
 

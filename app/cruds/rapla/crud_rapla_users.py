@@ -22,6 +22,15 @@ def get_first_rapla_users(db: Session) -> list[RaplaUserModel]:
 	return db.query(RaplaUserModel).order_by(RaplaUserModel.created_at.asc()).first()
 
 
+def get_rapla_user_by_id(db: Session, id: int) -> RaplaUserModel:
+		return (
+		db.query(RaplaUserModel)
+		.filter(RaplaUserModel.id == id)
+		.first()
+	)
+
+
+
 def get_first_rapla_users_by_username(db: Session, username: str) -> RaplaUserModel | None:
 	return (
 		db.query(RaplaUserModel)

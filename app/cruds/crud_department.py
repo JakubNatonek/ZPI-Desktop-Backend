@@ -16,6 +16,7 @@ def get_department_by_abbreviation(db: Session, abbreviation: str) -> Optional[D
     return db.query(Department).filter(Department.abbreviation == abbreviation).first()
 
 
+# NOTE: To delete chek if not used
 def get_departments_by_ids(db: Session, department_ids: list[int]) -> list[Department]:
     if not department_ids:
         return []

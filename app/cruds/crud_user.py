@@ -1,6 +1,6 @@
-from typing import Callable, Optional, TypeVar
+from typing import Callable, Optional, TypeVar, cast
 from sqlalchemy.orm import Session
-from sqlalchemy import MetaData, Table, cast, func, Integer, insert, update
+from sqlalchemy import MetaData, Table, cast as sa_cast, func, Integer, update
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
 
@@ -13,8 +13,31 @@ from app.models.model_role_for_user import RolesForUser
 from app.models.model_title import TitleModel
 from app.models.model_title_for_user import TitleForUser
 from app.models.model_user import User
+# CRUDS
+from app.cruds.crud_title import get_title_by_id
+from app.cruds.crud_title_for_user import add_title_to_user
+
+from app.cruds.crud_role import get_role_by_id
+from app.cruds.crud_roles_for_user import add_role_to_user, get_roles_for_user
+
+from app.cruds.crud_department import get_department_by_id
+from app.cruds.crud_departments_for_user import add_department_to_user
+# RAPLA
 from app.models.rapla.model_rapla_app_user_to_resourc import RaplaAppUserToResourc
 from app.models.rapla.model_rapla_user_to_app_user import RaplaUserToAppUser
+from app.models.rapla.model_rapla_user import RaplaUser
+from app.models.rapla.model_rapla_resourc import ModelRaplaResourc
+
+from app.cruds.rapla.crud_rapla_users import get_first_rapla_users_by_username
+from app.cruds.rapla.crud_rapla_resourc import create_resourc
+from app.cruds.rapla.crud_rapla_app_user_to_resourc import create_app_user_to_resourc_mapping
+from app.cruds.rapla.crud_rapla_user_to_app_user import create_rapla_user_mapping, get_rapla_user_by_app_user_id
+
+from app.cruds.rapla.crud_rapla_permission import get_permission_by_access, create_permission
+from app.cruds.rapla.crud_rapla_permission_for_resourc import create_permission_for_resourc
+
+
+
 
 RelatedItem = TypeVar("RelatedItem")
 
@@ -52,31 +75,21 @@ def create_user(
     last_seen_at: datetime | None = None,
 ) -> User:
     # Check login uniqueness
-    login_exists = (
-        db.query(User)
-        .filter(User.login == login)
-        .first()
-    )
+    login_exists = get_user_by_login(db, login)
     if login_exists:
         raise ValueError(f"Login already exists: {login}")
 
     # Check email uniqueness
-    email_exists = (
-        db.query(User)
-        .filter(User.email == email)
-        .first()
-    )
+    email_exists = get_user_by_email(db, email)
     if email_exists:
         raise ValueError(f"Email already exists: {email}")
 
     # If album_number not provided, generate next numeric album number (zero-padded 5 digits)
     if album_number is None:
-        max_album_number = db.query(func.max(cast(User.album_number, Integer))).scalar()
-        next_number = int(max_album_number or 0) + 1
-        album_number = f"{next_number:05d}"
+        album_number = _generate_album_number(db)
 
     # Check album_number uniqueness
-    album_exists = db.query(User).filter(User.album_number == album_number).first()
+    album_exists = get_user_by_album_number(db, album_number)
     if album_exists:
         raise ValueError(f"Album number already exists: {album_number}")
 
@@ -98,7 +111,7 @@ def create_user(
 
 
 def _generate_album_number(db: Session) -> str:
-    max_album_number = db.query(func.max(cast(User.album_number, Integer))).scalar()
+    max_album_number = db.query(func.max(sa_cast(User.album_number, Integer))).scalar()
     next_number = int(max_album_number or 0) + 1
     return f"{next_number:05d}"
 
@@ -106,12 +119,12 @@ def _generate_album_number(db: Session) -> str:
 def _generate_login(first_name: str, last_name: str, album_number: str) -> str:
     return first_name[0].lower() + last_name[0].lower() + album_number
 
-
+# NOTE: Isn't this usles (to delete)?
 def _get_users_table(db: Session) -> Table:
     metadata = MetaData()
     return Table("users", metadata, autoload_with=db.get_bind())
 
-
+# NOTE: Isn't this usles (to delete)?
 def _legacy_user_fk_values(users_table: Table, role_id: int, department_id: int) -> dict[str, int]:
     values: dict[str, int] = {}
     if "role_id" in users_table.c:
@@ -120,7 +133,7 @@ def _legacy_user_fk_values(users_table: Table, role_id: int, department_id: int)
         values["department_id"] = department_id
     return values
 
-
+# NOTE: Isn't this usles (to delete)?
 def _map_user_integrity_error(exc: IntegrityError) -> ValueError:
     error_text = str(getattr(exc, "orig", exc)).lower()
 
@@ -142,22 +155,62 @@ def _map_user_integrity_error(exc: IntegrityError) -> ValueError:
 
     return ValueError("Database constraint error while saving user")
 
+# NOTE: Maybe move to helpers or somthing
+def _ensure_rapla_resource_for_user(db: Session, user: User, rapla_user: RaplaUser | None = None):
+    roles = get_roles_for_user(db, cast(int, user.user_id))
+    if not any((r.name or "").lower() == "wykladowca" for r in roles):
+        return None
+
+    if rapla_user is None:
+        rapla_user = get_first_rapla_users_by_username(db, "system")
+        if rapla_user is None:
+            return None
+
+    owner_uuid = cast(str, rapla_user.uuid)
+    try:
+        res = create_resourc(db, owner=owner_uuid)
+    except Exception:
+        return None
+
+    try:
+        create_app_user_to_resourc_mapping(db, cast(int, user.user_id), cast(int, res.id))
+    except Exception:
+        return None
+
+    return res
+
+# NOTE: Maybe move to helpers or somthing
+def _ensure_permission_for_resource(db: Session, res: ModelRaplaResourc):
+    perm = get_permission_by_access(db, access="allocate_conflicts")
+    if perm is None:
+        perm = create_permission(db, access="allocate_conflicts")
+    try:
+        create_permission_for_resourc(db, cast(int, res.id), cast(int, perm.id))
+        print(f"Assigned permission allocate_conflicts to rapla_resourc id={res.id}")
+    except Exception as e:
+        print(f"Failed to assign permission to rapla_resourc id={res.id}: {e}")
+    return perm
 
 def create_user_by_admin(
     db: Session,
     first_name: str,
     last_name: str,
-    email: str,
     role_ids: list[int],
     department_ids: list[int],
     password: str,
+    email: str | None = None,
+    login: str | None = None,
+    admin: User | None = None,
     title_ids: list[int] | None = None,
 ) -> User:
     album_number = _generate_album_number(db)
-    login = _generate_login(first_name, last_name, album_number)
+    # Use provided login when seeding; otherwise generate a login from name+album
+    generated_login = login if login is not None else _generate_login(first_name, last_name, album_number)
 
-    if get_user_by_login(db, login) is not None:
-        raise ValueError(f"Generated login already exists: {login}")
+    if get_user_by_login(db, generated_login) is not None:
+        raise ValueError(f"Generated login already exists: {generated_login}")
+    if email is None:
+        email =f"{generated_login}@ans-ns.edu.pl"
     if get_user_by_album_number(db, album_number) is not None:
         raise ValueError(f"Generated album number already exists: {album_number}")
 
@@ -168,56 +221,52 @@ def create_user_by_admin(
 
     roles: list[Role] = []
     for role_id in dict.fromkeys(role_ids):
-        role = db.query(Role).filter(Role.id == role_id).first()
+        role = get_role_by_id(db, role_id)
         if not role:
             raise ValueError(f"Role not found: {role_id}")
         roles.append(role)
 
     departments: list[Department] = []
     for department_id in dict.fromkeys(department_ids):
-        department = db.query(Department).filter(Department.id == department_id).first()
+        department = get_department_by_id(db, department_id)
         if not department:
             raise ValueError(f"Department not found: {department_id}")
         departments.append(department)
 
     titles: list[TitleModel] = []
     for title_id in dict.fromkeys(title_ids or []):
-        title = db.query(TitleModel).filter(TitleModel.id == title_id).first()
+        title = get_title_by_id(db, title_id)
         if not title:
             raise ValueError(f"Title not found: {title_id}")
         titles.append(title)
 
-    users_table = _get_users_table(db)
-    insert_values = {
-        "first_name": first_name,
-        "last_name": last_name,
-        "album_number": album_number,
-        "login": login,
-        "email": email,
-        "password_hash": hash_password(password),
-        "must_change_password": True,
-    }
-    insert_values.update(_legacy_user_fk_values(users_table, roles[0].id, departments[0].id))
+    user = create_user(
+        db = db,
+        first_name = first_name,
+        last_name =  last_name,
+        album_number = album_number,
+        login = generated_login,
+        email = email,
+        password_hash = hash_password(password),
+        must_change_password = True,
+    )
 
-    try:
-        insert_stmt = insert(users_table).values(**insert_values).returning(users_table.c.user_id)
-        user_id = int(db.execute(insert_stmt).scalar_one())
+    for role in roles:
+        add_role_to_user(db, user_id=user.user_id, role_id=role.id)
+    for department in departments:
+        add_department_to_user(db, user_id=user.user_id, department_id=department.id)
+    for title in titles:
+        add_title_to_user(db, user_id=user.user_id, title_id=title.id)
 
-        for role in roles:
-            db.add(RolesForUser(user_id=user_id, role_id=role.id))
-        for department in departments:
-            db.add(DepartmentsForUser(user_id=user_id, department_id=department.id))
-        for title in titles:
-            db.add(TitleForUser(user_id=user_id, title_id=title.id))
+    # Create Rapla resource and mapping only when the new user has the lecturer role ('wykladowca').
+    if any((r.name or "").lower() == "wykladowca" for r in roles):
+        rapla_user = get_rapla_user_by_app_user_id(db, admin.user_id) if admin is not None else None
+        res = _ensure_rapla_resource_for_user(db=db, user=user, rapla_user=rapla_user)
+        _ensure_permission_for_resource(db=db, res=res)
 
-        db.commit()
-    except IntegrityError as exc:
-        db.rollback()
-        raise _map_user_integrity_error(exc) from exc
+    # NOTE/TODO: Not implementet should send from frontend 
+    # create_rapla_user_mapping(db=db, app_user_id=user.user_id, rapla_user_id=)
 
-    user = get_user_by_id(db, user_id)
-    if user is None:
-        raise ValueError("User was created but could not be loaded")
     return user
 
 

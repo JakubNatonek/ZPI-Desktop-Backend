@@ -1,5 +1,5 @@
-from datetime import date, datetime, timezone, timedelta
-from typing import List, Optional, Set, cast
+from datetime import date, datetime, timezone
+from typing import List, Optional, cast
 from uuid import uuid4
 
 from sqlalchemy.orm import Session
@@ -20,57 +20,8 @@ from app.schemas.rapla.reservations.schema_rapla_repeating import SchemaRaplaRep
 from app.cruds.rapla.crud_rapla_app_user_to_resourc import get_resorsc_by_user_id
 from app.cruds.rapla.crud_rapla_users import get_first_rapla_users_by_username
 from app.cruds.rapla.rapla_format_datetime import format_rapla_datetime
-
-# ----- Semestr CRUD -----
-# NOTE: This should be in seprate crude file for Semestr
-def get_semestry(db: Session) -> List[Semestr]:
-    return db.query(Semestr).order_by(Semestr.data_rozpoczecia.desc()).all()
-
-
-def get_semestr_by_id(db: Session, semestr_id: int) -> Optional[Semestr]:
-    return db.query(Semestr).filter(Semestr.id == semestr_id).first()
-
-
-def get_current_semestr(db: Session, current_date: date | None= None) -> Optional[Semestr]:
-    if current_date is None:
-        current_date = date.today()
-    return db.query(Semestr).filter(
-        Semestr.data_rozpoczecia <= current_date,
-        Semestr.data_zakonczenia >= current_date
-    ).first()
-
-# NOTE: Chenge this to field to field insted of payload
-def create_semestr(db: Session, payload: SemestrCreate) -> Semestr:
-    semestr = Semestr(
-        data_rozpoczecia=payload.data_rozpoczecia,
-        data_zakonczenia=payload.data_zakonczenia,
-        nazwa=payload.nazwa
-    )
-    db.add(semestr)
-    db.commit()
-    db.refresh(semestr)
-    return semestr
-
-# NOTE: Need this by id
-def delete_semestr(db: Session, semestr: Semestr) -> None:
-    db.delete(semestr)
-    db.commit()
-
-# NOTE: This should be in seprate crude file for days
-def get_days(db: Session) -> List[Day]:
-    return db.query(Day).order_by(Day.id.asc()).all()
-
-def get_day_by_id(db: Session, day_id: int) -> Day:
-    return db.query(Day).filter(Day.id == day_id).first()
-
-# NOTE: This should be in seprate crude file for days
-def get_valid_day_ids(db: Session) -> Set[int]:
-    return {day.id for day in get_days(db)}
-
-def get_first_day(start: datetime, day_id: int) -> datetime:
-    days_ahead = ( (day_id - 1) - start.weekday()) % 7
-    return start + timedelta(days = days_ahead)
-
+from app.cruds.crud_semester import get_semestr_by_id
+from app.cruds.crud_day import get_first_day
 
 # ----- Dezyderata CRUD -----
 

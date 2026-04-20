@@ -58,9 +58,9 @@ def _status_for_user_validation_error(detail: str) -> int:
 def create_user_as_admin(
     payload: AdminUserCreate,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    admin: User = Depends(require_role("admin")),
 ) -> UserCreatedResponse:
-    normalized_email = str(payload.email).strip().lower()
+    normalized_email = str(payload.email).strip().lower() # NOTE: DON'T do this this is bad chyba
 
     if get_user_by_email(db, normalized_email) is not None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User with this email already exists")
@@ -75,6 +75,7 @@ def create_user_as_admin(
             role_ids=payload.role_ids,
             department_ids=payload.department_ids,
             title_ids=payload.title_ids,
+            admin=admin,
         )
     except ValueError as exc:
         raise HTTPException(status_code=_status_for_user_validation_error(str(exc)), detail=str(exc)) from exc
@@ -118,7 +119,7 @@ def list_user_title_options(
     titles = list_titles(db)
     return [TitleOptionResponse(id=title.id, name=title.name) for title in titles]
 
-
+# NOTE: Double user usage?
 @router.get(
     "/{user_id}/name",
     response_model=UserNameResponse,
@@ -135,7 +136,7 @@ def get_user_name(
         raise HTTPException(status_code=404, detail="User does not exist.")
     return UserNameResponse(user_id=user.user_id, first_name=user.first_name, last_name=user.last_name)
 
-
+# NOTE: Double user usage?
 @router.get(
     "/{user_id}/public-key",
     response_model=PublicKeyResponse,
@@ -152,7 +153,7 @@ def get_user_public_key(
         raise HTTPException(status_code=404, detail="User does not exist.")
     return PublicKeyResponse(user_id=user.user_id, public_key=getattr(user, "public_key", None))
 
-
+# NOTE: Double user usage?
 @router.put(
     "/{user_id}/public-key",
     response_model=PublicKeyResponse,
@@ -219,8 +220,8 @@ def admin_update_user(
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-    normalized_login = payload.login.strip().lower()
-    normalized_email = str(payload.email).strip().lower()
+    normalized_login = payload.login.strip().lower() # NOTE: This is dangerus (lower())
+    normalized_email = str(payload.email).strip().lower() # NOTE: This is dangerus (lower())
 
     existing_login = get_user_by_login(db, normalized_login)
     if existing_login is not None and existing_login.user_id != user_id:
@@ -230,6 +231,7 @@ def admin_update_user(
     if existing_email is not None and existing_email.user_id != user_id:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User with this email already exists")
 
+    # NOTE: What do you want to do here cos current_user is admin?
     admin_role = db.query(Role).filter(Role.name == "admin").first()
     if admin_role is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Admin role not found")
@@ -302,6 +304,8 @@ def admin_reset_password(
     user = get_user_by_id(db, user_id)
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    
+    # NOTE: Shouldn't here be maybe a check to not reset yours own password?
 
     set_user_password(db, user, payload.password)
     return ChangePasswordResponse(message="Password reset successfully")

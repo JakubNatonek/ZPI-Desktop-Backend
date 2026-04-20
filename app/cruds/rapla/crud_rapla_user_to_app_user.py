@@ -1,7 +1,9 @@
 from sqlalchemy.orm import Session
 
 from app.models.rapla.model_rapla_user_to_app_user import RaplaUserToAppUser
+from app.models.rapla.model_rapla_user import RaplaUser
 
+from app.cruds.rapla.crud_rapla_users import get_rapla_user_by_id
 
 def get_all_rapla_user_mappings(db: Session) -> list[RaplaUserToAppUser]:
 	return db.query(RaplaUserToAppUser).order_by(RaplaUserToAppUser.id.asc()).all()
@@ -10,6 +12,11 @@ def get_all_rapla_user_mappings(db: Session) -> list[RaplaUserToAppUser]:
 def get_mapping_by_app_user_id(db: Session, app_user_id: int) -> RaplaUserToAppUser | None:
 	return db.query(RaplaUserToAppUser).filter(RaplaUserToAppUser.app_user_id == app_user_id).first()
 
+def get_rapla_user_by_app_user_id(db: Session, app_user_id: int) -> RaplaUser | None:
+	mapping = get_mapping_by_app_user_id(db, app_user_id)
+	if mapping is None:
+		return None
+	return get_rapla_user_by_id(db, mapping.rapla_user_id)
 
 def get_mapping_by_rapla_user_id(db: Session, rapla_user_id: int) -> RaplaUserToAppUser | None:
 	return db.query(RaplaUserToAppUser).filter(RaplaUserToAppUser.rapla_user_id == rapla_user_id).first()
