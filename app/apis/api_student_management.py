@@ -19,10 +19,20 @@ router = APIRouter(prefix="/admin/students", tags=["student-management"])
 def list_students(
     department_id: int | None = Query(None, description="Filtruj po ID kierunku (departamentu)"),
     studies_type: str | None = Query(None, description="Filtruj po typie studiów (stacjonarne / niestacjonarne)"),
+    specialization_id: int | None = Query(None, description="Filtruj po ID kierunku/specjalności"),
+    semester_id: int | None = Query(None, description="Filtruj studentów mających oceny w podanym semestrze"),
+    album_query: str | None = Query(None, description="Szukaj po fragmencie numeru albumu"),
     db: Session = Depends(get_db),
     _: User = Depends(require_role("admin")),
 ) -> list[StudentListItemResponse]:
-    students = get_students_by_department(db, department_id, studies_type)
+    students = get_students_by_department(
+        db,
+        department_id=department_id,
+        studies_type=studies_type,
+        specialization_id=specialization_id,
+        semester_id=semester_id,
+        album_query=album_query,
+    )
     return [StudentListItemResponse(**s) for s in students]
 
 

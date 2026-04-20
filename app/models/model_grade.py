@@ -12,17 +12,18 @@ class GradeRecord(Base):
     student_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False, index=True)
     lecturer_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False, index=True)
 
-    semester = Column(Integer, nullable=False, index=True) # NOTE: This should be propably a seprate table?
+    semester = Column(Integer, nullable=False, index=True)
 
-    subject_name = Column(String, nullable=False, index=True) # NOTE: This should be propably a seprate table?
+    subject_name = Column(String, nullable=False, index=True)
 
-    component_label = Column(String, nullable=True) # NOTE: What is this?
-    component_info = Column(String, nullable=True) # NOTE: What is this?
-    
+    component_label = Column(String, nullable=True)
+    component_info = Column(String, nullable=True)
+
     grade_value = Column(Float, nullable=False)
+    weight = Column(Float, nullable=False, default=1.0)
     is_final = Column(Boolean, nullable=False, default=False)
 
-    sort_order = Column(Integer, nullable=False, default=0) # <- NOTE: Why this??
+    sort_order = Column(Integer, nullable=False, default=0)
 
     student = relationship("User", foreign_keys=[student_id])
     lecturer = relationship("User", foreign_keys=[lecturer_id])

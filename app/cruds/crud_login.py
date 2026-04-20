@@ -147,6 +147,17 @@ def create_user_by_admin(
             raise ValueError(f"Department not found: {department_id}")
         departments.append(department)
 
+    normalized_studies_type = studies_type.strip() if studies_type and studies_type.strip() else None
+    has_student_role = any(normalize_lookup_value(role.name) == "student" for role in roles)
+
+    if has_student_role:
+        if group_id is None:
+            raise ValueError("Specjalność jest wymagana dla roli student")
+        if normalized_studies_type is None:
+            raise ValueError("Typ studiów jest wymagany dla roli student")
+    elif group_id is not None or normalized_studies_type is not None:
+        raise ValueError("Specjalność i typ studiów dotyczą wyłącznie roli student")
+
     user = User(
         first_name=first_name,
         last_name=last_name,
@@ -167,8 +178,8 @@ def create_user_by_admin(
         group = db.query(Group).filter(Group.id == group_id).first()
         if not group:
             raise ValueError(f"Group not found: {group_id}")
-        if studies_type is not None:
-            group.studies_type = studies_type.strip()
+        if normalized_studies_type is not None:
+            group.studies_type = normalized_studies_type
         student = Student(
             user_id=user.user_id,
             index_number=album_number,

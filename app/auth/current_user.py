@@ -19,28 +19,41 @@ access_token_cookie = APIKeyCookie(
 
 
 def get_user_role_names(user: User) -> set[str]:
+    cached_role_names = getattr(user, "role_names", None)
+    if cached_role_names is not None:
+        if isinstance(cached_role_names, str):
+            cached_iterable = [cached_role_names]
+        else:
+            cached_iterable = cached_role_names
+
+        return {
+            str(role_name).strip().lower()
+            for role_name in cached_iterable
+            if str(role_name).strip()
+        }
+
     return {
-        role_for_user.role.name
+        role_for_user.role.name.strip().lower()
         for role_for_user in getattr(user, "roles_for_user", [])
-        if role_for_user.role and role_for_user.role.name
+        if role_for_user.role and role_for_user.role.name and role_for_user.role.name.strip()
     }
 
 
 def user_has_role(user: User, required_role: str | list[str] | set[str] | tuple[str, ...]) -> bool:
     if isinstance(required_role, str):
-        required_role_names = {required_role} if required_role else set()
+        required_role_names = {required_role.strip().lower()} if required_role and required_role.strip() else set()
     else:
         required_role_names = {
-            str(role)
+            str(role).strip().lower()
             for role in required_role
-            if str(role)
+            if str(role).strip()
         }
 
     if not required_role_names:
         return False
 
-    user_role_names = getattr(user, "role_names", [])
-    return not set(user_role_names).isdisjoint(required_role_names)
+    user_role_names = get_user_role_names(user)
+    return not user_role_names.isdisjoint(required_role_names)
 
 
 def get_current_user(
@@ -98,11 +111,18 @@ def get_current_user(
         )
 
     user_roles = get_roles_for_user(db, user.user_id)
-    user_role_values = {user_role.name for user_role in user_roles if user_role.name}
+    user_role_values = {
+        user_role.name.strip().lower()
+        for user_role in user_roles
+        if user_role.name and user_role.name.strip()
+    }
     if not set(token_roles).intersection(user_role_values):
         raise HTTPException(
             status_code=401,
             detail="Token role mismatch",
         )
+
+    # Cache normalized role names to keep authorization checks consistent.
+    setattr(user, "role_names", list(user_role_values))
 
     return user

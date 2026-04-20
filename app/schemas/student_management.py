@@ -10,6 +10,9 @@ class StudentListItemResponse(BaseModel):
     studies_type: str
     average_grade: float
     department_name: str
+    department_id: int | None = None
+    specialization_name: str = ""
+    specialization_id: int | None = None
     is_blocked: bool
 
 

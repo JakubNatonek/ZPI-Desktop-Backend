@@ -20,6 +20,7 @@ from app.cruds.crud_thesis import (
     get_lecturers,
     get_proposals_for_lecturer,
     get_proposals_for_student,
+    get_student_average_grade,
     update_proposal_status,
     withdraw_proposal,
 )
@@ -45,7 +46,7 @@ def _is_admin(user: User) -> bool:
     return user_has_role(user, "admin")
 
 
-def _to_response(proposal: ThesisProposal) -> ThesisProposalResponse:
+def _to_response(proposal: ThesisProposal, db: Session) -> ThesisProposalResponse:
     student_name = ""
     lecturer_name = ""
 
@@ -55,12 +56,16 @@ def _to_response(proposal: ThesisProposal) -> ThesisProposalResponse:
     if proposal.lecturer:
         lecturer_name = f"{proposal.lecturer.first_name} {proposal.lecturer.last_name}".strip()
 
+    calculated_average = get_student_average_grade(db, proposal.student_id)
+    stored_average = round(float(proposal.student_average_grade or 0.0), 2)
+    displayed_average = calculated_average if calculated_average > 0 else stored_average
+
     return ThesisProposalResponse(
         id=proposal.id,
         student_id=proposal.student_id,
         student_name=student_name,
         student_email=proposal.student.email if proposal.student else "",
-        student_average_grade=proposal.student_average_grade,
+        student_average_grade=displayed_average,
         lecturer_id=proposal.lecturer_id,
         lecturer_name=lecturer_name,
         topic=proposal.topic,
@@ -186,12 +191,12 @@ def submit_proposal(
             lecturer_id=payload.lecturer_id,
             topic=payload.topic,
             justification=payload.justification,
-            student_average_grade=payload.student_average_grade,
+            student_average_grade=None,
         )
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
-    return _to_response(proposal)
+    return _to_response(proposal, db)
 
 
 @router.get("/proposals", response_model=list[ThesisProposalResponse], summary="List lecturer thesis proposals")
@@ -206,7 +211,13 @@ def list_lecturer_proposals(
     else:
         proposals = get_proposals_for_lecturer(db, current_user.user_id)
 
-    return [_to_response(proposal) for proposal in proposals]
+    responses = [_to_response(proposal, db) for proposal in proposals]
+    if not _is_admin(current_user):
+        responses.sort(
+            key=lambda proposal: (proposal.student_average_grade, proposal.submitted_at),
+            reverse=True,
+        )
+    return responses
 
 
 @router.get("/my-proposals", response_model=list[ThesisProposalResponse], summary="List student's own thesis proposals")
@@ -217,7 +228,7 @@ def list_student_proposals(
     _ensure_tab_visible(db, current_user)
 
     proposals = get_proposals_for_student(db, current_user.user_id)
-    return [_to_response(proposal) for proposal in proposals]
+    return [_to_response(proposal, db) for proposal in proposals]
 
 
 @router.delete(
@@ -263,7 +274,7 @@ def review_proposal(
         )
         if proposal is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Proposal not found")
-        return _to_response(proposal)
+        return _to_response(proposal, db)
 
     if payload.status == ThesisProposalStatus.APPROVED:
         approved_count = count_approved_for_lecturer(db, current_user.user_id)
@@ -286,7 +297,7 @@ def review_proposal(
     if proposal is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Proposal not found")
 
-    return _to_response(proposal)
+    return _to_response(proposal, db)
 
 
 # ==================== LECTURER TOPICS ====================
@@ -411,9 +422,9 @@ def select_lecturer_topic(
         lecturer_id=topic.lecturer_id,
         topic=topic.topic,
         justification=topic.description or "Temat zaproponowany przez promotora.",
-        student_average_grade=0.0,
+        student_average_grade=None,
         lecturer_topic_id=topic.id,
     )
     mark_lecturer_topic_taken(db, topic.id)
 
-    return _to_response(proposal)
+    return _to_response(proposal, db)

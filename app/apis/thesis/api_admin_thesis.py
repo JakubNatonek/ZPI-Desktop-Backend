@@ -12,6 +12,7 @@ from app.cruds.crud_admin_thesis import (
     get_approved_proposals_for_print,
     get_proposal_by_id,
 )
+from app.cruds.crud_thesis import get_student_average_grade
 from app.cruds.crud_thesis_settings import get_or_create_thesis_settings, get_thesis_schedule_flags, update_thesis_settings
 from app.models.model_thesis_proposal import ThesisProposal, ThesisProposalStatus
 from app.models.model_thesis_settings import ThesisScheduleSettings
@@ -38,7 +39,7 @@ router = APIRouter(prefix="/admin/thesis", tags=["thesis"])
 #     return current_user
 
 
-def _to_admin_response(proposal: ThesisProposal) -> AdminThesisProposalResponse:
+def _to_admin_response(proposal: ThesisProposal, db: Session) -> AdminThesisProposalResponse:
     student_name = ""
     student_email = ""
     student_index = None
@@ -59,6 +60,10 @@ def _to_admin_response(proposal: ThesisProposal) -> AdminThesisProposalResponse:
         lecturer_name = f"{proposal.lecturer.first_name} {proposal.lecturer.last_name}".strip()
         lecturer_email = proposal.lecturer.email or ""
 
+    calculated_average = get_student_average_grade(db, proposal.student_id)
+    stored_average = round(float(proposal.student_average_grade or 0.0), 2)
+    displayed_average = calculated_average if calculated_average > 0 else stored_average
+
     return AdminThesisProposalResponse(
         id=proposal.id,
         student_id=proposal.student_id,
@@ -66,7 +71,7 @@ def _to_admin_response(proposal: ThesisProposal) -> AdminThesisProposalResponse:
         student_email=student_email,
         student_index=student_index,
         student_group=student_group,
-        student_average_grade=proposal.student_average_grade,
+        student_average_grade=displayed_average,
         lecturer_id=proposal.lecturer_id,
         lecturer_name=lecturer_name,
         lecturer_email=lecturer_email,
@@ -151,7 +156,7 @@ def list_all_proposals(
                 detail=f"Invalid status: {status_filter}",
             )
     proposals = get_all_proposals(db, status_filter=thesis_status)
-    return [_to_admin_response(p) for p in proposals]
+    return [_to_admin_response(p, db) for p in proposals]
 
 
 @router.get(
@@ -220,7 +225,7 @@ def get_proposal_detail(
     proposal = get_proposal_by_id(db, proposal_id)
     if proposal is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Proposal not found")
-    return _to_admin_response(proposal)
+    return _to_admin_response(proposal, db)
 
 
 @router.patch(
@@ -241,7 +246,7 @@ def update_proposal_status(
     )
     if proposal is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Proposal not found")
-    return _to_admin_response(proposal)
+    return _to_admin_response(proposal, db)
 
 
 @router.patch(
@@ -262,7 +267,7 @@ def update_proposal_topic(
     )
     if proposal is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Proposal not found")
-    return _to_admin_response(proposal)
+    return _to_admin_response(proposal, db)
 
 
 @router.delete(

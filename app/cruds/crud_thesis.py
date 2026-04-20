@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.core.thesis_datetime import utc_now_minute
 from app.cruds.crud_roles_for_user import get_roles_for_user
+from app.models.model_grade import GradeRecord
 from app.models.model_thesis_proposal import ThesisProposal, ThesisProposalStatus
 from app.models.model_user import User
 
@@ -27,13 +28,25 @@ def get_lecturers(db: Session) -> list[User]:
     return lecturers
 
 
+def get_student_average_grade(db: Session, student_id: int) -> float:
+    avg_grade = (
+        db.query(func.avg(GradeRecord.grade_value))
+        .filter(
+            GradeRecord.student_id == student_id,
+            GradeRecord.is_final == True,  # noqa: E712
+        )
+        .scalar()
+    )
+    return round(float(avg_grade), 2) if avg_grade is not None else 0.0
+
+
 def create_thesis_proposal(
     db: Session,
     student_id: int,
     lecturer_id: int,
     topic: str,
     justification: str,
-    student_average_grade: float,
+    student_average_grade: float | None = None,
     lecturer_topic_id: int | None = None,
 ) -> ThesisProposal:
     lecturer = db.query(User).filter(User.user_id == lecturer_id).first()
@@ -42,10 +55,16 @@ def create_thesis_proposal(
     if not _is_lecturer_user(db, lecturer.user_id):
         raise ValueError("Selected user is not a lecturer")
 
+    resolved_average_grade = (
+        get_student_average_grade(db, student_id)
+        if student_average_grade is None
+        else round(float(student_average_grade), 2)
+    )
+
     proposal = ThesisProposal(
         student_id=student_id,
         lecturer_id=lecturer_id,
-        student_average_grade=student_average_grade,
+        student_average_grade=resolved_average_grade,
         topic=topic.strip(),
         justification=justification.strip(),
         status=ThesisProposalStatus.PENDING,
