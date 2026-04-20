@@ -5,14 +5,19 @@ from app.auth.current_user import get_current_user, user_has_role
 from app.core.database import get_db
 from app.cruds.crud_grade import get_lecturer_semester_grades, get_student_semester_grades, replace_subject_grades
 from app.models.model_user import User
+from app.seed_data.seed_model.seed_roles import RolaEnum
 from app.schemas.grade import LecturerSemesterGradesResponse, SemesterGradesResponse, SubjectGradeUpdateRequest
 
 
 router = APIRouter(prefix="/grades", tags=["grades"])
 
-# NOTE: Static data for what ?
-LECTURER_ROLE_NAMES = {"lecturer", "wykladowca", "cwiczenia", "laboratorium", "seminarium"}
-STUDENT_ROLE_NAMES = {"student"}
+LECTURER_ROLE_NAMES = {
+    RolaEnum.WYKLADOWCA.value,
+    RolaEnum.CWICZENIA.value,
+    RolaEnum.LABORATORIUM.value,
+    RolaEnum.SEMINARIUM.value,
+}
+STUDENT_ROLE_NAMES = {RolaEnum.STUDENT.value}
 
 
 def _is_lecturer(user: User) -> bool:
