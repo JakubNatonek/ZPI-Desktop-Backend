@@ -6,8 +6,12 @@ from typing import cast
 from sqlalchemy.orm import Session
 
 from app.models.rapla.model_rapla_category import RaplaCategory
-from app.cruds.rapla.crud_rapla_language_name_for_category import _delete_all_language_names_from_category
+from app.cruds.rapla.crud_rapla_language_abbreviations import create_language_abbreviation
+from app.cruds.rapla.crud_rapla_language_abbreviations import get_language_abbreviation_by_language
+from app.cruds.rapla.crud_rapla_language_name import create_language_name
+from app.cruds.rapla.crud_rapla_language_name_for_category import add_language_name_to_category
 from app.cruds.rapla.crud_rapla_language_name_for_category import get_language_name_links_by_category_id
+from app.cruds.rapla.crud_rapla_language_name_for_category import delete_all_language_names_from_category
 from app.cruds.rapla.crud_rapla_language_name import get_language_name_schema_by_id
 from app.schemas.rapla.schema_rapla_categories import RaplaCategories
 from app.schemas.rapla.schema_rapla_category import RaplaCategory as RaplaCategorySchema
@@ -101,8 +105,15 @@ def create_rapla_category(
     created_at: datetime | None = None,
     last_changed: datetime | None = None,
     parent_id: int | None = None,
+    language_names: list[tuple[str, str]] | None = None,
 ) -> RaplaCategory:
-    
+    if language_names is None:
+        language_names = [("en", key)]
+
+    existing_by_key = get_rapla_category_by_key(db, key)
+    if existing_by_key is not None:
+        return existing_by_key
+
     if uuid is not None:
         existing = get_rapla_category_by_uuid(db, uuid)
         if existing is not None:
@@ -128,7 +139,26 @@ def create_rapla_category(
     db.add(category)
     db.commit()
     db.refresh(category)
+
+    _attach_language_names(db, cast(int, category.id), language_names)
+
     return category
+
+
+def _attach_language_names(
+    db: Session,
+    category_id: int,
+    language_names: list[tuple[str, str]],
+) -> None:
+    for language, name in language_names:
+        abbreviation = get_language_abbreviation_by_language(db, language)
+        if abbreviation is None:
+            abbreviation = create_language_abbreviation(db, language)
+
+
+        language_name = create_language_name(db, cast(int, abbreviation.id), name)
+        add_language_name_to_category(db, category_id, cast(int, language_name.id))
+
 
 def _get_category_names_schema(db: Session, category_id: int | None) -> list[RaplaLanguageNameSchema]:
     if category_id is None:
@@ -189,7 +219,7 @@ def delete_rapla_child_categories_by_parent_id(db: Session, parent_id: int) -> b
         return True
 
     for child in children:
-        _delete_all_language_names_from_category(db, cast( int, child.id ) )
+        delete_all_language_names_from_category(db, cast( int, child.id ) )
         delete_rapla_child_categories_by_parent_id(db, cast( int, child.id ) )
         _delete_rapla_category_by_id(db, cast( int, child.id ) )
 
@@ -211,7 +241,7 @@ def delete_rapla_child_categories_by_parent_uuid(db: Session, parent_uuid: str) 
         return True
 
     for child in children:
-        _delete_all_language_names_from_category(db, cast( int, child.id ) )
+        delete_all_language_names_from_category(db, cast( int, child.id ) )
         delete_rapla_child_categories_by_parent_uuid(db, cast( str, child.uuid ) )
         _delete_rapla_category_by_uuid(db, cast( str, child.uuid ) ) 
 
@@ -228,7 +258,7 @@ def delete_rapla_category_by_id(db: Session, category_id: int) -> bool:
     if category is None:
         return False
 
-    _delete_all_language_names_from_category(db, category_id)
+    delete_all_language_names_from_category(db, category_id)
     delete_rapla_child_categories_by_parent_id(db, category_id)
     db.delete(category)
     db.commit()
@@ -257,7 +287,7 @@ def delete_rapla_category_by_uuid(db: Session, uuid: str) -> bool:
     if category is None:
         return False
 
-    _delete_all_language_names_from_category(db, cast( int, category.id ) )
+    delete_all_language_names_from_category(db, cast( int, category.id ) )
     delete_rapla_child_categories_by_parent_uuid(db, uuid)
     db.delete(category)
     db.commit()

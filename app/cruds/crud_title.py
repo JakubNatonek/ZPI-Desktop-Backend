@@ -1,8 +1,27 @@
-from typing import List, Optional
+from typing import List, Optional, cast
 
 from sqlalchemy.orm import Session
 
 from app.models.model_title import TitleModel
+from app.cruds.rapla.crud_rapla_categories import create_rapla_category
+from app.cruds.rapla.crud_rapla_title_to_category import add_rapla_title_to_category
+
+
+def ensure_title_rapla_category(db: Session, title: TitleModel) -> None:
+    root_category = create_rapla_category(
+        db,
+        key="tytul",
+        language_names=[("en", "Tytuł")],
+    )
+
+    title_category = create_rapla_category(
+        db,
+        key=cast(str, title.name),
+        parent_id=cast(int, root_category.id),
+        language_names=[("en", cast(str,title.name))],
+    )
+
+    add_rapla_title_to_category(db, cast(int,title_category.id), cast(int,title.id))
 
 
 def get_title_by_id(db: Session, title_id: int) -> Optional[TitleModel]:
@@ -32,6 +51,7 @@ def create_title(db: Session, name: str) -> TitleModel:
     db.add(t)
     db.commit()
     db.refresh(t)
+    ensure_title_rapla_category(db, t)
     return t
 
 

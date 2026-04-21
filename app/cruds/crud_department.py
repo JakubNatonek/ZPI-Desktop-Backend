@@ -1,7 +1,30 @@
-from typing import Optional
+from typing import Optional, cast
 from sqlalchemy.orm import Session
 
 from app.models.model_department import Department
+from app.cruds.rapla.crud_rapla_categories import create_rapla_category
+from app.cruds.rapla.crud_rapla_department_for_category import create_department_category_mapping
+
+
+def ensure_department_rapla_category(db: Session, department: Department) -> None:
+    root_category = create_rapla_category(
+        db,
+        key="kod_budynku",
+        language_names=[("en", "Kod_budynku")],
+    )
+
+    rapla_category = create_rapla_category(
+        db,
+        key=cast(str, department.abbreviation),
+        parent_id=cast(int, root_category.id),
+        language_names=[("en", cast(str, department.abbreviation))],
+    )
+
+    create_department_category_mapping(
+        db,
+        cast(int, rapla_category.id),
+        cast(int, department.id),
+    )
 
 
 def get_all_departments(db: Session) -> list[Department]:
@@ -39,6 +62,7 @@ def create_department(db: Session, name: str, abbreviation: str) -> Department:
     db.add(department)
     db.commit()
     db.refresh(department)
+    ensure_department_rapla_category(db, department)
     return department
 
 

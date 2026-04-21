@@ -8,9 +8,6 @@ from app.cruds.crud_role import create_role
 class RolaEnum(str, PyEnum):
     ADMIN = "admin"
     WYKLADOWCA = "wykladowca"
-    CWICZENIA = "cwiczenia"
-    LABORATORIUM = "laboratorium"
-    SEMINARIUM = "seminarium"
     STUDENT = "student"
     RAPLA_EDITOR = "rapla_editor"
     INNE = "inne"
