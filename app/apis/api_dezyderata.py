@@ -6,19 +6,15 @@ from sqlalchemy.orm import Session
 from app.auth.current_user import get_current_user
 from app.core.database import get_db
 from app.cruds.crud_dezyderata import (
-    create_semestr,
     delete_dezyderata,
-    delete_semestr,
-    get_current_semestr,
     get_dezyderata_by_id,
     get_dezyderaty,
-    get_semestr_by_id,
-    get_semestry,
-    get_valid_day_ids,
     map_dezyderata_to_response,
     map_semestr_to_response,
     replace_dezyderata_for_week,
 )
+from app.cruds.crud_day import get_valid_day_ids
+from app.cruds.crud_semester import create_semestr, delete_semestr, get_current_semestr, get_semestr_by_id, get_semestry
 from app.cruds.crud_roles_for_user import get_roles_for_user
 from app.models.model_user import User
 from app.schemas.dezyderata import (

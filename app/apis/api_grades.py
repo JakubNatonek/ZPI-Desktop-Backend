@@ -13,9 +13,6 @@ router = APIRouter(prefix="/grades", tags=["grades"])
 
 LECTURER_ROLE_NAMES = {
     RolaEnum.WYKLADOWCA.value,
-    RolaEnum.CWICZENIA.value,
-    RolaEnum.LABORATORIUM.value,
-    RolaEnum.SEMINARIUM.value,
 }
 STUDENT_ROLE_NAMES = {RolaEnum.STUDENT.value}
 
