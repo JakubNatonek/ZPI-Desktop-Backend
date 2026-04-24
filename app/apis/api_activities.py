@@ -1,4 +1,4 @@
-from typing import List, cast
+from typing import Any, List, cast
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
@@ -20,14 +20,19 @@ from app.schemas.activity import ActivityCreate, ActivityResponse, ActivityUpdat
 
 router = APIRouter(prefix="/activities", tags=["activities"])
 
+ACTIVITY_NOT_FOUND = "Activity not found"
+
+
+def _to_activity_response(activity: Any) -> ActivityResponse:
+    return ActivityResponse(id=cast(int, activity.id), name=cast(str, activity.name))
+
 
 @router.get("/list", response_model=List[ActivityResponse], summary="Lista aktywnosci")
 def list_activities(
     db: Session = Depends(get_db),
     _: User = Depends(require_role("admin")),
 ) -> List[ActivityResponse]:
-    activities = get_all_activities(db)
-    return [ActivityResponse(id=cast(int, activity.id), name=cast(str, activity.name)) for activity in activities]
+    return [_to_activity_response(activity) for activity in get_all_activities(db)]
 
 
 @router.get("/{activity_id}", response_model=ActivityResponse, summary="Szczegoly aktywnosci")
@@ -38,9 +43,9 @@ def get_activity_entry(
 ) -> ActivityResponse:
     activity = get_activity_by_id(db, activity_id)
     if activity is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Activity not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ACTIVITY_NOT_FOUND)
 
-    return ActivityResponse(id=cast(int, activity.id), name=cast(str, activity.name))
+    return _to_activity_response(activity)
 
 
 @router.post("", response_model=ActivityResponse, status_code=status.HTTP_201_CREATED, summary="Dodaj aktywnosc")
@@ -59,7 +64,7 @@ def create_activity_entry(
     activity = create_activity(db, cleaned_name)
     db.commit()
     db.refresh(activity)
-    return ActivityResponse(id=cast(int, activity.id), name=cast(str, activity.name))
+    return _to_activity_response(activity)
 
 
 @router.put("/{activity_id}", response_model=ActivityResponse, summary="Edytuj aktywnosc")
@@ -75,9 +80,9 @@ def update_activity_entry(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
     if activity is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Activity not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ACTIVITY_NOT_FOUND)
 
-    return ActivityResponse(id=cast(int, activity.id), name=cast(str, activity.name))
+    return _to_activity_response(activity)
 
 
 @router.delete("/{activity_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Usun aktywnosc")
@@ -96,4 +101,4 @@ def delete_activity_entry(
         ) from exc
 
     if not deleted:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Activity not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ACTIVITY_NOT_FOUND)
