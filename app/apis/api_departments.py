@@ -1,4 +1,4 @@
-from typing import cast
+from typing import Any, cast
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -17,6 +17,16 @@ from app.schemas.department import DepartmentCreate, DepartmentResponse, Departm
 
 router = APIRouter(prefix="/departments", tags=["departments"])
 
+DEPARTMENT_NOT_FOUND = "Department not found"
+
+
+def _to_department_response(department: Any) -> DepartmentResponse:
+    return DepartmentResponse(
+        id=cast(int, department.id),
+        name=cast(str, department.name),
+        abbreviation=cast(str, department.abbreviation),
+    )
+
 @router.post(
     "",
     response_model=DepartmentResponse,
@@ -29,14 +39,14 @@ def create_department_entry(
     _: User = Depends(require_role("admin")),
 ) -> DepartmentResponse:
     try:
-        department = create_department(db = db, name = payload.name.strip(), abbreviation = payload.abbreviation.strip())
+        department = create_department(
+            db=db,
+            name=payload.name.strip(),
+            abbreviation=payload.abbreviation.strip(),
+        )
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-    return DepartmentResponse(
-            id = cast(int, department.id), 
-            name = cast(str, department.name), 
-            abbreviation = cast(str, department.abbreviation)
-        )
+    return _to_department_response(department)
 
 
 @router.get(
@@ -48,8 +58,7 @@ def list_departments(
     db: Session = Depends(get_db),
     _: User = Depends(require_role("admin")),
 ) -> list[DepartmentResponse]:
-    departments = get_all_departments(db)
-    return [DepartmentResponse(id = cast(int, department.id), name = cast(str, department.name), abbreviation = cast(str, department.abbreviation)) for department in departments]
+    return [_to_department_response(department) for department in get_all_departments(db)]
 
 
 @router.get(
@@ -64,13 +73,9 @@ def get_department_entry(
 ) -> DepartmentResponse:
     department = get_department_by_id(db, department_id)
     if department is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Department not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=DEPARTMENT_NOT_FOUND)
 
-    return DepartmentResponse(
-        id=cast(int, department.id),
-        name=cast(str, department.name),
-        abbreviation=cast(str, department.abbreviation),
-    )
+    return _to_department_response(department)
 
 
 @router.put(
@@ -95,13 +100,9 @@ def update_department_entry(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
     if department is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Department not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=DEPARTMENT_NOT_FOUND)
 
-    return DepartmentResponse(
-        id=cast(int, department.id),
-        name=cast(str, department.name),
-        abbreviation=cast(str, department.abbreviation),
-    )
+    return _to_department_response(department)
 
 
 @router.delete(
@@ -116,4 +117,4 @@ def delete_department_entry(
 ) -> None:
     deleted = delete_department(db, department_id)
     if not deleted:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Department not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=DEPARTMENT_NOT_FOUND)
