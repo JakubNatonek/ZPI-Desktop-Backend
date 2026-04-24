@@ -1,9 +1,10 @@
+from dataclasses import dataclass
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
-from app.auth.current_user import get_current_user
+from app.auth.current_user import get_current_user, user_has_role
 from app.core.database import get_db
 from app.cruds.crud_dezyderata import (
     delete_dezyderata,
@@ -15,9 +16,8 @@ from app.cruds.crud_dezyderata import (
 )
 from app.cruds.crud_day import get_valid_day_ids
 from app.cruds.crud_semester import create_semestr, delete_semestr, get_current_semestr, get_semestr_by_id, get_semestry
-from app.cruds.crud_roles_for_user import get_roles_for_user
-from app.cruds.crud_roles_for_user import get_roles_for_user
 from app.models.model_user import User
+from app.seed_data.seed_model.seed_roles import RolaEnum
 from app.schemas.dezyderata import (
     DezyderataCreate,
     DezyderataListResponse,
@@ -30,45 +30,31 @@ from app.schemas.dezyderata import (
 
 router = APIRouter(prefix="/dezyderaty", tags=["dezyderaty"])
 
-ADMIN_ROLE_IDS = {1}
-ADMIN_ROLE_NAMES = {"admin"}
-LECTURER_ROLE_IDS = {2}
-LECTURER_ROLE_NAMES = {"wykładowca", "wykladowca", "lecturer"}
+ADMIN_ROLE_NAMES = {RolaEnum.ADMIN.value}
+LECTURER_ROLE_NAMES = {RolaEnum.WYKLADOWCA.value}
 
 
-def _user_role_ids_and_names(db: Session, current_user: User) -> tuple[set[int], set[str]]:
-    roles = get_roles_for_user(db, current_user.user_id)
-    role_ids = {role.id for role in roles}
-    role_names = {role.name.strip().lower() for role in roles if role.name}
-    return role_ids, role_names
+@dataclass(frozen=True)
+class RoleAccessContext:
+    user: User
+    is_admin: bool
+    is_lecturer: bool
 
 
-def _user_has_admin_access(db: Session, current_user: User) -> bool:
-    role_ids, role_names = _user_role_ids_and_names(db, current_user)
-    return bool(role_ids.intersection(ADMIN_ROLE_IDS) or role_names.intersection(ADMIN_ROLE_NAMES))
-
-
-def _user_has_lecturer_access(db: Session, current_user: User) -> bool:
-    role_ids, role_names = _user_role_ids_and_names(db, current_user)
-    return bool(role_ids.intersection(LECTURER_ROLE_IDS) or role_names.intersection(LECTURER_ROLE_NAMES))
+def _resolve_role_access(
+    current_user: User = Depends(get_current_user),
+) -> RoleAccessContext:
+    is_admin = user_has_role(current_user, ADMIN_ROLE_NAMES)
+    is_lecturer = user_has_role(current_user, LECTURER_ROLE_NAMES)
+    return RoleAccessContext(user=current_user, is_admin=is_admin, is_lecturer=is_lecturer)
 
 
 def _require_lecturer_or_admin(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-) -> User:
-    if not (_user_has_admin_access(db, current_user) or _user_has_lecturer_access(db, current_user)):
+    access: RoleAccessContext = Depends(_resolve_role_access),
+) -> RoleAccessContext:
+    if not (access.is_admin or access.is_lecturer):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
-    return current_user
-
-# NOTE: Why this and note use: from app.dependencies.auth import require_admin  _: User = Depends(require_admin),
-def _require_admin(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-) -> User:
-    if not _user_has_admin_access(db, current_user):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
-    return current_user
+    return access
 
 
 # ----- Semestr endpoints -----
@@ -134,13 +120,11 @@ def list_dezyderaty(
     semestr_id: Optional[int] = Query(None, description="Filtruj po semestrze"),
     user_id: Optional[int] = Query(None, description="Filtruj po użytkowniku (tylko admin)"),
     db: Session = Depends(get_db),
-    current_user: User = Depends(_require_lecturer_or_admin),
+    access: RoleAccessContext = Depends(_require_lecturer_or_admin),
 ) -> DezyderataListResponse:
-    # Wykładowca widzi tylko swoje dezyderaty
-    if _user_has_lecturer_access(db, current_user):
-        effective_user_id = current_user.user_id
+    if access.is_lecturer and not access.is_admin:
+        effective_user_id = access.user.user_id
     else:
-        # Admin może filtrować po dowolnym użytkowniku
         effective_user_id = user_id
 
     dezyderaty = get_dezyderaty(db, user_id=effective_user_id, semestr_id=semestr_id)
@@ -165,14 +149,13 @@ def list_my_dezyderaty(
 def get_dezyderata(
     dezyderata_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(_require_lecturer_or_admin),
+    access: RoleAccessContext = Depends(_require_lecturer_or_admin),
 ) -> DezyderataResponse:
     dezyderata = get_dezyderata_by_id(db, dezyderata_id)
     if dezyderata is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dezyderata not found")
 
-    # NOTE: Static data to chenge
-    if _user_has_lecturer_access(db, current_user) and dezyderata.user_id != current_user.user_id:
+    if access.is_lecturer and not access.is_admin and dezyderata.user_id != access.user.user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
 
     return DezyderataResponse(**map_dezyderata_to_response(dezyderata))
@@ -182,7 +165,7 @@ def get_dezyderata(
 def create_or_update_dezyderata(
     payload: DezyderataCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(_require_lecturer_or_admin),
+    access: RoleAccessContext = Depends(_require_lecturer_or_admin),
 ) -> DezyderataListResponse:
     # Sprawdź czy semestr istnieje
     semestr = get_semestr_by_id(db, payload.semestr_id)
@@ -202,7 +185,7 @@ def create_or_update_dezyderata(
         if entry.to_hour < entry.from_hour:
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="to_hour cannot be earlier than from_hour")
 
-    created_items = replace_dezyderata_for_week(db, current_user.user_id, payload)
+    created_items = replace_dezyderata_for_week(db, access.user.user_id, payload)
     return DezyderataListResponse(
         items=[DezyderataResponse(**map_dezyderata_to_response(item)) for item in created_items]
     )
@@ -212,14 +195,13 @@ def create_or_update_dezyderata(
 def delete_dezyderata_entry(
     dezyderata_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(_require_lecturer_or_admin),
+    access: RoleAccessContext = Depends(_require_lecturer_or_admin),
 ) -> None:
     dezyderata = get_dezyderata_by_id(db, dezyderata_id)
     if dezyderata is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dezyderata not found")
 
-    # NOTE: Why ststic data here
-    if _user_has_lecturer_access(db, current_user) and dezyderata.user_id != current_user.user_id:
+    if access.is_lecturer and not access.is_admin and dezyderata.user_id != access.user.user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
 
     delete_dezyderata(db, dezyderata)
