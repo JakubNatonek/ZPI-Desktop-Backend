@@ -1,8 +1,10 @@
 import re
-from typing import Optional
+from typing import Optional, cast
 
 from sqlalchemy.orm import Session
 
+from app.cruds.rapla.crud_rapla_categories import create_rapla_category
+from app.cruds.rapla.crude_rapla_room_type_to_category import create_room_type_category_mapping
 from app.models.model_room_type import RoomType
 
 
@@ -35,6 +37,27 @@ def _build_room_type_abbreviation(room_type_name: str) -> str:
     return abbreviation[:10].upper() or "RT"
 
 
+def ensure_room_type_rapla_category(db: Session, room_type: RoomType) -> None:
+    root_category = create_rapla_category(
+        db,
+        key="typy_sal",
+        language_names=[("en", "Typy sal")],
+    )
+
+    category = create_rapla_category(
+        db,
+        key=room_type.abbreviation,
+        parent_id=root_category.id,
+        language_names=[("en", room_type.abbreviation)],
+    )
+
+    create_room_type_category_mapping(
+        db,
+        room_type_id=cast(int, room_type.id),
+        category_id=cast(int, category.id),
+    )
+
+
 def create_room_type(db: Session, room_type_name: str, abbreviation: str) -> RoomType:
     """Create a room type row and commit it immediately."""
     normalized_name = _normalize_room_type_name(room_type_name)
@@ -42,6 +65,7 @@ def create_room_type(db: Session, room_type_name: str, abbreviation: str) -> Roo
     db.add(room_type)
     db.commit()
     db.refresh(room_type)
+    ensure_room_type_rapla_category(db, room_type)
     return room_type
 
 
@@ -54,6 +78,7 @@ def get_or_create_room_type(
     normalized_name = _normalize_room_type_name(room_type_name)
     room_type = get_room_type_by_name(db, normalized_name)
     if room_type is not None:
+        ensure_room_type_rapla_category(db, room_type)
         return room_type
 
     room_type = RoomType(
@@ -63,6 +88,7 @@ def get_or_create_room_type(
     db.add(room_type)
     db.commit()
     db.refresh(room_type)
+    ensure_room_type_rapla_category(db, room_type)
     return room_type
 
 

@@ -6,6 +6,7 @@ from app.seed_data.rapla.seed_model.seed_rapla_users import seed_rapla_users
 from app.seed_data.rapla.seed_model.seed_rapla_user_groups import seed_rapla_user_groups
 from app.seed_data.rapla.seed_model.seed_define_nauczyciel_from_example import seed_define_nauczyciel
 from app.seed_data.rapla.seed_model.seed_define_dezyteraty_from_example import seed_define_dezyderata
+from app.seed_data.rapla.seed_model.seed_define_room_from_example import seed_define_room
 from app.seed_data.rapla.seed_model.seed_rapla_category_prents import seed_rapla_category_parent
 
 
@@ -17,7 +18,8 @@ def seed_rapla_all(db: Session, admin_id: int) -> None:
     seed_language_abbreviations(db)
     seed_rapla_user_groups(db)
     # top category for futer use
-    # seed_rapla_category_parent(db)
+    seed_rapla_category_parent(db)
+    seed_define_room(db, rapla_admin_uuid)
     seed_define_nauczyciel(db, rapla_admin_uuid)
     seed_define_dezyderata(db, rapla_admin_uuid)
 

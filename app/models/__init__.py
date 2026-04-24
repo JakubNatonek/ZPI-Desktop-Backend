@@ -71,6 +71,7 @@ from app.models.rapla.model_rapla_category import RaplaCategory
 from app.models.rapla.model_rapla_department_for_category import RaplaDepartmentForCategory
 from app.models.rapla.model_rapla_group_for_user import RaplaGroupForUser
 from app.models.rapla.model_rapla_language_name import RaplaLanguageName
+from app.models.rapla.model_rapla_room_type_to_category import RaplaRoomTypeToCategory
 from app.models.rapla.model_rapla_user_to_app_user import RaplaUserToAppUser
 from app.models.rapla.model_rapla_user import RaplaUser
 
@@ -106,6 +107,7 @@ __all__ = [
     "RaplaLanguageAbbreviations",
     "RaplaLanguageName",
     "RaplaLanguageNameForCategory",
+    "RaplaRoomTypeToCategory",
     "RaplaUser",
     "RaplaUserToAppUser",
 ]

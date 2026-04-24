@@ -19,3 +19,8 @@ def seed_rapla_category_parent(db: Session) -> None:
         key="tytul",
         language_names=[("en", "Tytuł")],
     )
+    create_rapla_category(
+        db,
+        key="typy_sal",
+        language_names=[("en", "Typy sal")],
+    )
