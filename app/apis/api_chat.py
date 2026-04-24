@@ -1,7 +1,8 @@
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
-from typing import List
+from typing import Any, List
 
 from app.auth.current_user import get_current_user
 from app.core.database import get_db
@@ -47,6 +48,24 @@ from app.services.chat_service import (
 )
 
 router = APIRouter(prefix="/api/chat", tags=["chat"])
+
+
+def _to_message_response(message: Any) -> MessageResponse:
+    return MessageResponse(
+        id=message.id,
+        conversation_id=message.conversation_id,
+        sender_id=message.sender_id,
+        encrypted_message=getattr(message, "ciphertext", None),
+        encrypted_aes_key=getattr(message, "wrapped_key", None),
+        content=message.content,
+        ciphertext=getattr(message, "ciphertext", None),
+        iv=getattr(message, "iv", None),
+        wrapped_key=getattr(message, "wrapped_key", None),
+        created_at=message.created_at.isoformat(),
+        delivered_at=message.delivered_at.isoformat() if message.delivered_at else None,
+        is_read=message.is_read,
+        read_at=message.read_at.isoformat() if message.read_at else None,
+    )
 
 
 def _get_message_or_404(db: Session, message_id: int, current_user: User):
@@ -115,7 +134,6 @@ def set_offline(
     current_user: User = Depends(get_current_user),
 ) -> UserPresenceResponse:
     """Mark the current user as offline and record current timestamp."""
-    from datetime import datetime, timezone
     user = get_user_or_raise(db, current_user.user_id)
     user.last_seen_at = datetime.now(timezone.utc)
     db.commit()
@@ -371,25 +389,8 @@ def get_conversation_messages(
     """Get messages for a conversation with pagination support. Current user must be a member."""
     ensure_conversation_member(db, conversation_id, current_user.user_id)
     messages = get_messages_for_conversation(db, conversation_id, before_id, limit)
-    
-    return [
-        MessageResponse(
-            id=m.id,
-            conversation_id=m.conversation_id,
-            sender_id=m.sender_id,
-            encrypted_message=getattr(m, "ciphertext", None),
-            encrypted_aes_key=getattr(m, "wrapped_key", None),
-            content=m.content,
-            ciphertext=getattr(m, "ciphertext", None),
-            iv=getattr(m, "iv", None),
-            wrapped_key=getattr(m, "wrapped_key", None),
-            created_at=m.created_at.isoformat(),
-            delivered_at=m.delivered_at.isoformat() if m.delivered_at else None,
-            is_read=m.is_read,
-            read_at=m.read_at.isoformat() if m.read_at else None,
-        )
-        for m in messages
-    ]
+
+    return [_to_message_response(message) for message in messages]
 
 
 @router.post(
@@ -409,21 +410,7 @@ def send_message(
     content = payload.content.strip()
     if not content:
         raise HTTPException(status_code=400, detail=ERROR_EMPTY_MESSAGE)
-    
+
     msg = save_message(db, conversation_id, current_user.user_id, content)
 
-    return MessageResponse(
-        id=msg.id,
-        conversation_id=msg.conversation_id,
-        sender_id=msg.sender_id,
-        encrypted_message=getattr(msg, "ciphertext", None),
-        encrypted_aes_key=getattr(msg, "wrapped_key", None),
-        content=msg.content,
-        ciphertext=getattr(msg, "ciphertext", None),
-        iv=getattr(msg, "iv", None),
-        wrapped_key=getattr(msg, "wrapped_key", None),
-        created_at=msg.created_at.isoformat(),
-        delivered_at=msg.delivered_at.isoformat() if msg.delivered_at else None,
-        is_read=msg.is_read,
-        read_at=msg.read_at.isoformat() if msg.read_at else None,
-    )
+    return _to_message_response(msg)
