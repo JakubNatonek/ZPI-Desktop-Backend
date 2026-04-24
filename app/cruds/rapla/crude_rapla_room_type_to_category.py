@@ -2,6 +2,7 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
+from app.models.rapla.model_rapla_category import RaplaCategory
 from app.models.rapla.model_rapla_room_type_to_category import RaplaRoomTypeToCategory
 
 
@@ -25,6 +26,19 @@ def get_room_type_category_mapping(
 			RaplaRoomTypeToCategory.category_id == category_id,
 		)
 		.first()
+	)
+
+
+def get_categories_for_room_type_id(
+	db: Session,
+	room_type_id: int,
+) -> list[RaplaCategory]:
+	return (
+		db.query(RaplaCategory)
+		.join(RaplaRoomTypeToCategory, RaplaCategory.id == RaplaRoomTypeToCategory.category_id)
+		.filter(RaplaRoomTypeToCategory.room_type_id == room_type_id)
+		.order_by(RaplaRoomTypeToCategory.id.asc())
+		.all()
 	)
 
 

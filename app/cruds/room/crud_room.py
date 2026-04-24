@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, cast
 
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -9,6 +9,8 @@ from fastapi import HTTPException, status
 from app.cruds.crud_activity import get_activities_by_ids
 from app.cruds.crud_department import get_departments_by_ids
 from app.cruds.crud_special_equipment import get_special_equipment_by_ids
+from app.cruds.rapla.crud_rapla_resourc import create_resourc
+from app.cruds.rapla.crud_rapla_room_to_resourc import create_room_to_resourc_mapping, get_resorsc_by_room_id
 from app.cruds.room.crud_room_type import get_room_type_by_id
 from app.models.model_room import Room
 from app.schemas.room import RoomCreate, RoomUpdate
@@ -77,6 +79,18 @@ def _resolve_room_type(db: Session, room_type_id: int):
     return room_type
 
 
+def _ensure_rapla_resource_mapping_for_room(db: Session, room: Room) -> None:
+    if room.id is None:
+        raise RuntimeError("Room must be persisted before creating Rapla mapping")
+
+    existing = get_resorsc_by_room_id(db, room.id)
+    if existing is not None:
+        return
+
+    resource = create_resourc(db)
+    create_room_to_resourc_mapping(db, room_id=room.id, rapla_resourc_id=resource.id)
+
+
 def get_rooms(db: Session) -> list[Room]:
     return db.query(Room).options(
         selectinload(Room.room_type),
@@ -117,6 +131,8 @@ def create_room(db: Session, payload: RoomCreate) -> Room:
     db.add(room)
     db.commit()
     db.refresh(room)
+
+    _ensure_rapla_resource_mapping_for_room(db, room)
     return room
 
 def update_room(db: Session, room: Room, payload: RoomUpdate) -> Room:
