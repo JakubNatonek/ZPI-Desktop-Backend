@@ -50,3 +50,9 @@ class SubjectGradeUpdateRequest(BaseModel):
     subject: str = Field(min_length=1)
     final_grade: str = Field(min_length=1)
     partial_grades: list[PartialGradeUpdateItem] = Field(default_factory=list)
+
+
+class SubjectGradeDeleteRequest(BaseModel):
+    student_id: int
+    semester: int = Field(ge=1, le=20)
+    subject: str = Field(min_length=1)

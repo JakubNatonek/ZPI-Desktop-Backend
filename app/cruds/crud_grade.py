@@ -223,3 +223,37 @@ def replace_subject_grades(
         )
 
     db.commit()
+
+
+def delete_subject_grades(
+    db: Session,
+    lecturer_id: int,
+    student_id: int,
+    semester: int,
+    subject_name: str,
+) -> int:
+    student = db.query(User).filter(User.user_id == student_id).first()
+    if student is None:
+        raise ValueError("Student does not exist")
+    if not _is_student_user(student):
+        raise ValueError("Selected user is not a student")
+
+    lecturer = db.query(User).filter(User.user_id == lecturer_id).first()
+    if lecturer is None:
+        raise ValueError("Lecturer does not exist")
+    if not _is_lecturer_user(lecturer):
+        raise ValueError("Current user is not a lecturer")
+
+    deleted_count = (
+        db.query(GradeRecord)
+        .filter(
+            GradeRecord.lecturer_id == lecturer_id,
+            GradeRecord.student_id == student_id,
+            GradeRecord.semester == semester,
+            GradeRecord.subject_name == subject_name,
+        )
+        .delete()
+    )
+
+    db.commit()
+    return int(deleted_count)

@@ -3,10 +3,10 @@ from sqlalchemy.orm import Session
 
 from app.auth.current_user import get_current_user, user_has_role
 from app.core.database import get_db
-from app.cruds.crud_grade import get_lecturer_semester_grades, get_student_semester_grades, replace_subject_grades
+from app.cruds.crud_grade import delete_subject_grades, get_lecturer_semester_grades, get_student_semester_grades, replace_subject_grades
 from app.models.model_user import User
 from app.seed_data.seed_model.seed_roles import RolaEnum
-from app.schemas.grade import LecturerSemesterGradesResponse, SemesterGradesResponse, SubjectGradeUpdateRequest
+from app.schemas.grade import LecturerSemesterGradesResponse, SemesterGradesResponse, SubjectGradeDeleteRequest, SubjectGradeUpdateRequest
 
 
 router = APIRouter(prefix="/grades", tags=["grades"])
@@ -100,3 +100,33 @@ def update_lecturer_subject_grades(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
     return {"message": "Grades updated"}
+
+
+@router.delete(
+    "/lecturer/subject",
+    response_model=dict[str, str],
+    summary="Usun komplet ocen dla wybranego przedmiotu i studenta",
+)
+def delete_lecturer_subject_grades(
+    payload: SubjectGradeDeleteRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> dict[str, str]:
+    if not _is_lecturer(current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only lecturers can delete grades")
+
+    try:
+        deleted_count = delete_subject_grades(
+            db=db,
+            lecturer_id=current_user.user_id,
+            student_id=payload.student_id,
+            semester=payload.semester,
+            subject_name=payload.subject.strip(),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+    if deleted_count == 0:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Grades not found")
+
+    return {"message": "Grades deleted"}
