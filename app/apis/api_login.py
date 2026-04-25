@@ -11,7 +11,6 @@ from app.auth.jwt_utils import (
     REFRESH_TOKEN_EXPIRE_DAYS,
     create_access_token,
     create_refresh_token,
-    decode_access_token,
     decode_refresh_token,
     refresh_expiry_datetime,
 )
@@ -34,8 +33,6 @@ from app.schemas.user import (
     AuthMeResponse,
     ChangePasswordRequest,
     ChangePasswordResponse,
-    CurrentUserResponse,
-    UserNameResponse,
     UserLogin,
 )
 
@@ -46,6 +43,7 @@ load_dotenv()
 REFRESH_COOKIE_NAME = os.getenv("REFRESH_COOKIE_NAME", "refresh_token")
 REFRESH_COOKIE_SECURE = os.getenv("REFRESH_COOKIE_SECURE", "false").lower() == "true"
 REFRESH_COOKIE_SAMESITE = os.getenv("REFRESH_COOKIE_SAMESITE", "lax")
+ACCESS_TOKEN_EXPIRE_SECONDS = ACCESS_TOKEN_EXPIRE_MINUTES * 60
 
 
 def _set_refresh_cookie(response: Response, refresh_token: str) -> None:
@@ -60,11 +58,39 @@ def _set_refresh_cookie(response: Response, refresh_token: str) -> None:
     )
 
 
+def _set_access_cookie(response: Response, access_token: str) -> None:
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=REFRESH_COOKIE_SECURE,
+        samesite=REFRESH_COOKIE_SAMESITE,
+        max_age=ACCESS_TOKEN_EXPIRE_SECONDS,
+        path="/",
+    )
+
+
+def _get_role_names(db: Session, user_id: int) -> list[str]:
+    return [role.name.strip().lower() for role in get_roles_for_user(db, user_id) if role.name]
+
+
+def _build_auth_response(user: User, access_token: str) -> AuthResponse:
+    return AuthResponse(
+        user_id=user.user_id,
+        login=user.login,
+        email=user.email,
+        access_token=access_token,
+        access_token_expires_in=ACCESS_TOKEN_EXPIRE_SECONDS,
+        must_change_password=user.must_change_password,
+    )
+
+
 def _resolve_primary_role(role_names: list[str]) -> str:
     normalized_roles = [role.strip().lower() for role in role_names if role and role.strip()]
+    normalized_roles_set = set(normalized_roles)
 
     for candidate in ("admin", "wykladowca", "lecturer", "planista", "planner", "student"):
-        if candidate in normalized_roles:
+        if candidate in normalized_roles_set:
             return candidate
 
     return normalized_roles[0] if normalized_roles else "admin"
@@ -79,7 +105,7 @@ def me(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> AuthMeResponse:
-    role_names = [role.name.strip().lower() for role in get_roles_for_user(db, current_user.user_id) if role.name]
+    role_names = _get_role_names(db, current_user.user_id)
     department_names = [department.name.strip() for department in get_departments_for_user(db, current_user.user_id) if department.name]
 
     return AuthMeResponse(
@@ -101,7 +127,7 @@ def login(payload: UserLogin, response: Response, db: Session = Depends(get_db))
     if user is None:
         raise HTTPException(status_code=401, detail="Invalid login or password")
 
-    role_names = [role.name.strip().lower() for role in get_roles_for_user(db, user.user_id) if role.name]
+    role_names = _get_role_names(db, user.user_id)
     access_token = create_access_token(user_id=user.user_id, roles=role_names)
     refresh_token, refresh_jti = create_refresh_token(user_id=user.user_id, roles=role_names)
     create_refresh_session(
@@ -111,25 +137,9 @@ def login(payload: UserLogin, response: Response, db: Session = Depends(get_db))
         expires_at=refresh_expiry_datetime(),
     )
     _set_refresh_cookie(response, refresh_token)
-    # Ustaw access_token jako cookie httponly
-    response.set_cookie(
-        key="access_token",
-        value=access_token,
-        httponly=True,
-        secure=REFRESH_COOKIE_SECURE,
-        samesite=REFRESH_COOKIE_SAMESITE,
-        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        path="/",
-    )
+    _set_access_cookie(response, access_token)
 
-    return AuthResponse(
-        user_id=user.user_id,
-        login=user.login,
-        email=user.email,
-        access_token=access_token,
-        access_token_expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        must_change_password=user.must_change_password,
-    )
+    return _build_auth_response(user, access_token)
 
 
 @router.post(
@@ -159,7 +169,7 @@ def refresh_tokens(request: Request, response: Response, db: Session = Depends(g
     if user is None:
         raise HTTPException(status_code=401, detail="User not found")
 
-    role_names = [role.name.strip().lower() for role in get_roles_for_user(db, user.user_id) if role.name]
+    role_names = _get_role_names(db, user.user_id)
     access_token = create_access_token(user_id=user.user_id, roles=role_names)
     new_refresh_token, new_refresh_jti = create_refresh_token(user_id=user.user_id, roles=role_names)
 
@@ -172,25 +182,9 @@ def refresh_tokens(request: Request, response: Response, db: Session = Depends(g
     )
 
     _set_refresh_cookie(response, new_refresh_token)
-    # Ustaw access_token jako cookie httponly
-    response.set_cookie(
-        key="access_token",
-        value=access_token,
-        httponly=True,
-        secure=REFRESH_COOKIE_SECURE,
-        samesite=REFRESH_COOKIE_SAMESITE,
-        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        path="/",
-    )
+    _set_access_cookie(response, access_token)
 
-    return AuthResponse(
-        user_id=user.user_id,
-        login=user.login,
-        email=user.email,
-        access_token=access_token,
-        access_token_expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        must_change_password=user.must_change_password,
-    )
+    return _build_auth_response(user, access_token)
 
 
 @router.post(
@@ -224,8 +218,8 @@ def logout(request: Request, response: Response, db: Session = Depends(get_db)) 
             # We still clear cookie even if token is malformed/expired.
             pass
 
-        response.delete_cookie(key=REFRESH_COOKIE_NAME, path="/")
-        response.delete_cookie(key="access_token", path="/")
+    response.delete_cookie(key=REFRESH_COOKIE_NAME, path="/")
+    response.delete_cookie(key="access_token", path="/")
     return {"message": "Logged out"}
 
 
