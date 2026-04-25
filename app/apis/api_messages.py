@@ -14,6 +14,10 @@ from app.models.model_user import User
 router = APIRouter()
 
 
+def _isoformat_or_none(value) -> str | None:
+    return value.isoformat() if value else None
+
+
 @router.get(
     "/messages",
     response_model=List[MessageResponse],
@@ -34,8 +38,15 @@ def get_messages_for_user(
     if current_user.user_id != user_id and not user_has_role(current_user, "admin"):
         raise HTTPException(status_code=403, detail="Brak dostępu do żądanych wiadomości")
 
-    conv_rows = db.query(ConversationMember.conversation_id).filter(ConversationMember.user_id == user_id).distinct().all()
-    conversation_ids = [r[0] for r in conv_rows]
+    conversation_ids = [
+        conversation_id
+        for (conversation_id,) in (
+            db.query(ConversationMember.conversation_id)
+            .filter(ConversationMember.user_id == user_id)
+            .distinct()
+            .all()
+        )
+    ]
 
     if not conversation_ids:
         return []
@@ -47,24 +58,21 @@ def get_messages_for_user(
         .all()
     )
 
-    result: List[MessageResponse] = []
-    for m in messages:
-        result.append(
-            MessageResponse(
-                id=m.id,
-                conversation_id=m.conversation_id,
-                sender_id=m.sender_id,
-                encrypted_message=getattr(m, "ciphertext", None),
-                encrypted_aes_key=getattr(m, "wrapped_key", None),
-                content=m.content,
-                ciphertext=getattr(m, "ciphertext", None),
-                iv=getattr(m, "iv", None),
-                wrapped_key=getattr(m, "wrapped_key", None),
-                created_at=m.created_at.isoformat(),
-                delivered_at=m.delivered_at.isoformat() if m.delivered_at else None,
-                is_read=m.is_read,
-                read_at=m.read_at.isoformat() if m.read_at else None,
-            )
+    return [
+        MessageResponse(
+            id=m.id,
+            conversation_id=m.conversation_id,
+            sender_id=m.sender_id,
+            encrypted_message=(ciphertext := getattr(m, "ciphertext", None)),
+            encrypted_aes_key=(wrapped_key := getattr(m, "wrapped_key", None)),
+            content=m.content,
+            ciphertext=ciphertext,
+            iv=getattr(m, "iv", None),
+            wrapped_key=wrapped_key,
+            created_at=m.created_at.isoformat(),
+            delivered_at=_isoformat_or_none(m.delivered_at),
+            is_read=m.is_read,
+            read_at=_isoformat_or_none(m.read_at),
         )
-
-    return result
+        for m in messages
+    ]
