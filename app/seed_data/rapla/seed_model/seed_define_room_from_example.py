@@ -55,7 +55,7 @@ def seed_define_room(db: Session, rapla_admin_uuid: str) -> None:
 
    # Annotations from the XML
    annotations = {
-      "nameformat": "{room_number}",
+      "nameformat": "{room_number} {room_type} {departments}",
       "classification-type": "resource",
       "colors": "rapla:automated",
    }

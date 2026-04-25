@@ -135,6 +135,39 @@ def create_room(db: Session, payload: RoomCreate) -> Room:
     _ensure_rapla_resource_mapping_for_room(db, room)
     return room
 
+
+def create_room_for_seed(
+    db: Session,
+    *,
+    room_id: int,
+    room_number: str,
+    seats_count: int,
+    room_type_id: int,
+    departments: list[int],
+    activities: list[int],
+    special_equipment: list[int],
+    description: Optional[str] = None,
+) -> Room:
+    _sync_room_id_sequence(db)
+
+    room = Room(
+        id=room_id,
+        number=room_number.strip(),
+        seats=seats_count,
+        description=description,
+        room_type=_resolve_room_type(db, room_type_id),
+    )
+    room.departments = _resolve_departments(db, departments)
+    room.activities = _resolve_activities(db, activities)
+    room.special_equipment = _resolve_special_equipment(db, special_equipment)
+
+    db.add(room)
+    db.commit()
+    db.refresh(room)
+
+    _ensure_rapla_resource_mapping_for_room(db, room)
+    return room
+
 def update_room(db: Session, room: Room, payload: RoomUpdate) -> Room:
     room_number = payload.room_number.strip()
     room.number = room_number
