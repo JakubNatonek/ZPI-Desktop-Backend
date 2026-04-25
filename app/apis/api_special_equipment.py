@@ -24,6 +24,19 @@ from app.schemas.special_equipment import (
 
 router = APIRouter(prefix="/special-equipment", tags=["special-equipment"])
 
+SPECIAL_EQUIPMENT_NOT_FOUND_DETAIL = "Special equipment not found"
+
+
+def _to_special_equipment_response(item) -> SpecialEquipmentResponse:
+    return SpecialEquipmentResponse(id=cast(int, item.id), name=cast(str, item.name))
+
+
+def _clean_and_validate_name(name: str) -> str:
+    cleaned_name = name.strip()
+    if not cleaned_name:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Special equipment name cannot be empty")
+    return cleaned_name
+
 
 @router.get("/list", response_model=List[SpecialEquipmentResponse], summary="Lista wyposazenia specjalnego")
 def list_special_equipment(
@@ -31,7 +44,7 @@ def list_special_equipment(
     _: User = Depends(require_role("admin")),
 ) -> List[SpecialEquipmentResponse]:
     items = get_all_special_equipment(db)
-    return [SpecialEquipmentResponse(id=cast(int, item.id), name=cast(str, item.name)) for item in items]
+    return [_to_special_equipment_response(item) for item in items]
 
 
 @router.get("/{special_equipment_id}", response_model=SpecialEquipmentResponse, summary="Szczegoly wyposazenia")
@@ -42,9 +55,9 @@ def get_special_equipment_entry(
 ) -> SpecialEquipmentResponse:
     item = get_special_equipment_by_id(db, special_equipment_id)
     if item is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Special equipment not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=SPECIAL_EQUIPMENT_NOT_FOUND_DETAIL)
 
-    return SpecialEquipmentResponse(id=cast(int, item.id), name=cast(str, item.name))
+    return _to_special_equipment_response(item)
 
 
 @router.post("", response_model=SpecialEquipmentResponse, status_code=status.HTTP_201_CREATED, summary="Dodaj wyposazenie")
@@ -53,9 +66,7 @@ def create_special_equipment_entry(
     db: Session = Depends(get_db),
     _: User = Depends(require_role("admin")),
 ) -> SpecialEquipmentResponse:
-    cleaned_name = payload.name.strip()
-    if not cleaned_name:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Special equipment name cannot be empty")
+    cleaned_name = _clean_and_validate_name(payload.name)
 
     if get_special_equipment_by_name(db, cleaned_name) is not None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Special equipment already exists")
@@ -63,7 +74,7 @@ def create_special_equipment_entry(
     item = create_special_equipment(db, cleaned_name)
     db.commit()
     db.refresh(item)
-    return SpecialEquipmentResponse(id=cast(int, item.id), name=cast(str, item.name))
+    return _to_special_equipment_response(item)
 
 
 @router.put("/{special_equipment_id}", response_model=SpecialEquipmentResponse, summary="Edytuj wyposazenie")
@@ -74,14 +85,14 @@ def update_special_equipment_entry(
     _: User = Depends(require_role("admin")),
 ) -> SpecialEquipmentResponse:
     try:
-        item = update_special_equipment(db, special_equipment_id, payload.name)
+        item = update_special_equipment(db, special_equipment_id, _clean_and_validate_name(payload.name))
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
     if item is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Special equipment not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=SPECIAL_EQUIPMENT_NOT_FOUND_DETAIL)
 
-    return SpecialEquipmentResponse(id=cast(int, item.id), name=cast(str, item.name))
+    return _to_special_equipment_response(item)
 
 
 @router.delete("/{special_equipment_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Usun wyposazenie")
@@ -100,4 +111,4 @@ def delete_special_equipment_entry(
         ) from exc
 
     if not deleted:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Special equipment not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=SPECIAL_EQUIPMENT_NOT_FOUND_DETAIL)
