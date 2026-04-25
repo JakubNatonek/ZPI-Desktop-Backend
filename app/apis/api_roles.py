@@ -12,6 +12,13 @@ from app.schemas.role import RoleCreate, RoleResponse
 router = APIRouter(prefix="/roles", tags=["roles"])
 
 
+def _to_role_response(role) -> RoleResponse:
+    return RoleResponse(
+        id=cast(int, role.id),
+        name=cast(str, role.name),
+    )
+
+
 @router.post(
     "",
     response_model=RoleResponse,
@@ -24,16 +31,14 @@ def create_role_entry(
     _: User = Depends(require_role("admin")),
 ) -> RoleResponse:
     try:
-        role = create_role(db, payload.name.strip())
+        role_name = payload.name.strip()
+        role = create_role(db, role_name)
     except ValueError as exc:
         raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, 
-                detail=str(exc)
-            ) from exc
-    return RoleResponse(
-            id = cast(int, role.id),
-            name = cast(str, role.name),
-        )
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        ) from exc
+    return _to_role_response(role)
 
 
 @router.get(
@@ -46,7 +51,7 @@ def list_roles(
     _: User = Depends(require_role("admin")),
 ) -> List[RoleResponse]:
     roles = get_roles(db)
-    return [RoleResponse(id = cast(int, role.id), name = cast(str, role.name),) for role in roles]
+    return [_to_role_response(role) for role in roles]
 
 
 @router.delete(
