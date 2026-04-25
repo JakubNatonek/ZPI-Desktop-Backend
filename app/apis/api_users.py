@@ -21,7 +21,6 @@ from app.cruds.crud_title_for_user import list_titles_for_user
 from app.cruds.crud_departments_for_user import get_departments_for_user
 from app.cruds.crud_roles_for_user import get_roles_for_user
 from app.dependencies.auth import require_role
-from app.models.model_department import Department
 from app.models.model_role import Role
 from app.models.model_user import User
 from app.schemas.user import (
@@ -40,6 +39,41 @@ from app.schemas.user import (
 )
 
 router = APIRouter(prefix="/users", tags=["users"])
+
+USER_NOT_FOUND_DETAIL = "User not found"
+USER_NOT_EXIST_DETAIL = "User does not exist."
+USER_EMAIL_EXISTS_DETAIL = "User with this email already exists"
+USER_LOGIN_EXISTS_DETAIL = "User with this login already exists"
+
+
+def _normalize_credential(value: str) -> str:
+    return str(value).strip().lower()
+
+
+def _get_user_or_404(db: Session, user_id: int, detail: str = USER_NOT_FOUND_DETAIL) -> User:
+    user = get_user_by_id(db, user_id)
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=detail)
+    return user
+
+
+def _build_admin_user_list_item(db: Session, user: User) -> AdminUserListResponse:
+    return AdminUserListResponse(
+        user_id=user.user_id,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        album_number=user.album_number,
+        login=user.login,
+        email=user.email,
+        titles=get_related_names_for_user(db, user.user_id, list_titles_for_user),
+        roles=get_related_names_for_user(db, user.user_id, get_roles_for_user),
+        departments=get_related_names_for_user(db, user.user_id, get_departments_for_user),
+        must_change_password=bool(user.must_change_password),
+    )
+
+
+def _build_user_name_response(user: User) -> UserNameResponse:
+    return UserNameResponse(user_id=user.user_id, first_name=user.first_name, last_name=user.last_name)
 
 
 def _status_for_user_validation_error(detail: str) -> int:
@@ -60,10 +94,10 @@ def create_user_as_admin(
     db: Session = Depends(get_db),
     admin: User = Depends(require_role("admin")),
 ) -> UserCreatedResponse:
-    normalized_email = str(payload.email).strip().lower() # NOTE: DON'T do this this is bad chyba
+    normalized_email = _normalize_credential(payload.email)
 
     if get_user_by_email(db, normalized_email) is not None:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User with this email already exists")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=USER_EMAIL_EXISTS_DETAIL)
 
     try:
         user = create_user_by_admin(
@@ -104,7 +138,7 @@ def list_users(
     _: User = Depends(get_current_user),
 ) -> List[UserNameResponse]:
     users = get_all_users(db)
-    return [UserNameResponse(user_id=user.user_id, first_name=user.first_name, last_name=user.last_name) for user in users]
+    return [_build_user_name_response(user) for user in users]
 
 
 @router.get(
@@ -128,13 +162,10 @@ def list_user_title_options(
 def get_user_name(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    _: User = Depends(get_current_user),
 ) -> UserNameResponse:
-    _ = current_user
-    user = get_user_by_id(db, user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User does not exist.")
-    return UserNameResponse(user_id=user.user_id, first_name=user.first_name, last_name=user.last_name)
+    user = _get_user_or_404(db, user_id, USER_NOT_EXIST_DETAIL)
+    return _build_user_name_response(user)
 
 # NOTE: Double user usage?
 @router.get(
@@ -145,12 +176,9 @@ def get_user_name(
 def get_user_public_key(
     user_id: int,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user),
+    _: User = Depends(get_current_user),
 ) -> PublicKeyResponse:
-    _ = current_user
-    user = get_user_by_id(db, user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User does not exist.")
+    user = _get_user_or_404(db, user_id, USER_NOT_EXIST_DETAIL)
     return PublicKeyResponse(user_id=user.user_id, public_key=getattr(user, "public_key", None))
 
 # NOTE: Double user usage?
@@ -167,10 +195,8 @@ def set_user_public_key(
 ) -> PublicKeyResponse:
     # only allow users to update their own public key
     if current_user.user_id != user_id:
-        raise HTTPException(status_code=403, detail="Cannot update public key for other user")
-    user = get_user_by_id(db, user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User does not exist.")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Cannot update public key for other user")
+    user = _get_user_or_404(db, user_id, USER_NOT_EXIST_DETAIL)
     user.public_key = payload.public_key
     db.add(user)
     db.commit()
@@ -188,21 +214,7 @@ def admin_list_users(
     _: User = Depends(require_role("admin")),
 ) -> List[AdminUserListResponse]:
     users = get_all_users(db)
-    return [
-        AdminUserListResponse(
-            user_id=user.user_id,
-            first_name=user.first_name,
-            last_name=user.last_name,
-            album_number=user.album_number,
-            login=user.login,
-            email=user.email,
-            titles=get_related_names_for_user(db, user.user_id, list_titles_for_user),
-            roles=get_related_names_for_user(db, user.user_id, get_roles_for_user),
-            departments=get_related_names_for_user(db, user.user_id, get_departments_for_user),
-            must_change_password=bool(user.must_change_password),
-        )
-        for user in users
-    ]
+    return [_build_admin_user_list_item(db, user) for user in users]
 
 
 @router.put(
@@ -216,22 +228,19 @@ def admin_update_user(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role("admin")),
 ) -> AdminUserListResponse:
-    user = get_user_by_id(db, user_id)
-    if user is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    user = _get_user_or_404(db, user_id)
 
-    normalized_login = payload.login.strip().lower() # NOTE: This is dangerus (lower())
-    normalized_email = str(payload.email).strip().lower() # NOTE: This is dangerus (lower())
+    normalized_login = _normalize_credential(payload.login)
+    normalized_email = _normalize_credential(payload.email)
 
     existing_login = get_user_by_login(db, normalized_login)
     if existing_login is not None and existing_login.user_id != user_id:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User with this login already exists")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=USER_LOGIN_EXISTS_DETAIL)
 
     existing_email = get_user_by_email(db, normalized_email)
     if existing_email is not None and existing_email.user_id != user_id:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User with this email already exists")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=USER_EMAIL_EXISTS_DETAIL)
 
-    # NOTE: What do you want to do here cos current_user is admin?
     admin_role = db.query(Role).filter(Role.name == "admin").first()
     if admin_role is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Admin role not found")
@@ -253,18 +262,7 @@ def admin_update_user(
     except ValueError as exc:
         raise HTTPException(status_code=_status_for_user_validation_error(str(exc)), detail=str(exc)) from exc
 
-    return AdminUserListResponse(
-        user_id=updated.user_id,
-        first_name=updated.first_name,
-        last_name=updated.last_name,
-        album_number=updated.album_number,
-        login=updated.login,
-        email=updated.email,
-        titles=get_related_names_for_user(db, updated.user_id, list_titles_for_user),
-        roles=get_related_names_for_user(db, updated.user_id, get_roles_for_user),
-        departments=get_related_names_for_user(db, updated.user_id, get_departments_for_user),
-        must_change_password=bool(updated.must_change_password),
-    )
+    return _build_admin_user_list_item(db, updated)
 
 
 @router.delete(
@@ -277,9 +275,7 @@ def admin_delete_user(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role("admin")),
 ) -> None:
-    user = get_user_by_id(db, user_id)
-    if user is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    user = _get_user_or_404(db, user_id)
 
     if current_user.user_id == user.user_id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You cannot delete your own account")
@@ -301,11 +297,7 @@ def admin_reset_password(
     db: Session = Depends(get_db),
     _: User = Depends(require_role("admin")),
 ) -> ChangePasswordResponse:
-    user = get_user_by_id(db, user_id)
-    if user is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    
-    # NOTE: Shouldn't here be maybe a check to not reset yours own password?
+    user = _get_user_or_404(db, user_id)
 
     set_user_password(db, user, payload.password)
     return ChangePasswordResponse(message="Password reset successfully")
@@ -318,9 +310,14 @@ def admin_reset_password(
 )
 def get_my_profile(current_user: User = Depends(get_current_user)) -> UserProfileResponse:
     role_names = get_user_role_names(current_user)
-    group_code = current_user.student_profile.group.code if current_user.student_profile and current_user.student_profile.group else None
+    student_profile = current_user.student_profile
+    teacher_profile = current_user.teacher_profile
+    department = current_user.department
+    group = student_profile.group if student_profile else None
+    group_code = group.code if group else None
+    is_student = "student" in role_names
 
-    if "student" in role_names:
+    if is_student:
         status = "Aktywny student"
     elif role_names.intersection({"wykladowca", "lecturer"}):
         status = "Pracownik dydaktyczny"
@@ -331,14 +328,14 @@ def get_my_profile(current_user: User = Depends(get_current_user)) -> UserProfil
 
     return UserProfileResponse(
         status=status,
-        album_number=current_user.student_profile.index_number if current_user.student_profile and current_user.student_profile.index_number else "Nie dotyczy",
-        year=str(current_user.student_profile.group.year) if current_user.student_profile and current_user.student_profile.group else "Nie dotyczy",
-        semester=str(current_user.student_profile.semester) if current_user.student_profile and current_user.student_profile.semester is not None else "Nie dotyczy",
-        major=current_user.department.name if current_user.department else "Nie dotyczy",
-        faculty=current_user.department.name if current_user.department else "Nie dotyczy",
-        study_track="Ogolnoakademicki" if "student" in role_names else "Nie dotyczy",
-        study_mode="Stacjonarne" if "student" in role_names else "Nie dotyczy",
-        title=current_user.teacher_profile.title if current_user.teacher_profile and current_user.teacher_profile.title else "Nie dotyczy",
+        album_number=student_profile.index_number if student_profile and student_profile.index_number else "Nie dotyczy",
+        year=str(group.year) if group else "Nie dotyczy",
+        semester=str(student_profile.semester) if student_profile and student_profile.semester is not None else "Nie dotyczy",
+        major=department.name if department else "Nie dotyczy",
+        faculty=department.name if department else "Nie dotyczy",
+        study_track="Ogolnoakademicki" if is_student else "Nie dotyczy",
+        study_mode="Stacjonarne" if is_student else "Nie dotyczy",
+        title=teacher_profile.title if teacher_profile and teacher_profile.title else "Nie dotyczy",
         groups=[group_code] if group_code else [],
     )
 
