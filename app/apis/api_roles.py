@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.cruds.crud_role import create_role, get_roles
+from app.cruds.crud_role import create_role, get_role_by_id, get_roles
 from app.dependencies.auth import require_role
 from app.models.model_user import User
 from app.schemas.role import RoleCreate, RoleResponse
@@ -47,3 +47,24 @@ def list_roles(
 ) -> List[RoleResponse]:
     roles = get_roles(db)
     return [RoleResponse(id = cast(int, role.id), name = cast(str, role.name),) for role in roles]
+
+
+@router.delete(
+    "/{role_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Usuń rolę",
+)
+def delete_role_entry(
+    role_id: int,
+    db: Session = Depends(get_db),
+    _: User = Depends(require_role("admin")),
+) -> None:
+    role = get_role_by_id(db, role_id)
+    if role is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Role not found",
+        )
+
+    db.delete(role)
+    db.commit()
