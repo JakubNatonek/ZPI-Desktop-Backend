@@ -20,6 +20,28 @@ from app.schemas.room_type import RoomTypeCreate, RoomTypeResponse, RoomTypeUpda
 
 router = APIRouter(prefix="/room-types", tags=["room-types"])
 
+ROOM_TYPE_NOT_FOUND_DETAIL = "Room type not found"
+
+
+def _to_room_type_response(room_type) -> RoomTypeResponse:
+    return RoomTypeResponse(
+        id=cast(int, room_type.id),
+        name=cast(str, room_type.type),
+        abbreviation=cast(str, room_type.abbreviation),
+    )
+
+
+def _clean_and_validate_room_type_payload(name: str, abbreviation: str) -> tuple[str, str]:
+    cleaned_name = name.strip()
+    cleaned_abbreviation = abbreviation.strip()
+
+    if not cleaned_name:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Room type name cannot be empty")
+    if not cleaned_abbreviation:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Room type abbreviation cannot be empty")
+
+    return cleaned_name, cleaned_abbreviation
+
 
 @router.get("/list", response_model=List[RoomTypeResponse], summary="Lista typow sal")
 def list_room_types(
@@ -27,14 +49,7 @@ def list_room_types(
     _: User = Depends(require_role("admin")),
 ) -> List[RoomTypeResponse]:
     room_types = get_all_room_types(db)
-    return [
-        RoomTypeResponse(
-            id=cast(int, room_type.id),
-            name=cast(str, room_type.type),
-            abbreviation=cast(str, room_type.abbreviation),
-        )
-        for room_type in room_types
-    ]
+    return [_to_room_type_response(room_type) for room_type in room_types]
 
 
 @router.get("/{room_type_id}", response_model=RoomTypeResponse, summary="Szczegoly typu sali")
@@ -45,13 +60,9 @@ def get_room_type_entry(
 ) -> RoomTypeResponse:
     room_type = get_room_type_by_id(db, room_type_id)
     if room_type is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room type not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ROOM_TYPE_NOT_FOUND_DETAIL)
 
-    return RoomTypeResponse(
-        id=cast(int, room_type.id),
-        name=cast(str, room_type.type),
-        abbreviation=cast(str, room_type.abbreviation),
-    )
+    return _to_room_type_response(room_type)
 
 
 @router.post("", response_model=RoomTypeResponse, status_code=status.HTTP_201_CREATED, summary="Dodaj typ sali")
@@ -60,23 +71,13 @@ def create_room_type_entry(
     db: Session = Depends(get_db),
     _: User = Depends(require_role("admin")),
 ) -> RoomTypeResponse:
-    cleaned_name = payload.name.strip()
-    cleaned_abbreviation = payload.abbreviation.strip()
-
-    if not cleaned_name:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Room type name cannot be empty")
-    if not cleaned_abbreviation:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Room type abbreviation cannot be empty")
+    cleaned_name, cleaned_abbreviation = _clean_and_validate_room_type_payload(payload.name, payload.abbreviation)
 
     if get_room_type_by_name(db, cleaned_name) is not None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Room type already exists")
 
     room_type = create_room_type(db, cleaned_name, cleaned_abbreviation)
-    return RoomTypeResponse(
-        id=cast(int, room_type.id),
-        name=cast(str, room_type.type),
-        abbreviation=cast(str, room_type.abbreviation),
-    )
+    return _to_room_type_response(room_type)
 
 
 @router.put("/{room_type_id}", response_model=RoomTypeResponse, summary="Edytuj typ sali")
@@ -86,13 +87,7 @@ def update_room_type_entry(
     db: Session = Depends(get_db),
     _: User = Depends(require_role("admin")),
 ) -> RoomTypeResponse:
-    cleaned_name = payload.name.strip()
-    cleaned_abbreviation = payload.abbreviation.strip()
-
-    if not cleaned_name:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Room type name cannot be empty")
-    if not cleaned_abbreviation:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Room type abbreviation cannot be empty")
+    cleaned_name, cleaned_abbreviation = _clean_and_validate_room_type_payload(payload.name, payload.abbreviation)
 
     existing = get_room_type_by_name(db, cleaned_name)
     if existing is not None and existing.id != room_type_id:
@@ -105,13 +100,9 @@ def update_room_type_entry(
         abbreviation=cleaned_abbreviation,
     )
     if room_type is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room type not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ROOM_TYPE_NOT_FOUND_DETAIL)
 
-    return RoomTypeResponse(
-        id=cast(int, room_type.id),
-        name=cast(str, room_type.type),
-        abbreviation=cast(str, room_type.abbreviation),
-    )
+    return _to_room_type_response(room_type)
 
 
 @router.delete("/{room_type_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Usun typ sali")
@@ -130,4 +121,4 @@ def delete_room_type_entry(
         ) from exc
 
     if not deleted:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room type not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ROOM_TYPE_NOT_FOUND_DETAIL)
