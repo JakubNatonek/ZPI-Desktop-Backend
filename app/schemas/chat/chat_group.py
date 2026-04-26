@@ -5,6 +5,15 @@ class CreateGroupRequest(BaseModel):
     name: str = Field(min_length=1, max_length=255)
     user_ids: List[int] = Field(default_factory=list)
 
+
+class CreateRoomRequest(BaseModel):
+    name: str = Field(min_length=1, max_length=255)
+    user_ids: List[int] = Field(default_factory=list)
+
+
+class AddRoomUsersRequest(BaseModel):
+    user_ids: List[int] = Field(min_length=1)
+
 class CreateGroupResponse(BaseModel):
     conversation_id: int
     name: str

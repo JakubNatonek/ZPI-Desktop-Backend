@@ -7,7 +7,12 @@ from typing import Any, List
 from app.auth.current_user import get_current_user
 from app.core.database import get_db
 from app.cruds.chat.crud_conversation import get_or_create_direct_conversation, get_conversations_for_user
-from app.cruds.chat.crud_group_conversation import create_group_conversation
+from app.cruds.chat.crud_group_conversation import (
+    add_users_to_group_conversation,
+    create_group_conversation,
+    get_group_conversation_by_id,
+    get_group_conversation_members,
+)
 from app.cruds.chat.crud_message import (
     get_message_for_user,
     get_messages_for_conversation,
@@ -25,7 +30,7 @@ from app.schemas.chat.chat import (
     TypingIndicatorResponse,
     UserPresenceResponse,
 )
-from app.schemas.chat.chat_group import CreateGroupRequest, CreateGroupResponse
+from app.schemas.chat.chat_group import AddRoomUsersRequest, CreateGroupRequest, CreateGroupResponse, CreateRoomRequest
 from app.schemas.chat.chat_send import SendMessageRequest
 from app.schemas.user import UserNameResponse
 from app.services.chat_service import (
@@ -48,6 +53,7 @@ from app.services.chat_service import (
 )
 
 router = APIRouter(prefix="/api/chat", tags=["chat"])
+ROOM_NOT_FOUND_DETAIL = "Pokój nie istnieje."
 
 
 def _to_message_response(message: Any) -> MessageResponse:
@@ -89,6 +95,23 @@ def _filter_users_by_query(query, search_term: str | None):
             User.first_name.ilike(pattern),
             User.last_name.ilike(pattern),
         )
+    )
+
+
+def _get_group_room_or_404(db: Session, room_id: int, current_user: User):
+    room = get_group_conversation_by_id(db, room_id)
+    if room is None:
+        raise HTTPException(status_code=404, detail=ROOM_NOT_FOUND_DETAIL)
+
+    ensure_conversation_member(db, room_id, current_user.user_id)
+    return room
+
+
+def _to_user_name_response(user: User) -> UserNameResponse:
+    return UserNameResponse(
+        user_id=user.user_id,
+        first_name=user.first_name,
+        last_name=user.last_name,
     )
 
 
@@ -343,6 +366,79 @@ def create_group(
         name=group_name,
         members=sorted_user_ids,
     )
+
+
+@router.post(
+    "/room",
+    response_model=CreateGroupResponse,
+    status_code=201,
+    summary="Utwórz pokój czatu",
+)
+def create_room(
+    payload: CreateRoomRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> CreateGroupResponse:
+    group_name = payload.name.strip()
+    if not group_name:
+        raise HTTPException(status_code=400, detail=ERROR_EMPTY_GROUP_NAME)
+
+    user_ids = {int(uid) for uid in payload.user_ids}
+    user_ids.add(current_user.user_id)
+
+    if len(user_ids) < MIN_GROUP_MEMBERS:
+        raise HTTPException(status_code=400, detail=ERROR_INSUFFICIENT_GROUP_MEMBERS)
+
+    _validate_group_members(db, user_ids)
+
+    sorted_user_ids = sorted(user_ids)
+    conv = create_group_conversation(db, group_name, sorted_user_ids)
+    return CreateGroupResponse(
+        conversation_id=conv.id,
+        name=group_name,
+        members=sorted_user_ids,
+    )
+
+
+@router.get(
+    "/room/{room_id}/users",
+    response_model=List[UserNameResponse],
+    summary="Pobierz listę użytkowników w pokoju",
+)
+def get_room_users(
+    room_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> List[UserNameResponse]:
+    _get_group_room_or_404(db, room_id, current_user)
+    users = get_group_conversation_members(db, room_id)
+    return [_to_user_name_response(user) for user in users]
+
+
+@router.post(
+    "/room/{room_id}/users",
+    response_model=List[UserNameResponse],
+    summary="Dodaj użytkowników do pokoju",
+)
+def add_room_users(
+    room_id: int,
+    payload: AddRoomUsersRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> List[UserNameResponse]:
+    _get_group_room_or_404(db, room_id, current_user)
+
+    user_ids = {int(uid) for uid in payload.user_ids}
+    if not user_ids:
+        raise HTTPException(status_code=400, detail=ERROR_INSUFFICIENT_GROUP_MEMBERS)
+
+    _validate_group_members(db, user_ids)
+    updated_room = add_users_to_group_conversation(db, room_id, sorted(user_ids))
+    if updated_room is None:
+        raise HTTPException(status_code=404, detail=ROOM_NOT_FOUND_DETAIL)
+
+    users = get_group_conversation_members(db, room_id)
+    return [_to_user_name_response(user) for user in users]
 
 @router.post(
     "/start-conversation/{user_id}",
