@@ -7,7 +7,9 @@ from jose import ExpiredSignatureError, JWTError
 
 from app.auth.jwt_utils import decode_access_token
 from app.core.database import SessionLocal
+from app.models.chat.model_conversation import Conversation
 from app.cruds.crud_user import get_user_by_id
+from app.cruds.crud_roles_for_user import get_roles_for_user
 from app.services.websocket_manager import chat_ws_manager
 
 
@@ -60,9 +62,18 @@ def _authenticate_ws_connection(environ: dict, auth: dict | None) -> int | None:
         return None
 
     user_id = payload.get("user_id")
-    role = payload.get("role")
-    if user_id is None or role is None:
-        print("[WS AUTH] Token payload missing user_id or role")
+    roles = payload.get("roles")
+    if user_id is None or roles is None:
+        print("[WS AUTH] Token payload missing user_id or roles")
+        return None
+
+    if isinstance(roles, str):
+        token_roles = {roles.lower()}
+    else:
+        token_roles = {str(role).lower() for role in roles if role is not None}
+
+    if not token_roles:
+        print("[WS AUTH] Token payload has no usable roles")
         return None
 
     # 4) Verify user exists in the database
@@ -73,10 +84,14 @@ def _authenticate_ws_connection(environ: dict, auth: dict | None) -> int | None:
             print(f"[WS AUTH] User {user_id} not found in database")
             return None
 
-        # Optional: verify role hasn't changed since token was issued
-        user_role_value = user.role.name if user.role else str(user.role)
-        if user_role_value != str(role):
-            print(f"[WS AUTH] Token role mismatch for user {user_id}")
+        current_roles = {
+            (role.name if hasattr(role, "name") else str(role)).lower()
+            for role in get_roles_for_user(db, int(user_id))
+        }
+        if not current_roles.intersection(token_roles):
+            print(
+                f"[WS AUTH] Token roles mismatch for user {user_id}: token={sorted(token_roles)}, db={sorted(current_roles)}"
+            )
             return None
     finally:
         db.close()
@@ -98,6 +113,14 @@ class ChatSocketEvents:
         the auth.token field. Rejects connections without a valid token.
         """
         user_id = _authenticate_ws_connection(environ, auth)
+        print(
+            "[CONNECT] auth payload",
+            {
+                "sid": sid,
+                "has_auth_token": bool(auth and auth.get("token")),
+                "auth_keys": list(auth.keys()) if isinstance(auth, dict) else [],
+            },
+        )
 
         if user_id is None:
             print(f"[CONNECT] Rejected unauthenticated connection (sid: {sid})")
@@ -105,6 +128,7 @@ class ChatSocketEvents:
 
         chat_ws_manager.connect(sid, user_id)
         print(f"[CONNECT] User {user_id} authenticated via JWT (sid: {sid})")
+        print(f"[CONNECT] Active rooms snapshot for user {user_id}: {list(chat_ws_manager.get_user_sids(user_id))}")
         return True
     
     async def on_disconnect(self, sid: str):
@@ -132,18 +156,56 @@ class ChatSocketEvents:
         """
         conversation_id = data.get("conversation_id")
         message_id = data.get("message_id")
-        
-        # Broadcast to everyone in the conversation room
-        await self.sio.emit(
-            "message_received",
+
+        db = SessionLocal()
+        try:
+            conversation = (
+                db.query(Conversation)
+                .filter(Conversation.id == conversation_id)
+                .first()
+            )
+            member_ids = [member.user_id for member in conversation.members] if conversation else []
+        finally:
+            db.close()
+
+        print(
+            "[MESSAGE_SENT] inbound",
             {
+                "sid": sid,
+                "conversation_id": conversation_id,
                 "message_id": message_id,
                 "sender_id": data.get("sender_id"),
-                "conversation_id": conversation_id,
-                "content": data.get("content"),
-                "created_at": data.get("created_at"),
+                "member_ids": member_ids,
+                "online_targets": {
+                    user_id: list(chat_ws_manager.get_user_sids(user_id))
+                    for user_id in member_ids
+                    if chat_ws_manager.is_user_online(user_id)
+                },
             },
-            room=f"conv_{conversation_id}",
+        )
+
+        payload = {
+            "message_id": message_id,
+            "sender_id": data.get("sender_id"),
+            "conversation_id": conversation_id,
+            "content": data.get("content"),
+            "created_at": data.get("created_at"),
+        }
+
+        delivered_sids: set[str] = set()
+        for user_id in member_ids:
+            for target_sid in chat_ws_manager.get_user_sids(user_id):
+                if target_sid in delivered_sids:
+                    continue
+                await self.sio.emit(
+                    "message_received",
+                    payload,
+                    to=target_sid,
+                )
+                delivered_sids.add(target_sid)
+
+        print(
+            f"[MESSAGE_SENT] emitted message_received to sids={sorted(delivered_sids)}",
         )
     
     async def on_typing(
@@ -261,6 +323,7 @@ class ChatSocketEvents:
         room_name = f"conv_{conversation_id}"
         await self.sio.enter_room(sid, room_name)
         print(f"[JOIN] User {user_id} joined room {room_name}")
+        print(f"[JOIN] Rooms for sid {sid}: {list(self.sio.rooms(sid))}")
         
         # Notify others that user is online in this conversation
         await self.sio.emit(
