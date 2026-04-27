@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 
 from app.core.database import SessionLocal
 from app.seed_data import seed_model
+from app.seed_data.seed_model.seed_field_of_study import seed_field_of_study
 
 
 from app.seed_data.rapla.seed_rapla_all import seed_rapla_all
@@ -33,6 +34,7 @@ def seed_all() -> None:
         seed_model.seed_thesis_proposals(db)
 
         seed_model.seed_subjects(db)
+        seed_field_of_study(db)
 
         # default availability preference for a test user
         seed_model.seed_dezyderata(db)

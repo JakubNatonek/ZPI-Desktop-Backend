@@ -47,6 +47,8 @@ from app.models.model_title_for_user import TitleForUser
 from app.models.model_teacher import Teacher
 from app.models.model_subject import Subject
 from app.models.model_subject_activity import SubjectActivity
+from app.models.model_field_of_study import FieldOfStudy
+from app.models.model_subject_for_field_of_study import SubjectForFieldOfStudy
 from app.models.model_announcement import Announcement, AnnouncementSeen
 from app.models.model_activity import Activity
 from app.models.model_special_equipment import SpecialEquipment
@@ -66,6 +68,7 @@ from app.models.model_day import Day
 
 # -- Rapla models ---------------------------------------------------------
 from app.models.rapla.model_rapla_language_abbreviations import RaplaLanguageAbbreviations
+from app.models.rapla.model_rapla_activity_to_category import RaplaActivityToCategory
 from app.models.rapla.model_rapla_language_name_for_category import RaplaLanguageNameForCategory
 from app.models.rapla.model_rapla_category import RaplaCategory
 from app.models.rapla.model_rapla_department_for_category import RaplaDepartmentForCategory
@@ -91,6 +94,8 @@ __all__ = [
     "Student",
     "Subject",
     "SubjectActivity",
+    "FieldOfStudy",
+    "SubjectForFieldOfStudy",
     "TitleForUser",
     "TitleModel",
     "Teacher",
@@ -103,6 +108,7 @@ __all__ = [
     "Group",
     "Message",
     # RAPLA Section
+    "RaplaActivityToCategory",
     "RaplaCategory",
     "RaplaDepartmentForCategory",
     "RaplaGroupForUser",
