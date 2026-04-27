@@ -63,6 +63,8 @@ from app.models.model_user import User
 from app.models.model_semestr import Semestr
 from app.models.model_dezyderata import Dezyderata
 from app.models.model_day import Day
+from app.models.model_unavailability_note import UnavailabilityNote, NoteType, NoteStatus
+from app.models.model_notification import Notification
 
 # -- Rapla models ---------------------------------------------------------
 from app.models.rapla.model_rapla_language_abbreviations import RaplaLanguageAbbreviations
@@ -102,6 +104,10 @@ __all__ = [
     "DepartmentsForUser",
     "Group",
     "Message",
+    "UnavailabilityNote",
+    "NoteType",
+    "NoteStatus",
+    "Notification",
     # RAPLA Section
     "RaplaCategory",
     "RaplaDepartmentForCategory",
