@@ -20,6 +20,7 @@ from app.apis.thesis.api_thesis import router as thesis_router
 from app.apis.thesis.api_admin_thesis import router as admin_thesis_router
 from app.apis.api_grades import router as grades_router
 from app.services.socket_events import create_socket_events
+from app.services.socket_broker import set_sio
 from app.apis.api_rooms import router as rooms_router
 from app.apis.api_room_types import router as room_types_router
 from app.apis.api_activities import router as activities_router
@@ -28,6 +29,8 @@ from app.apis.api_special_equipment import router as special_equipment_router
 from app.apis.rapla.api_rapla_file import router as rapla_file_router
 
 from app.apis.api_dezyderata import router as dezyderata_router
+from app.apis.api_unavailability_notes import router as unavailability_notes_router
+from app.apis.api_notifications import router as notifications_router
 
 # NOTE: Semi example data to use and maybe import to proper app.
 from app.seed_data.seed_all import seed_all
@@ -37,7 +40,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     init_database()
     # run_migrations() # NOTE: this should not be done evry time the server is run
 
-    seed_all() # NOTE: Works only for empty DB with correct tables
+    # seed_all() # NOTE: Works only for empty DB with correct tables
     yield
 
 
@@ -50,6 +53,9 @@ sio = socketio.AsyncServer(
     ping_timeout=60,
     ping_interval=25,
 )
+
+# Expose sio via broker for other modules to emit events
+set_sio(sio)
 
 # Create socket event handlers
 create_socket_events(sio)
@@ -96,6 +102,8 @@ app.include_router(dezyderata_router)
 app.include_router(thesis_router)
 app.include_router(admin_thesis_router)
 app.include_router(grades_router)
+app.include_router(unavailability_notes_router)
+app.include_router(notifications_router)
 
 
 

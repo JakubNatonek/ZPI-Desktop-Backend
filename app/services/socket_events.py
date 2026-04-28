@@ -60,7 +60,12 @@ def _authenticate_ws_connection(environ: dict, auth: dict | None) -> int | None:
         return None
 
     user_id = payload.get("user_id")
+    # Support both legacy `role` and newer `roles` list in token payload
     role = payload.get("role")
+    if role is None:
+        roles_list = payload.get("roles") or []
+        role = roles_list[0] if isinstance(roles_list, (list, tuple)) and roles_list else None
+
     if user_id is None or role is None:
         print("[WS AUTH] Token payload missing user_id or role")
         return None
