@@ -1,4 +1,5 @@
 from datetime import date
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -30,7 +31,7 @@ router = APIRouter(prefix="/unavailability-notes", tags=["unavailability-notes"]
     status_code=status.HTTP_201_CREATED,
     summary="Dodaj nową notatkę o niedostępności",
 )
-def create_note(
+async def create_note(
     payload: UnavailabilityNoteCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -40,7 +41,6 @@ def create_note(
     Automatycznie powiadamia adminów.
     Dostęp: zalogowany użytkownik (Wykładowca)
     """
-    # Walidacja: end_date nie może być przed start_date
     if payload.end_date and payload.end_date < payload.start_date:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -48,7 +48,7 @@ def create_note(
         )
 
     try:
-        note = create_unavailability_note(
+        note, created_notifications = create_unavailability_note(
             db=db,
             user_id=current_user.user_id,
             start_date=payload.start_date,

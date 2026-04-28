@@ -20,6 +20,7 @@ from app.apis.thesis.api_thesis import router as thesis_router
 from app.apis.thesis.api_admin_thesis import router as admin_thesis_router
 from app.apis.api_grades import router as grades_router
 from app.services.socket_events import create_socket_events
+from app.services.socket_broker import set_sio
 from app.apis.api_rooms import router as rooms_router
 from app.apis.api_room_types import router as room_types_router
 from app.apis.api_activities import router as activities_router
@@ -52,6 +53,9 @@ sio = socketio.AsyncServer(
     ping_timeout=60,
     ping_interval=25,
 )
+
+# Expose sio via broker for other modules to emit events
+set_sio(sio)
 
 # Create socket event handlers
 create_socket_events(sio)
