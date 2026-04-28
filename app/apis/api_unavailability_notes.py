@@ -41,6 +41,12 @@ async def create_note(
     Automatycznie powiadamia adminów.
     Dostęp: zalogowany użytkownik (Wykładowca)
     """
+    if payload.start_date < date.today():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Nie można zgłosić niedostępności z datą wsteczną",
+        )
+
     if payload.end_date and payload.end_date < payload.start_date:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

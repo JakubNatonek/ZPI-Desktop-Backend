@@ -95,20 +95,15 @@ def update_unavailability_note_status(
 ) -> UnavailabilityNote | None:
     """
     Zmienia status notatki.
-    Automatycznie tworzy powiadomienie dla autora notatki.
     """
     note = get_unavailability_note_by_id(db, note_id)
     if not note:
         return None
 
-    old_status = note.status
     note.status = NoteStatus(new_status)
     note.updated_at = datetime.now(timezone.utc)
     db.add(note)
     db.flush()
-
-    # Tworz powiadomienie dla autora notatki
-    _notify_user_about_status_change(db, note.user_id, old_status, new_status)
 
     db.commit()
     db.refresh(note)
@@ -165,7 +160,7 @@ def _notify_admins_about_new_note(db: Session, author: User, note: Unavailabilit
         len(admin_users),
     )
 
-    note_type_display = "prośbę o wolne" if note.note_type == NoteType.REQUEST else "nieobecność"
+    note_type_display = "Prośba o wolne" if note.note_type == NoteType.REQUEST else "Przymusowa niedostępność"
     start_date_str = note.start_date.strftime("%Y-%m-%d")
     end_date_str = f" do {note.end_date.strftime('%Y-%m-%d')}" if note.end_date else ""
 
@@ -249,7 +244,7 @@ def get_admin_users_for_notifications(db: Session, note_id: int | None = None) -
 
 def build_unavailability_note_notification_message(author: User, note: UnavailabilityNote) -> str:
     """Buduje spójną treść powiadomienia o nowej notatce."""
-    note_type_display = "prośbę o wolne" if note.note_type == NoteType.REQUEST else "nieobecność"
+    note_type_display = "Prośba o wolne" if note.note_type == NoteType.REQUEST else "Przymusowa niedostępność"
     start_date_str = note.start_date.strftime("%Y-%m-%d")
     end_date_str = f" do {note.end_date.strftime('%Y-%m-%d')}" if note.end_date else ""
 
@@ -257,30 +252,3 @@ def build_unavailability_note_notification_message(author: User, note: Unavailab
         f"Nowa notatka o niedostępności od {author.first_name} {author.last_name}. "
         f"Typ: {note_type_display}. Okres: {start_date_str}{end_date_str}."
     )
-
-
-def _notify_user_about_status_change(
-    db: Session,
-    user_id: int,
-    old_status: NoteStatus | str,
-    new_status: str,
-) -> None:
-    """
-    Tworzy powiadomienie dla autora notatki o zmianie statusu.
-    """
-    status_messages = {
-        "accepted": "zaakceptowana",
-        "rejected": "odrzucona",
-        "acknowledged": "zapoznano się",
-    }
-
-    status_display = status_messages.get(new_status, new_status)
-    message = f"Status Twojej notatki o niedostępności zmienił się na: {status_display}."
-
-    notification = Notification(
-        user_id=user_id,
-        message=message,
-        is_read=False,
-    )
-    db.add(notification)
-    db.flush()
