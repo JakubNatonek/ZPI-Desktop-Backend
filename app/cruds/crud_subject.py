@@ -5,6 +5,8 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session, selectinload
 
 from app.cruds.crud_activity import get_activity_by_id
+from app.cruds.rapla.crud_rapla_resourc import create_resourc
+from app.cruds.rapla.crud_rapla_subject_to_resourc import create_subject_to_resourc_mapping, get_resourc_by_subject_id
 from app.models.model_subject import Subject
 from app.models.model_subject_activity import SubjectActivity
 from app.schemas.subject import SubjectCreate, SubjectUpdate
@@ -146,6 +148,17 @@ def _prune_non_primary_links(db: Session, subject: Subject) -> None:
         .delete(synchronize_session=False)
     )
 
+def _ensure_rapla_resource_mapping_for_subject(db: Session, subject: Subject) -> None:
+    if subject.id is None:
+        raise RuntimeError("Subject must be persisted before creating Rapla mapping")
+
+    existing = get_resourc_by_subject_id(db, subject.id)
+    if existing is not None:
+        return
+
+    resource = create_resourc(db)
+    create_subject_to_resourc_mapping(db, subject_id=subject.id, rapla_resourc_id=resource.id)
+
 
 def create_subject(db: Session, payload: SubjectCreate) -> Subject:
     cleaned_name = _normalize_required_text(payload.name)
@@ -171,7 +184,7 @@ def create_subject(db: Session, payload: SubjectCreate) -> Subject:
 
     db.add(subject)
     db.commit()
-
+    _ensure_rapla_resource_mapping_for_subject(db, subject)
     loaded = _load_subject_with_relations(db, int(subject.id))
     return loaded if loaded is not None else subject
 
@@ -195,6 +208,7 @@ def update_subject(db: Session, subject: Subject, payload: SubjectUpdate) -> Sub
     db.add(subject)
     db.commit()
 
+    # _ensure_rapla_resource_mapping_for_subject(db, subject)
     loaded = _load_subject_with_relations(db, int(subject.id))
     return loaded if loaded is not None else subject
 

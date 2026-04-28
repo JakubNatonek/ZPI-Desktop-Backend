@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from app.cruds.crud_field_of_study import get_or_create_field_of_study
+from app.cruds.crud_field_of_study import create_field_of_study
 from app.cruds.crud_subject_for_field_of_study import add_subject_to_field_of_study
 from app.models.model_subject import Subject
 
@@ -16,7 +16,7 @@ FIELD_OF_STUDY_SEED = [
 		"name": "Informatyka Stosowana",
 		"abbrevation": "IS",
 		"year": 2,
-		"subject_ids": [1, 3, 5, 7, 9, 10, 11, 12],
+		"subject_ids": [9, 10, 11, 12],
 	},
 ]
 
@@ -26,7 +26,7 @@ def seed_field_of_study(db: Session) -> None:
 	ensured_mappings = 0
 
 	for entry in FIELD_OF_STUDY_SEED:
-		field_of_study = get_or_create_field_of_study(
+		field_of_study = create_field_of_study(
 			db,
 			name=entry["name"],
 			abbrevation=entry["abbrevation"],

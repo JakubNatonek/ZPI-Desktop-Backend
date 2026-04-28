@@ -2,6 +2,7 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
+from app.models.model_field_of_study import FieldOfStudy
 from app.models.model_subject import Subject
 from app.models.model_subject_for_field_of_study import SubjectForFieldOfStudy
 
@@ -46,4 +47,14 @@ def get_subjects_for_field_of_study(db: Session, field_of_study_id: int) -> list
 		.filter(SubjectForFieldOfStudy.field_of_study_id == field_of_study_id)
 		.order_by(Subject.name.asc(), Subject.id.asc())
 		.all()
+	)
+
+
+def get_primary_field_of_study_for_subject(db: Session, subject_id: int) -> FieldOfStudy | None:
+	return (
+		db.query(FieldOfStudy)
+		.join(SubjectForFieldOfStudy, FieldOfStudy.id == SubjectForFieldOfStudy.field_of_study_id)
+		.filter(SubjectForFieldOfStudy.subject_id == subject_id)
+		.order_by(SubjectForFieldOfStudy.id.asc())
+		.first()
 	)

@@ -76,6 +76,7 @@ from app.models.rapla.model_rapla_group_for_user import RaplaGroupForUser
 from app.models.rapla.model_rapla_language_name import RaplaLanguageName
 from app.models.rapla.model_rapla_resourc import ModelRaplaResourc
 from app.models.rapla.model_rapla_room_to_resourc import RaplaRoomToResourc
+from app.models.rapla.model_rapla_subject_to_resourc import RaplaSubjectToResourc
 from app.models.rapla.model_rapla_room_type_to_category import RaplaRoomTypeToCategory
 from app.models.rapla.model_rapla_user_to_app_user import RaplaUserToAppUser
 from app.models.rapla.model_rapla_user import RaplaUser
@@ -117,6 +118,7 @@ __all__ = [
     "RaplaLanguageNameForCategory",
     "ModelRaplaResourc",
     "RaplaRoomToResourc",
+    "RaplaSubjectToResourc",
     "RaplaRoomTypeToCategory",
     "RaplaUser",
     "RaplaUserToAppUser",

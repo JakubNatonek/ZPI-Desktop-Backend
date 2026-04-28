@@ -13,6 +13,7 @@ from app.schemas.rapla.schema_rapla_grammar import RaplaGrammar
 from app.schemas.rapla.schema_rapla_resources import SchemaRaplaResources
 from app.cruds.rapla.crud_rapla_app_user_to_resourc import all_app_user_to_resourc_schema
 from app.cruds.rapla.crud_rapla_room_to_resourc import all_room_to_resourc_schema
+from app.cruds.rapla.crud_rapla_subject_to_resourc import all_subject_to_resourc_schema
 from app.cruds.rapla.crud_rapla_semester_to_resourc import all_semester_to_resourc_schema
 from app.cruds.crud_dezyderata import dezyderaty_to_schema
 
@@ -39,6 +40,7 @@ def generate_rapla_file(
 	grammar = RaplaGrammar( get_define_element_full_schema(db) )
 	resources = SchemaRaplaResources( 
 		resources_nauczyciel = all_app_user_to_resourc_schema(db),
+		resources_przedmiot = all_subject_to_resourc_schema(db),
 		resources_semester = all_semester_to_resourc_schema(db),
 		resources_room = all_room_to_resourc_schema(db),
 	)

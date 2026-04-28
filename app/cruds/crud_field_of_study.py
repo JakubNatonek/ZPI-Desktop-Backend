@@ -13,16 +13,7 @@ def get_field_of_study_by_abbrevation(db: Session, abbrevation: str) -> Optional
     return db.query(FieldOfStudy).filter(FieldOfStudy.abbrevation == abbrevation).first()
 
 
-def get_or_create_field_of_study(db: Session, name: str, abbrevation: str, year: int) -> FieldOfStudy:
-    existing = get_field_of_study_by_abbrevation(db, abbrevation)
-    if existing is not None:
-        if existing.name != name or existing.year != year:
-            existing.name = name
-            existing.year = year
-            db.add(existing)
-            db.flush()
-        return existing
-
+def create_field_of_study(db: Session, name: str, abbrevation: str, year: int) -> FieldOfStudy:
     field_of_study = FieldOfStudy(
         name=name,
         abbrevation=abbrevation,
