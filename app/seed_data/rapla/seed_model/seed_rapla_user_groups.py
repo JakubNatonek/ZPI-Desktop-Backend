@@ -37,6 +37,8 @@ def seed_rapla_user_groups(db: Session) -> None:
         abbreviation = cast(str | None, getattr(department, "abbreviation", None))
         if not abbreviation:
             continue
+        if abbreviation.strip().upper() == "ADM":
+            continue
 
         group_key = f"{abbreviation}_Editor"
         create_rapla_category(

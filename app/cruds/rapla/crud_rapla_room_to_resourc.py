@@ -14,6 +14,19 @@ from app.cruds.rapla.crud_rapla_permission import get_permission_schema_by_model
 from app.cruds.rapla.rapla_format_datetime import format_rapla_datetime
 
 
+def _append_permission_if_missing(
+    permissions: list[RaplaPermissionSchema],
+    *,
+    access: str,
+    group: str | None = None,
+) -> None:
+    for permission in permissions:
+        if permission.access == access and permission.group == group:
+            return
+
+    permissions.append(RaplaPermissionSchema(group=group, access=access))
+
+
 def list_room_to_resourc_mappings(db: Session) -> list[RaplaRoomToResourc]:
     return db.query(RaplaRoomToResourc).order_by(RaplaRoomToResourc.id.asc()).all()
 
@@ -88,6 +101,21 @@ def room_to_resourc_schema(db: Session, room: Room) -> SchemaRaplaResourcRoom | 
         permission_schema = get_permission_schema_by_model(db, permission_model)
         if permission_schema is not None:
             permission_schemas.append(permission_schema)
+
+    _append_permission_if_missing(permission_schemas, access="read")
+    for department in room.departments:
+        abbreviation = cast(str | None, getattr(department, "abbreviation", None))
+        if not abbreviation:
+            continue
+        normalized_abbreviation = abbreviation.strip().upper()
+        if not normalized_abbreviation or normalized_abbreviation == "ADM":
+            continue
+
+        _append_permission_if_missing(
+            permission_schemas,
+            access="allocate_conflicts",
+            group=f"category[key='{normalized_abbreviation}_Editor']",
+        )
 
     department_keys: list[str] = []
     for department in room.departments:
