@@ -31,6 +31,7 @@ from app.apis.rapla.api_rapla_file import router as rapla_file_router
 from app.apis.api_dezyderata import router as dezyderata_router
 from app.apis.api_unavailability_notes import router as unavailability_notes_router
 from app.apis.api_notifications import router as notifications_router
+from app.apis.api_audit import router as audit_router
 
 # NOTE: Semi example data to use and maybe import to proper app.
 from app.seed_data.seed_all import seed_all
@@ -93,6 +94,7 @@ app.include_router(room_types_router)
 app.include_router(activities_router)
 app.include_router(subjects_router)
 app.include_router(special_equipment_router)
+app.include_router(audit_router)
 
 # NOTE: Not fully implemented
 app.include_router(rapla_file_router)

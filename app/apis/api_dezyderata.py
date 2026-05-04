@@ -16,7 +16,7 @@ from app.cruds.crud_dezyderata import (
 from app.cruds.crud_day import get_valid_day_ids
 from app.cruds.crud_semester import create_semestr, delete_semestr, get_current_semestr, get_semestr_by_id, get_semestry
 from app.cruds.crud_roles_for_user import get_roles_for_user
-from app.cruds.crud_roles_for_user import get_roles_for_user
+from app.cruds.crud_audit import log_change
 from app.models.model_user import User
 from app.schemas.dezyderata import (
     DezyderataCreate,
@@ -203,6 +203,17 @@ def create_or_update_dezyderata(
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="to_hour cannot be earlier than from_hour")
 
     created_items = replace_dezyderata_for_week(db, current_user.user_id, payload)
+    
+    log_change(
+        db=db,
+        entity_name="Dezyderata",
+        entity_id=payload.semestr_id,
+        action="UPDATE",
+        old_values=None,
+        new_values=[map_dezyderata_to_response(i) for i in created_items],
+        user_id=current_user.user_id
+    )
+    
     return DezyderataListResponse(
         items=[DezyderataResponse(**map_dezyderata_to_response(item)) for item in created_items]
     )
@@ -222,4 +233,15 @@ def delete_dezyderata_entry(
     if _user_has_lecturer_access(db, current_user) and dezyderata.user_id != current_user.user_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
 
+    old_values = map_dezyderata_to_response(dezyderata)
     delete_dezyderata(db, dezyderata)
+
+    log_change(
+        db=db,
+        entity_name="Dezyderata",
+        entity_id=dezyderata_id,
+        action="DELETE",
+        old_values=old_values,
+        new_values=None,
+        user_id=current_user.user_id
+    )

@@ -17,6 +17,7 @@ class User(Base):
     password_hash = Column(String, nullable=False)
     must_change_password = Column(Boolean, nullable=False, default=False)
     last_seen_at = Column(DateTime(timezone=True), nullable=True)
+    last_changes_viewed_at = Column(DateTime(timezone=True), nullable=True)
 
     roles_for_user = relationship(
         "RolesForUser",
