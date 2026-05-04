@@ -12,6 +12,7 @@ from app.cruds.rapla.crud_rapla_activity_to_category import get_categories_for_a
 from app.cruds.rapla.crud_rapla_permission_for_resourc import get_permission_by_resourc_id
 from app.cruds.rapla.crud_rapla_permission import get_permission_schema_by_model
 from app.cruds.rapla.rapla_format_datetime import format_rapla_datetime
+from app.cruds.crud_department_for_field_of_study import get_departments_for_field_of_study
 from app.cruds.crud_subject_for_field_of_study import get_primary_field_of_study_for_subject
 
 

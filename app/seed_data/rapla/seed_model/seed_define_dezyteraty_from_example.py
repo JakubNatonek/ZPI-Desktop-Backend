@@ -131,10 +131,11 @@ def seed_define_dezyderata(db: Session, rapla_admin_uuid: str) -> None:
    except Exception:
       pass
 
-   p3 = create_permission(db, access="create", group="category[key='create-events']")
-   try:
-      add_permission_to_define_element(db, cast(int, define.id), cast(int, p3.id))
-   except Exception:
-      pass
+   #This allows to create for all users
+   # p3 = create_permission(db, access="create", group="category[key='create-events']")
+   # try:
+   #    add_permission_to_define_element(db, cast(int, define.id), cast(int, p3.id))
+   # except Exception:
+   #    pass
 
    print(f"Seeded define element: {name} (id={define.id})")

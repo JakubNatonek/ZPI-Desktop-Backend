@@ -48,6 +48,7 @@ from app.models.model_teacher import Teacher
 from app.models.model_subject import Subject
 from app.models.model_subject_activity import SubjectActivity
 from app.models.model_field_of_study import FieldOfStudy
+from app.models.model_department_for_field_of_study import DepartmentForFieldOfStudy
 from app.models.model_subject_for_field_of_study import SubjectForFieldOfStudy
 from app.models.model_announcement import Announcement, AnnouncementSeen
 from app.models.model_activity import Activity
@@ -98,6 +99,7 @@ __all__ = [
     "Subject",
     "SubjectActivity",
     "FieldOfStudy",
+    "DepartmentForFieldOfStudy",
     "SubjectForFieldOfStudy",
     "TitleForUser",
     "TitleModel",

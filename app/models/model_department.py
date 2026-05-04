@@ -14,3 +14,9 @@ class Department(Base):
     abbreviation = Column(String, unique=True, nullable=False)
 
     rooms = relationship("Room", secondary=room_departments, back_populates="departments")
+
+    field_of_study_links = relationship(
+        "DepartmentForFieldOfStudy",
+        back_populates="department",
+        cascade="all, delete-orphan",
+    )

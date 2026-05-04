@@ -84,4 +84,4 @@ def get_rapla_user_groups_schema(db: Session, rapla_user_id: int) -> List[RaplaG
 	keys = get_rapla_group_keys_by_user_id(db, rapla_user_id)
 	if not keys:
 		return []
-	return [RaplaGroupForUserSchema(key=k) for k in keys]
+	return [RaplaGroupForUserSchema(key=f"category[key='{k}']") for k in keys]

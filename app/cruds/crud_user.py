@@ -33,7 +33,11 @@ from app.cruds.rapla.crud_rapla_resourc import create_resourc
 from app.cruds.rapla.crud_rapla_app_user_to_resourc import create_app_user_to_resourc_mapping
 from app.cruds.rapla.crud_rapla_user_to_app_user import create_rapla_user_mapping, get_rapla_user_by_app_user_id
 
-from app.cruds.rapla.crud_rapla_permission import get_permission_by_access, create_permission
+from app.cruds.rapla.crud_rapla_permission import (
+    get_permission_by_access,
+    get_permission_by_access_and_group,
+    create_permission,
+)
 from app.cruds.rapla.crud_rapla_permission_for_resourc import create_permission_for_resourc
 
 
@@ -191,6 +195,30 @@ def _ensure_permission_for_resource(db: Session, res: ModelRaplaResourc):
         print(f"Failed to assign permission to rapla_resourc id={res.id}: {e}")
     return perm
 
+
+def _ensure_department_permissions_for_resource(
+    db: Session,
+    res: ModelRaplaResourc | None,
+    departments: list[Department],
+) -> None:
+    if res is None or res.id is None:
+        return
+
+    for department in departments:
+        abbreviation = cast(str | None, getattr(department, "abbreviation", None))
+        if not abbreviation:
+            continue
+
+        group = f"category[key='{abbreviation}_Editor']"
+        perm = get_permission_by_access_and_group(db, "allocate_conflicts", group)
+        if perm is None:
+            perm = create_permission(db, access="allocate_conflicts", group=group)
+
+        try:
+            create_permission_for_resourc(db, cast(int, res.id), cast(int, perm.id))
+        except Exception:
+            continue
+
 def create_user_by_admin(
     db: Session,
     first_name: str,
@@ -263,6 +291,7 @@ def create_user_by_admin(
         rapla_user = get_rapla_user_by_app_user_id(db, admin.user_id) if admin is not None else None
         res = _ensure_rapla_resource_for_user(db=db, user=user, rapla_user=rapla_user)
         _ensure_permission_for_resource(db=db, res=res)
+        _ensure_department_permissions_for_resource(db=db, res=res, departments=departments)
 
     # NOTE/TODO: Not implementet should send from frontend 
     # create_rapla_user_mapping(db=db, app_user_id=user.user_id, rapla_user_id=)

@@ -17,4 +17,10 @@ class FieldOfStudy(Base):
         back_populates="field_of_study",
         cascade="all, delete-orphan",
     )
+
+    department_links = relationship(
+        "DepartmentForFieldOfStudy",
+        back_populates="field_of_study",
+        cascade="all, delete-orphan",
+    )
     

@@ -11,7 +11,7 @@ class SchemaRaplaApointment:
     start_time: str
     end_date: str
     end_time: str
-    repeating: SchemaRaplaRepeating
+    repeating: SchemaRaplaRepeating | None = None
 
     def to_xml(self, parent: ET.Element) -> ET.Element:
         appointment = ET.SubElement(
@@ -26,7 +26,8 @@ class SchemaRaplaApointment:
             },
         )
         
-        self.repeating.to_xml(appointment)
+        if self.repeating is not None:
+            self.repeating.to_xml(appointment)
 
         return appointment
-	
+
