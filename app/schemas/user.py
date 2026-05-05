@@ -105,6 +105,17 @@ class AuthMeResponse(BaseModel):
     email: EmailStr
     role: str
     dzial: str
+    first_name: str
+    last_name: str
+    avatar: Optional[str] = None
+
+
+class AvatarUpdateRequest(BaseModel):
+    avatar: Optional[str] = None
+
+
+class AvatarResponse(BaseModel):
+    avatar: Optional[str] = None
 
 
 class CurrentUserResponse(BaseModel):

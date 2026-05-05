@@ -29,6 +29,8 @@ from app.schemas.user import (
     AdminUserCreate,
     AdminUserListResponse,
     AdminUserUpdate,
+    AvatarResponse,
+    AvatarUpdateRequest,
     ChangePasswordResponse,
     PublicKeyResponse,
     PublicKeyUpdate,
@@ -362,4 +364,35 @@ def me(
         departments=department_names,
     )
 
+
+@router.put(
+    "/me/avatar",
+    response_model=AvatarResponse,
+    summary="Aktualizuj zdjęcie profilowe zalogowanego użytkownika",
+)
+def update_my_avatar(
+    payload: AvatarUpdateRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> AvatarResponse:
+    current_user.avatar = payload.avatar
+    db.commit()
+    db.refresh(current_user)
+    return AvatarResponse(avatar=current_user.avatar)
+
+
+@router.get(
+    "/{user_id}/avatar",
+    response_model=AvatarResponse,
+    summary="Pobierz zdjęcie profilowe użytkownika",
+)
+def get_user_avatar(
+    user_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> AvatarResponse:
+    user = get_user_by_id(db, user_id)
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Użytkownik nie istnieje")
+    return AvatarResponse(avatar=user.avatar)
 

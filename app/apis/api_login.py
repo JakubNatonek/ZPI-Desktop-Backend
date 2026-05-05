@@ -88,6 +88,9 @@ def me(
         email=current_user.email,
         role=_resolve_primary_role(role_names),
         dzial=department_names[0] if department_names else "",
+        first_name=current_user.first_name or "",
+        last_name=current_user.last_name or "",
+        avatar=current_user.avatar,
     )
 
 

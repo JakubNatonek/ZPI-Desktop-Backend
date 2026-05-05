@@ -14,6 +14,7 @@ class User(Base):
     login = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     public_key = Column(Text, nullable=True)
+    avatar = Column(Text, nullable=True)
     password_hash = Column(String, nullable=False)
     must_change_password = Column(Boolean, nullable=False, default=False)
     last_seen_at = Column(DateTime(timezone=True), nullable=True)
