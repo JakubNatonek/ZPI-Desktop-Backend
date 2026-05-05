@@ -41,11 +41,13 @@ def get_subject_entry(
     return SubjectResponse(**map_subject_to_response(subject))
 
 
+from app.cruds.crud_audit import log_change
+
 @router.post("", response_model=SubjectResponse, status_code=status.HTTP_201_CREATED, summary="Utwórz przedmiot")
 def create_subject_entry(
     payload: SubjectCreate,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    current_user: User = Depends(require_role("admin")),
 ) -> SubjectResponse:
     if not payload.name.strip():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Subject name cannot be empty")
@@ -59,6 +61,17 @@ def create_subject_entry(
 
     try:
         created = create_subject(db, payload)
+        
+        # log change
+        log_change(
+            db=db,
+            entity_name="Subject",
+            entity_id=created.id,
+            action="CREATE",
+            old_values=None,
+            new_values=map_subject_to_response(created),
+            user_id=current_user.user_id
+        )
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
@@ -70,11 +83,13 @@ def update_subject_entry(
     subject_id: int,
     payload: SubjectUpdate,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    current_user: User = Depends(require_role("admin")),
 ) -> SubjectResponse:
     subject = get_subject_by_id(db, subject_id)
     if subject is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Subject not found")
+
+    old_values = map_subject_to_response(subject)
 
     existing = get_subject_by_name_and_activity(db, payload.name, payload.activity_id)
     if existing is not None and existing.id != subject_id:
@@ -85,6 +100,17 @@ def update_subject_entry(
 
     try:
         updated = update_subject(db, subject, payload)
+        
+        # log change
+        log_change(
+            db=db,
+            entity_name="Subject",
+            entity_id=updated.id,
+            action="UPDATE",
+            old_values=old_values,
+            new_values=map_subject_to_response(updated),
+            user_id=current_user.user_id
+        )
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
@@ -95,10 +121,21 @@ def update_subject_entry(
 def delete_subject_entry(
     subject_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    current_user: User = Depends(require_role("admin")),
 ) -> None:
     subject = get_subject_by_id(db, subject_id)
     if subject is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Subject not found")
 
+    old_values = map_subject_to_response(subject)
     delete_subject(db, subject)
+
+    log_change(
+        db=db,
+        entity_name="Subject",
+        entity_id=subject_id,
+        action="DELETE",
+        old_values=old_values,
+        new_values=None,
+        user_id=current_user.user_id
+    )

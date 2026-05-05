@@ -25,6 +25,8 @@ from app.schemas.unavailability_note import (
 router = APIRouter(prefix="/unavailability-notes", tags=["unavailability-notes"])
 
 
+from app.cruds.crud_audit import log_change
+
 @router.post(
     "",
     response_model=UnavailabilityNoteResponse,
@@ -62,12 +64,22 @@ async def create_note(
             description=payload.description,
             note_type=payload.note_type,
         )
-        return UnavailabilityNoteResponse.model_validate(note)
-    except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e),
+        
+        response_model = UnavailabilityNoteResponse.model_validate(note)
+        
+        log_change(
+            db=db,
+            entity_name="UnavailabilityNote",
+            entity_id=note.id,
+            action="CREATE",
+            old_values=None,
+            new_values=response_model.model_dump(mode='json'),
+            user_id=current_user.user_id
         )
+
+        return response_model
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 
 @router.get(
@@ -169,6 +181,14 @@ def update_note_status(
             detail="Brak dostępu. Wymagana rola: Admin",
         )
 
+    note_old = get_unavailability_note_by_id(db, note_id)
+    if not note_old:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Notatka o ID {note_id} nie znaleziona",
+        )
+    old_values = UnavailabilityNoteResponse.model_validate(note_old).model_dump(mode='json')
+
     note = update_unavailability_note_status(db, note_id, payload.status)
     if not note:
         raise HTTPException(
@@ -176,7 +196,19 @@ def update_note_status(
             detail=f"Notatka o ID {note_id} nie znaleziona",
         )
 
-    return UnavailabilityNoteResponse.model_validate(note)
+    response_model = UnavailabilityNoteResponse.model_validate(note)
+
+    log_change(
+        db=db,
+        entity_name="UnavailabilityNote",
+        entity_id=note.id,
+        action="UPDATE",
+        old_values=old_values,
+        new_values=response_model.model_dump(mode='json'),
+        user_id=current_user.user_id
+    )
+
+    return response_model
 
 
 @router.get(

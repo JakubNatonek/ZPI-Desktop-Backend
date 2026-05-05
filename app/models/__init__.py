@@ -69,6 +69,7 @@ from app.models.model_day import Day
 from app.models.model_lessons import Lesson
 from app.models.model_unavailability_note import UnavailabilityNote, NoteType, NoteStatus
 from app.models.model_notification import Notification
+from app.models.model_audit_log import AuditLog
 
 # -- Rapla models ---------------------------------------------------------
 from app.models.rapla.model_rapla_language_abbreviations import RaplaLanguageAbbreviations
@@ -116,6 +117,7 @@ __all__ = [
     "UnavailabilityNote",
     "NoteType",
     "NoteStatus",
+    "AuditLog",
     "Notification",
     "Lesson",
     # RAPLA Section
