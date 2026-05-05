@@ -185,12 +185,12 @@ def _ensure_rapla_resource_for_user(db: Session, user: User, rapla_user: RaplaUs
 
 # NOTE: Maybe move to helpers or somthing
 def _ensure_permission_for_resource(db: Session, res: ModelRaplaResourc):
-    perm = get_permission_by_access(db, access="allocate_conflicts")
+    perm = get_permission_by_access(db, access="read_no_allocation")
     if perm is None:
-        perm = create_permission(db, access="allocate_conflicts")
+        perm = create_permission(db, access="read_no_allocation")
     try:
         create_permission_for_resourc(db, cast(int, res.id), cast(int, perm.id))
-        print(f"Assigned permission allocate_conflicts to rapla_resourc id={res.id}")
+        print(f"Assigned permission read_no_allocation to rapla_resourc id={res.id}")
     except Exception as e:
         print(f"Failed to assign permission to rapla_resourc id={res.id}: {e}")
     return perm
@@ -290,7 +290,7 @@ def create_user_by_admin(
     if any((r.name or "").lower() == "wykladowca" for r in roles):
         rapla_user = get_rapla_user_by_app_user_id(db, admin.user_id) if admin is not None else None
         res = _ensure_rapla_resource_for_user(db=db, user=user, rapla_user=rapla_user)
-        # _ensure_permission_for_resource(db=db, res=res)
+        _ensure_permission_for_resource(db=db, res=res)
         _ensure_department_permissions_for_resource(db=db, res=res, departments=departments)
 
     # NOTE/TODO: Not implementet should send from frontend 

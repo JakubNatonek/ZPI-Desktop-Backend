@@ -11,9 +11,14 @@ from app.cruds.crud_department import get_departments_by_ids
 from app.cruds.crud_special_equipment import get_special_equipment_by_ids
 from app.cruds.rapla.crud_rapla_resourc import create_resourc
 from app.cruds.rapla.crud_rapla_room_to_resourc import create_room_to_resourc_mapping, get_resorsc_by_room_id
-from app.cruds.rapla.crud_rapla_permission import create_permission, get_permission_by_access_and_group
+from app.cruds.rapla.crud_rapla_permission import (
+    create_permission,
+    get_permission_by_access,
+    get_permission_by_access_and_group,
+)
 from app.cruds.rapla.crud_rapla_permission_for_resourc import create_permission_for_resourc
 from app.cruds.room.crud_room_type import get_room_type_by_id
+from app.models.rapla.model_rapla_resourc import ModelRaplaResourc
 from app.models.model_room import Room
 from app.schemas.room import RoomCreate, RoomUpdate
 
@@ -104,8 +109,17 @@ def _ensure_department_permissions_for_room(db: Session, room: Room) -> None:
         except Exception:
             continue
 
+def _ensure_permission_for_resource(db: Session, res: ModelRaplaResourc):
+    perm = get_permission_by_access(db, access="read_no_allocation")
+    if perm is None:
+        perm = create_permission(db, access="read_no_allocation")
+    try:
+        create_permission_for_resourc(db, cast(int, res.id), cast(int, perm.id))
+    except Exception as e:
+        print(f"Failed to assign permission to rapla_resourc id={res.id}: {e}")
+    return perm
 
-def _ensure_rapla_resource_mapping_for_room(db: Session, room: Room) -> None:
+def _ensure_rapla_resource_mapping_for_room(db: Session, room: Room) -> ModelRaplaResourc:
     if room.id is None:
         raise RuntimeError("Room must be persisted before creating Rapla mapping")
 
@@ -117,6 +131,7 @@ def _ensure_rapla_resource_mapping_for_room(db: Session, room: Room) -> None:
     resource = create_resourc(db)
     create_room_to_resourc_mapping(db, room_id=room.id, rapla_resourc_id=resource.id)
     _ensure_department_permissions_for_room(db, room)
+    return resource
 
 
 def get_rooms(db: Session) -> list[Room]:
@@ -160,7 +175,9 @@ def create_room(db: Session, payload: RoomCreate) -> Room:
     db.commit()
     db.refresh(room)
 
-    _ensure_rapla_resource_mapping_for_room(db, room)
+    res = _ensure_rapla_resource_mapping_for_room(db, room)
+   
+    _ensure_permission_for_resource(db, res)
     return room
 
 
@@ -193,7 +210,9 @@ def create_room_for_seed(
     db.commit()
     db.refresh(room)
 
-    _ensure_rapla_resource_mapping_for_room(db, room)
+    res = _ensure_rapla_resource_mapping_for_room(db, room)
+
+    _ensure_permission_for_resource(db, res)
     return room
 
 def update_room(db: Session, room: Room, payload: RoomUpdate) -> Room:

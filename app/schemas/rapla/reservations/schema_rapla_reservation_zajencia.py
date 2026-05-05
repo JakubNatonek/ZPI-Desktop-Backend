@@ -17,7 +17,6 @@ class SchemaRaplaReservationZajencia:
 
 	appointments: list[SchemaRaplaApointment]
 	name: str
-	allocate: list[str]
 
 	permissions: list[RaplaPermission] = field(default_factory=lambda: cast(list[RaplaPermission], []))
 
@@ -37,10 +36,6 @@ class SchemaRaplaReservationZajencia:
 
 		for appointment in self.appointments:
 			appointment.to_xml(reservation)
-
-		for idref in (self.allocate or []):
-			if idref:
-				ET.SubElement(reservation, f"{{{RAPLA_NS}}}allocate", {"idref": idref})
 
 		self._add_permissions(reservation)
 		return reservation

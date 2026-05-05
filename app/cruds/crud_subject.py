@@ -1,12 +1,15 @@
-from typing import Optional
+from typing import Optional, cast
 
 from fastapi import HTTPException, status
 from sqlalchemy import text
 from sqlalchemy.orm import Session, selectinload
 
 from app.cruds.crud_activity import get_activity_by_id
+from app.cruds.rapla.crud_rapla_permission import create_permission, get_permission_by_access
+from app.cruds.rapla.crud_rapla_permission_for_resourc import create_permission_for_resourc
 from app.cruds.rapla.crud_rapla_resourc import create_resourc
 from app.cruds.rapla.crud_rapla_subject_to_resourc import create_subject_to_resourc_mapping, get_resourc_by_subject_id
+from app.models.rapla.model_rapla_resourc import ModelRaplaResourc
 from app.models.model_subject import Subject
 from app.models.model_subject_activity import SubjectActivity
 from app.schemas.subject import SubjectCreate, SubjectUpdate
@@ -148,7 +151,7 @@ def _prune_non_primary_links(db: Session, subject: Subject) -> None:
         .delete(synchronize_session=False)
     )
 
-def _ensure_rapla_resource_mapping_for_subject(db: Session, subject: Subject) -> None:
+def _ensure_rapla_resource_mapping_for_subject(db: Session, subject: Subject) -> ModelRaplaResourc:
     if subject.id is None:
         raise RuntimeError("Subject must be persisted before creating Rapla mapping")
 
@@ -158,7 +161,17 @@ def _ensure_rapla_resource_mapping_for_subject(db: Session, subject: Subject) ->
 
     resource = create_resourc(db)
     create_subject_to_resourc_mapping(db, subject_id=subject.id, rapla_resourc_id=resource.id)
+    return resource
 
+def _ensure_permission_for_resource(db: Session, res: ModelRaplaResourc):
+    perm = get_permission_by_access(db, access="read_no_allocation")
+    if perm is None:
+        perm = create_permission(db, access="read_no_allocation")
+    try:
+        create_permission_for_resourc(db, cast(int, res.id), cast(int, perm.id))
+    except Exception as e:
+        print(f"Failed to assign permission to rapla_resourc id={res.id}: {e}")
+    return perm
 
 def create_subject(db: Session, payload: SubjectCreate) -> Subject:
     cleaned_name = _normalize_required_text(payload.name)
@@ -184,7 +197,8 @@ def create_subject(db: Session, payload: SubjectCreate) -> Subject:
 
     db.add(subject)
     db.commit()
-    _ensure_rapla_resource_mapping_for_subject(db, subject)
+    res = _ensure_rapla_resource_mapping_for_subject(db, subject)
+    _ensure_permission_for_resource(db, res)
     loaded = _load_subject_with_relations(db, int(subject.id))
     return loaded if loaded is not None else subject
 

@@ -124,19 +124,11 @@ def lessons_to_schema(db: Session) -> list[SchemaRaplaReservationZajencia]:
 	created_at = now.isoformat(timespec="milliseconds").replace("+00:00", "Z")
 	last_changed = created_at
 
-	reservations_by_key: dict[tuple[str, tuple[str, ...]], SchemaRaplaReservationZajencia] = {}
+	reservations_by_key: dict[str, SchemaRaplaReservationZajencia] = {}
 	for lesson in lessons:
 		lesson_date = cast(date, lesson.date)
 		start_time = cast(time, lesson.start_time).strftime("%H:%M:%S")
 		end_time = cast(time, lesson.end_time).strftime("%H:%M:%S")
-
-		appointment = SchemaRaplaApointment(
-			uuid=str(uuid4()),
-			start_date=format_rapla_date(lesson_date),
-			start_time=start_time,
-			end_date=format_rapla_date(lesson_date),
-			end_time=end_time,
-		)
 
 		allocate: list[str] = []
 		subject_resource = get_resourc_by_subject_id(db, cast(int, lesson.subject_id))
@@ -154,14 +146,22 @@ def lessons_to_schema(db: Session) -> list[SchemaRaplaReservationZajencia]:
 
 		allocate = list(dict.fromkeys(allocate))
 
+		appointment = SchemaRaplaApointment(
+			uuid=str(uuid4()),
+			start_date=format_rapla_date(lesson_date),
+			start_time=start_time,
+			end_date=format_rapla_date(lesson_date),
+			end_time=end_time,
+			allocate=allocate,
+		)
+
 		name_value = "Zajencia"
 		if subject_resource is not None and getattr(subject_resource, "uuid", None):
 			name_value = cast(str, subject_resource.uuid)
 		elif lesson.subject is not None:
 			name_value = cast(str, lesson.subject.name)
 
-		key = (name_value, tuple(allocate))
-		reservation = reservations_by_key.get(key)
+		reservation = reservations_by_key.get(name_value)
 		if reservation is None:
 			reservation = SchemaRaplaReservationZajencia(
 				uuid=str(uuid4()),
@@ -171,7 +171,6 @@ def lessons_to_schema(db: Session) -> list[SchemaRaplaReservationZajencia]:
 				last_changed_by=owner_uuid,
 				appointments=[appointment],
 				name=name_value,
-				allocate=allocate,
 				permissions=[
 					RaplaPermission(
 						group="category[key='read-events-from-others']",
@@ -179,7 +178,7 @@ def lessons_to_schema(db: Session) -> list[SchemaRaplaReservationZajencia]:
 					)
 				],
 			)
-			reservations_by_key[key] = reservation
+			reservations_by_key[name_value] = reservation
 		else:
 			reservation.appointments.append(appointment)
 
