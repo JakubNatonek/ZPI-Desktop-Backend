@@ -36,6 +36,8 @@ def seed_all() -> None:
         seed_model.seed_subjects(db)
         seed_field_of_study(db)
 
+        seed_model.seed_lessons(db)
+
         # default availability preference for a test user
         seed_model.seed_dezyderata(db)
 

@@ -290,7 +290,7 @@ def create_user_by_admin(
     if any((r.name or "").lower() == "wykladowca" for r in roles):
         rapla_user = get_rapla_user_by_app_user_id(db, admin.user_id) if admin is not None else None
         res = _ensure_rapla_resource_for_user(db=db, user=user, rapla_user=rapla_user)
-        _ensure_permission_for_resource(db=db, res=res)
+        # _ensure_permission_for_resource(db=db, res=res)
         _ensure_department_permissions_for_resource(db=db, res=res, departments=departments)
 
     # NOTE/TODO: Not implementet should send from frontend 

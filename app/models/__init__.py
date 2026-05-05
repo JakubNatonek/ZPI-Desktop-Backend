@@ -66,6 +66,7 @@ from app.models.model_user import User
 from app.models.model_semestr import Semestr
 from app.models.model_dezyderata import Dezyderata
 from app.models.model_day import Day
+from app.models.model_lessons import Lesson
 from app.models.model_unavailability_note import UnavailabilityNote, NoteType, NoteStatus
 from app.models.model_notification import Notification
 
@@ -116,6 +117,7 @@ __all__ = [
     "NoteType",
     "NoteStatus",
     "Notification",
+    "Lesson",
     # RAPLA Section
     "RaplaActivityToCategory",
     "RaplaCategory",

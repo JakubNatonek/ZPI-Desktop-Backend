@@ -14,6 +14,7 @@ from app.seed_data.seed_model.seed_admin import seed_admin
 from app.seed_data.seed_model.seed_titles import seed_titles
 from app.seed_data.seed_model.seed_semesters import seed_semesters
 from app.seed_data.seed_model.seed_subjects import seed_subjects
+from app.seed_data.seed_model.seed_lessons import seed_lessons
 from app.seed_data.seed_model.seed_teacher_student_profiles import seed_teacher_student_profiles
 from app.seed_data.seed_model.seed_thesis import seed_thesis
 from app.seed_data.seed_model.seed_thesis_proposals import seed_thesis_proposals
@@ -35,6 +36,7 @@ __all__ = [
 	"seed_room_types",
 	"seed_semesters",
 	"seed_subjects",
+	"seed_lessons",
 	"seed_teacher_student_profiles",
 	"seed_thesis_settings",
 	"seed_thesis_proposals",

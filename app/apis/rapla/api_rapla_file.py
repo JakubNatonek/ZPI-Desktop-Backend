@@ -16,6 +16,7 @@ from app.cruds.rapla.crud_rapla_room_to_resourc import all_room_to_resourc_schem
 from app.cruds.rapla.crud_rapla_subject_to_resourc import all_subject_to_resourc_schema
 from app.cruds.rapla.crud_rapla_semester_to_resourc import all_semester_to_resourc_schema
 from app.cruds.crud_dezyderata import dezyderaty_to_schema
+from app.cruds.crud_lessons import lessons_to_schema
 
 
 
@@ -46,6 +47,7 @@ def generate_rapla_file(
 	)
 
 	reservations = dezyderaty_to_schema(db)
+	reservations.zajencia = lessons_to_schema(db)
 
 	data = RaplaFile(users=users, categories=categories, grammar=grammar, resources=resources, reservations=reservations)
 	data.save_to_file(str(output_path))

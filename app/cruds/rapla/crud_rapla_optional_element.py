@@ -39,10 +39,7 @@ def list_optional_elements(db: Session, skip: Optional[int] = None, limit: Optio
 
 
 def create_optional_element(db: Session, name: str, default_value: Optional[str] = None) -> RaplaOptionalElement:
-    existing = get_optional_element_by_name(db, name)
-    if existing:
-        return existing
-
+    # Always create a new optional element to avoid sharing across defines.
     el = RaplaOptionalElement(name=name, default_value=default_value)
     db.add(el)
     db.commit()
