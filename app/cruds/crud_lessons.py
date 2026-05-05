@@ -124,7 +124,7 @@ def lessons_to_schema(db: Session) -> list[SchemaRaplaReservationZajencia]:
 	created_at = now.isoformat(timespec="milliseconds").replace("+00:00", "Z")
 	last_changed = created_at
 
-	reservations: list[SchemaRaplaReservationZajencia] = []
+	reservations_by_key: dict[tuple[str, tuple[str, ...]], SchemaRaplaReservationZajencia] = {}
 	for lesson in lessons:
 		lesson_date = cast(date, lesson.date)
 		start_time = cast(time, lesson.start_time).strftime("%H:%M:%S")
@@ -160,23 +160,27 @@ def lessons_to_schema(db: Session) -> list[SchemaRaplaReservationZajencia]:
 		elif lesson.subject is not None:
 			name_value = cast(str, lesson.subject.name)
 
-		reservation = SchemaRaplaReservationZajencia(
-			uuid=str(uuid4()),
-			owner=owner_uuid,
-			created_at=created_at,
-			last_changed=last_changed,
-			last_changed_by=owner_uuid,
-			appointments=[appointment],
-			name=name_value,
-			allocate=allocate,
-			permissions=[
-				RaplaPermission(
-					group="category[key='read-events-from-others']",
-					access="read",
-				)
-			],
-		)
+		key = (name_value, tuple(allocate))
+		reservation = reservations_by_key.get(key)
+		if reservation is None:
+			reservation = SchemaRaplaReservationZajencia(
+				uuid=str(uuid4()),
+				owner=owner_uuid,
+				created_at=created_at,
+				last_changed=last_changed,
+				last_changed_by=owner_uuid,
+				appointments=[appointment],
+				name=name_value,
+				allocate=allocate,
+				permissions=[
+					RaplaPermission(
+						group="category[key='read-events-from-others']",
+						access="read",
+					)
+				],
+			)
+			reservations_by_key[key] = reservation
+		else:
+			reservation.appointments.append(appointment)
 
-		reservations.append(reservation)
-
-	return reservations
+	return list(reservations_by_key.values())
