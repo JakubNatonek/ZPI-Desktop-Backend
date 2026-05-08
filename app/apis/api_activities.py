@@ -5,6 +5,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.cruds.crud_audit_logs import create_audit_log
 from app.cruds.crud_activity import (
     create_activity,
     delete_activity,
@@ -47,7 +48,7 @@ def get_activity_entry(
 def create_activity_entry(
     payload: ActivityCreate,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    current_user: User = Depends(require_role("admin")),
 ) -> ActivityResponse:
     cleaned_name = payload.name.strip()
     if not cleaned_name:
@@ -59,6 +60,12 @@ def create_activity_entry(
     activity = create_activity(db, cleaned_name)
     db.commit()
     db.refresh(activity)
+    create_audit_log(
+        db, "Activity", int(activity.id), "create",
+        modified_by=current_user.user_id,
+        modified_by_name=f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email,
+        new_values={"id": activity.id, "name": activity.name},
+    )
     return ActivityResponse(id=cast(int, activity.id), name=cast(str, activity.name))
 
 
@@ -67,8 +74,9 @@ def update_activity_entry(
     activity_id: int,
     payload: ActivityUpdate,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    current_user: User = Depends(require_role("admin")),
 ) -> ActivityResponse:
+    old_activity = get_activity_by_id(db, activity_id)
     try:
         activity = update_activity(db, activity_id, payload.name)
     except ValueError as exc:
@@ -77,6 +85,13 @@ def update_activity_entry(
     if activity is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Activity not found")
 
+    create_audit_log(
+        db, "Activity", activity_id, "update",
+        modified_by=current_user.user_id,
+        modified_by_name=f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email,
+        old_values={"id": activity_id, "name": old_activity.name if old_activity else None},
+        new_values={"id": activity.id, "name": activity.name},
+    )
     return ActivityResponse(id=cast(int, activity.id), name=cast(str, activity.name))
 
 
@@ -84,8 +99,9 @@ def update_activity_entry(
 def delete_activity_entry(
     activity_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    current_user: User = Depends(require_role("admin")),
 ) -> None:
+    old_activity = get_activity_by_id(db, activity_id)
     try:
         deleted = delete_activity(db, activity_id)
     except IntegrityError as exc:
@@ -97,3 +113,10 @@ def delete_activity_entry(
 
     if not deleted:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Activity not found")
+
+    create_audit_log(
+        db, "Activity", activity_id, "delete",
+        modified_by=current_user.user_id,
+        modified_by_name=f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email,
+        old_values={"id": activity_id, "name": old_activity.name if old_activity else None},
+    )

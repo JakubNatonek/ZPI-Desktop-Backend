@@ -37,6 +37,15 @@ def seed_all() -> None:
         # default availability preference for a test user
         seed_model.seed_dezyderata(db)
 
+        # sample unavailability notes
+        seed_model.seed_unavailability_notes(db)
+
+        # teaching load assignments
+        seed_model.seed_teaching_loads(db)
+
+        # audit log history
+        seed_model.seed_audit_logs(db)
+
         
 
 

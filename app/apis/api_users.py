@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.auth.current_user import get_current_user, get_user_role_names
 from app.core.database import get_db
+from app.cruds.crud_audit_logs import create_audit_log
 from app.cruds.crud_user import (
     create_user_by_admin,
     delete_user_by_admin,
@@ -84,6 +85,21 @@ def create_user_as_admin(
 
     roles = get_related_names_for_user(db, user.user_id, get_roles_for_user)
     departments = get_related_names_for_user(db, user.user_id, get_departments_for_user)
+
+    _admin_label = f"{admin.first_name or ''} {admin.last_name or ''}".strip() or admin.email
+    create_audit_log(
+        db, "User", user.user_id, "create",
+        modified_by=admin.user_id,
+        modified_by_name=_admin_label,
+        new_values={
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "email": user.email,
+            "login": user.login,
+            "roles": roles,
+            "departments": departments,
+        },
+    )
 
     return UserCreatedResponse(
         user_id=user.user_id,
@@ -222,8 +238,8 @@ def admin_update_user(
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-    normalized_login = payload.login.strip().lower() # NOTE: This is dangerus (lower())
-    normalized_email = str(payload.email).strip().lower() # NOTE: This is dangerus (lower())
+    normalized_login = payload.login.strip().lower()
+    normalized_email = str(payload.email).strip().lower()
 
     existing_login = get_user_by_login(db, normalized_login)
     if existing_login is not None and existing_login.user_id != user_id:
@@ -233,13 +249,21 @@ def admin_update_user(
     if existing_email is not None and existing_email.user_id != user_id:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User with this email already exists")
 
-    # NOTE: What do you want to do here cos current_user is admin?
     admin_role = db.query(Role).filter(Role.name == "admin").first()
     if admin_role is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Admin role not found")
 
     if current_user.user_id == user.user_id and admin_role.id not in payload.role_ids:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You cannot remove your own admin role")
+
+    _old_values = {
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "email": user.email,
+        "login": user.login,
+        "roles": get_related_names_for_user(db, user_id, get_roles_for_user),
+        "departments": get_related_names_for_user(db, user_id, get_departments_for_user),
+    }
 
     try:
         updated = update_user_by_admin(
@@ -255,6 +279,24 @@ def admin_update_user(
     except ValueError as exc:
         raise HTTPException(status_code=_status_for_user_validation_error(str(exc)), detail=str(exc)) from exc
 
+    _new_roles = get_related_names_for_user(db, updated.user_id, get_roles_for_user)
+    _new_departments = get_related_names_for_user(db, updated.user_id, get_departments_for_user)
+    _admin_label = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
+    create_audit_log(
+        db, "User", user_id, "update",
+        modified_by=current_user.user_id,
+        modified_by_name=_admin_label,
+        old_values=_old_values,
+        new_values={
+            "first_name": updated.first_name,
+            "last_name": updated.last_name,
+            "email": updated.email,
+            "login": updated.login,
+            "roles": _new_roles,
+            "departments": _new_departments,
+        },
+    )
+
     return AdminUserListResponse(
         user_id=updated.user_id,
         first_name=updated.first_name,
@@ -263,8 +305,8 @@ def admin_update_user(
         login=updated.login,
         email=updated.email,
         titles=get_related_names_for_user(db, updated.user_id, list_titles_for_user),
-        roles=get_related_names_for_user(db, updated.user_id, get_roles_for_user),
-        departments=get_related_names_for_user(db, updated.user_id, get_departments_for_user),
+        roles=_new_roles,
+        departments=_new_departments,
         must_change_password=bool(updated.must_change_password),
     )
 
@@ -286,10 +328,20 @@ def admin_delete_user(
     if current_user.user_id == user.user_id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You cannot delete your own account")
 
+    _old_roles = get_related_names_for_user(db, user.user_id, get_roles_for_user)
+    _old_values = {"first_name": user.first_name, "last_name": user.last_name, "email": user.email, "roles": _old_roles}
     try:
         delete_user_by_admin(db, user)
     except ValueError as exc:
         raise HTTPException(status_code=_status_for_user_validation_error(str(exc)), detail=str(exc)) from exc
+
+    _admin_label = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
+    create_audit_log(
+        db, "User", user_id, "delete",
+        modified_by=current_user.user_id,
+        modified_by_name=_admin_label,
+        old_values=_old_values,
+    )
 
 
 @router.post(

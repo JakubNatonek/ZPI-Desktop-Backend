@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.auth.current_user import get_current_user, user_has_role
 from app.core.database import get_db
+from app.cruds.crud_audit_logs import create_audit_log
 from app.cruds.crud_unavailability_notes import (
     create_unavailability_note,
     get_unavailability_notes_for_user,
@@ -61,6 +62,19 @@ async def create_note(
             end_date=payload.end_date,
             description=payload.description,
             note_type=payload.note_type,
+        )
+        create_audit_log(
+            db, "UnavailabilityNote", int(note.id), "create",
+            modified_by=current_user.user_id,
+            modified_by_name=f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email,
+            new_values={
+                "user_id": note.user_id,
+                "start_date": str(note.start_date),
+                "end_date": str(note.end_date) if note.end_date else None,
+                "description": note.description,
+                "note_type": note.note_type.value if note.note_type else None,
+                "status": note.status.value if note.status else None,
+            },
         )
         return UnavailabilityNoteResponse.model_validate(note)
     except ValueError as e:
@@ -176,6 +190,12 @@ def update_note_status(
             detail=f"Notatka o ID {note_id} nie znaleziona",
         )
 
+    create_audit_log(
+        db, "UnavailabilityNote", note_id, "update",
+        modified_by=current_user.user_id,
+        modified_by_name=f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email,
+        new_values={"status": note.status.value if note.status else None},
+    )
     return UnavailabilityNoteResponse.model_validate(note)
 
 

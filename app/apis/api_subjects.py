@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.cruds.crud_audit_logs import create_audit_log
 from app.cruds.crud_subject import (
     create_subject,
     delete_subject,
@@ -45,7 +46,7 @@ def get_subject_entry(
 def create_subject_entry(
     payload: SubjectCreate,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    current_user: User = Depends(require_role("admin")),
 ) -> SubjectResponse:
     if not payload.name.strip():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Subject name cannot be empty")
@@ -62,6 +63,12 @@ def create_subject_entry(
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
+    create_audit_log(
+        db, "Subject", int(created.id), "create",
+        modified_by=current_user.user_id,
+        modified_by_name=f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email,
+        new_values=map_subject_to_response(created),
+    )
     return SubjectResponse(**map_subject_to_response(created))
 
 
@@ -70,7 +77,7 @@ def update_subject_entry(
     subject_id: int,
     payload: SubjectUpdate,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    current_user: User = Depends(require_role("admin")),
 ) -> SubjectResponse:
     subject = get_subject_by_id(db, subject_id)
     if subject is None:
@@ -83,11 +90,19 @@ def update_subject_entry(
             detail="Subject with selected activity already exists",
         )
 
+    old_values = map_subject_to_response(subject)
     try:
         updated = update_subject(db, subject, payload)
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
+    create_audit_log(
+        db, "Subject", subject_id, "update",
+        modified_by=current_user.user_id,
+        modified_by_name=f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email,
+        old_values=old_values,
+        new_values=map_subject_to_response(updated),
+    )
     return SubjectResponse(**map_subject_to_response(updated))
 
 
@@ -95,10 +110,17 @@ def update_subject_entry(
 def delete_subject_entry(
     subject_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    current_user: User = Depends(require_role("admin")),
 ) -> None:
     subject = get_subject_by_id(db, subject_id)
     if subject is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Subject not found")
 
+    old_values = map_subject_to_response(subject)
     delete_subject(db, subject)
+    create_audit_log(
+        db, "Subject", subject_id, "delete",
+        modified_by=current_user.user_id,
+        modified_by_name=f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email,
+        old_values=old_values,
+    )
