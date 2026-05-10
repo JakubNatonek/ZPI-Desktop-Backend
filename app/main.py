@@ -37,6 +37,8 @@ from app.apis.api_groups import router as groups_router
 
 # NOTE: Semi example data to use and maybe import to proper app.
 from app.seed_data.seed_all import seed_all
+from app.core.database import SessionLocal
+from app.models.model_teaching_load_assignment import TeachingLoadAssignment
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:

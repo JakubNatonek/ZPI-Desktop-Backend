@@ -20,6 +20,7 @@ from app.seed_data.seed_model.seed_thesis import seed_thesis
 from app.seed_data.seed_model.seed_thesis_proposals import seed_thesis_proposals
 from app.seed_data.seed_model.seed_thesis_settings import seed_thesis_settings
 from app.seed_data.seed_model.seed_users import seed_users
+from app.seed_data.seed_model.seed_teaching_loads import seed_teaching_loads
 
 __all__ = [
 	"seed_days",
@@ -44,4 +45,5 @@ __all__ = [
 	"seed_users",
 	"seed_admin",
 	"seed_titles",
+	"seed_teaching_loads",
 ]
