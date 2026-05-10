@@ -98,6 +98,7 @@ from app.models.rapla.model_rapla_permission import RaplaPermission
 from app.models.rapla.model_rapla_permission_for_define_element import RaplaPermissionForDefineElement
 from app.models.rapla.model_rapla_permission_for_resourc import RaplaPermissionForResourc
 from app.models.rapla.model_rapla_semester_to_resourc import RaplaSemesterToResourc
+from app.models.rapla.model_rapla_imported_reservation import RaplaImportedReservation
 
 __all__ = [
     "Base",
