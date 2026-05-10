@@ -33,6 +33,7 @@ from app.apis.api_dezyderata import router as dezyderata_router
 from app.apis.api_unavailability_notes import router as unavailability_notes_router
 from app.apis.api_notifications import router as notifications_router
 from app.apis.api_audit import router as audit_router
+from app.apis.api_groups import router as groups_router
 
 # NOTE: Semi example data to use and maybe import to proper app.
 from app.seed_data.seed_all import seed_all
@@ -40,9 +41,9 @@ from app.seed_data.seed_all import seed_all
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     init_database()
-    # run_migrations() # NOTE: this should not be done evry time the server is run
+    #run_migrations() # NOTE: this should not be done evry time the server is run
 
-    seed_all() # NOTE: Works only for empty DB with correct tables
+    #seed_all() # NOTE: Works only for empty DB with correct tables
     yield
 
 
@@ -108,6 +109,7 @@ app.include_router(admin_thesis_router)
 app.include_router(grades_router)
 app.include_router(unavailability_notes_router)
 app.include_router(notifications_router)
+app.include_router(groups_router)
 
 
 

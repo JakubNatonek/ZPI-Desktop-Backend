@@ -6,11 +6,12 @@ from app.models.model_group import Group
 def seed_groups(db: Session) -> None:
 	"""Seed groups table with sample data."""
 	groups = [
-		{"id": 1, "specialization": "Informatyka Stosowana", "code": "IS1", "year": 1, "studies_type": "stacjonarne"},
-		{"id": 2, "specialization": "Informatyka Stosowana", "code": "IS2", "year": 2, "studies_type": "stacjonarne"},
-		{"id": 3, "specialization": "Informatyka Stosowana", "code": "IS3", "year": 3, "studies_type": "stacjonarne"},
-		{"id": 4, "specialization": "Systemy Komputerowe", "code": "SK1", "year": 1, "studies_type": "stacjonarne"},
-		{"id": 5, "specialization": "Systemy Komputerowe", "code": "SK2", "year": 2, "studies_type": "niestacjonarne"},
+		{"id": 1, "specialization": "WI", "code": "IS", "year": 2023, "studies_type": "s"},
+		{"id": 2, "specialization": "WI", "code": "IS", "year": 2023, "studies_type": "z"},
+		{"id": 3, "specialization": "WI", "code": "IS", "year": 2024, "studies_type": "s"},
+		{"id": 4, "specialization": "WI", "code": "IS", "year": 2024, "studies_type": "z"},
+		{"id": 5, "specialization": "WI", "code": "IS", "year": 2025, "studies_type": "s"},
+		{"id": 6, "specialization": "WI", "code": "IS", "year": 2025, "studies_type": "z"},
 	]
 
 	created_count = 0

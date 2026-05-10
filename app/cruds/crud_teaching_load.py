@@ -4,6 +4,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session, selectinload
 
 from app.models.model_activity import Activity
+from app.models.model_group import Group
 from app.models.model_semestr import Semestr
 from app.models.model_subject import Subject
 from app.models.model_subject_activity import SubjectActivity
@@ -25,6 +26,7 @@ def _load_with_relations(db: Session, assignment_id: int) -> Optional[TeachingLo
             selectinload(TeachingLoadAssignment.subject),
             selectinload(TeachingLoadAssignment.activity),
             selectinload(TeachingLoadAssignment.semester),
+            selectinload(TeachingLoadAssignment.group),
         )
         .filter(TeachingLoadAssignment.id == assignment_id)
         .first()
@@ -85,6 +87,16 @@ def _get_semester(db: Session, semester_id: int) -> Semestr:
     return semester
 
 
+def _get_group(db: Session, group_id: int) -> Group:
+    group = db.query(Group).filter(Group.id == group_id).first()
+    if group is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Unknown group id: {group_id}",
+        )
+    return group
+
+
 def _ensure_subject_activity_link(db: Session, subject_id: int, activity_id: int) -> None:
     link = (
         db.query(SubjectActivity)
@@ -97,7 +109,7 @@ def _ensure_subject_activity_link(db: Session, subject_id: int, activity_id: int
     if link is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Selected activity is not linked to the subject",
+            detail="Wybrany typ zajęć nie jest powiązany z tym przedmiotem",
         )
 
 
@@ -107,6 +119,7 @@ def _get_existing_assignment(
     subject_id: int,
     activity_id: int,
     semester_id: int,
+    group_id: int | None,
 ) -> Optional[TeachingLoadAssignment]:
     return (
         db.query(TeachingLoadAssignment)
@@ -115,6 +128,7 @@ def _get_existing_assignment(
             TeachingLoadAssignment.subject_id == subject_id,
             TeachingLoadAssignment.activity_id == activity_id,
             TeachingLoadAssignment.semester_id == semester_id,
+            TeachingLoadAssignment.group_id == group_id,
         )
         .first()
     )
@@ -128,6 +142,7 @@ def get_teaching_loads(db: Session) -> list[TeachingLoadAssignment]:
             selectinload(TeachingLoadAssignment.subject),
             selectinload(TeachingLoadAssignment.activity),
             selectinload(TeachingLoadAssignment.semester),
+            selectinload(TeachingLoadAssignment.group),
         )
         .order_by(
             TeachingLoadAssignment.semester_id.asc(),
@@ -152,6 +167,12 @@ def create_teaching_load(
     _get_subject(db, payload.subject_id)
     _get_activity(db, payload.activity_id)
     _get_semester(db, payload.semester_id)
+    if payload.group_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Wybierz poprawną grupę",
+        )
+    _get_group(db, payload.group_id)
     _ensure_subject_activity_link(db, payload.subject_id, payload.activity_id)
 
     existing = _get_existing_assignment(
@@ -160,11 +181,12 @@ def create_teaching_load(
         subject_id=payload.subject_id,
         activity_id=payload.activity_id,
         semester_id=payload.semester_id,
+        group_id=payload.group_id,
     )
     if existing is not None:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Teaching load assignment already exists",
+            detail="Przydział godzin już istnieje",
         )
 
     assignment = TeachingLoadAssignment(
@@ -173,6 +195,7 @@ def create_teaching_load(
         activity_id=payload.activity_id,
         semester_id=payload.semester_id,
         hours=payload.hours,
+        group_id=payload.group_id,
     )
     db.add(assignment)
     db.commit()
@@ -190,6 +213,12 @@ def update_teaching_load(
     _get_subject(db, payload.subject_id)
     _get_activity(db, payload.activity_id)
     _get_semester(db, payload.semester_id)
+    if payload.group_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Wybierz poprawną grupę",
+        )
+    _get_group(db, payload.group_id)
     _ensure_subject_activity_link(db, payload.subject_id, payload.activity_id)
 
     existing = _get_existing_assignment(
@@ -198,11 +227,12 @@ def update_teaching_load(
         subject_id=payload.subject_id,
         activity_id=payload.activity_id,
         semester_id=payload.semester_id,
+        group_id=payload.group_id,
     )
     if existing is not None and existing.id != assignment.id:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Teaching load assignment already exists",
+            detail="Przydział godzin już istnieje",
         )
 
     assignment.teacher_id = payload.teacher_id
@@ -210,6 +240,7 @@ def update_teaching_load(
     assignment.activity_id = payload.activity_id
     assignment.semester_id = payload.semester_id
     assignment.hours = payload.hours
+    assignment.group_id = payload.group_id
 
     db.add(assignment)
     db.commit()
@@ -235,11 +266,14 @@ def patch_teaching_load(
         _get_activity(db, data["activity_id"])
     if "semester_id" in data:
         _get_semester(db, data["semester_id"])
+    if "group_id" in data and data["group_id"] is not None:
+        _get_group(db, data["group_id"])
 
     target_teacher_id = data.get("teacher_id", assignment.teacher_id)
     target_subject_id = data.get("subject_id", assignment.subject_id)
     target_activity_id = data.get("activity_id", assignment.activity_id)
     target_semester_id = data.get("semester_id", assignment.semester_id)
+    target_group_id = data.get("group_id", assignment.group_id)
 
     _ensure_subject_activity_link(db, target_subject_id, target_activity_id)
 
@@ -249,11 +283,12 @@ def patch_teaching_load(
         subject_id=target_subject_id,
         activity_id=target_activity_id,
         semester_id=target_semester_id,
+        group_id=target_group_id,
     )
     if existing is not None and existing.id != assignment.id:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Teaching load assignment already exists",
+            detail="Przydział godzin już istnieje",
         )
 
     for field_name, value in data.items():
@@ -277,6 +312,10 @@ def map_teaching_load_to_response(assignment: TeachingLoadAssignment) -> dict:
     subject = assignment.subject
     activity = assignment.activity
     semester = assignment.semester
+    group = assignment.group
+    group_label = None
+    if group is not None:
+        group_label = f"{group.specialization}/{group.code}/{group.year}/{group.studies_type}"
 
     return {
         "id": assignment.id,
@@ -290,5 +329,7 @@ def map_teaching_load_to_response(assignment: TeachingLoadAssignment) -> dict:
         "activity_name": activity.name if activity else None,
         "semester_id": assignment.semester_id,
         "semester_name": semester.nazwa if semester else None,
+        "group_id": assignment.group_id,
+        "group_label": group_label,
         "hours": assignment.hours,
     }

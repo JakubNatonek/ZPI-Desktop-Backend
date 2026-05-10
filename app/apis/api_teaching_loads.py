@@ -29,7 +29,7 @@ router = APIRouter(prefix="/teaching-loads", tags=["teaching-loads"])
 @router.get("/list", response_model=TeachingLoadAssignmentListResponse, summary="Lista przydzialow godzin")
 def list_teaching_loads(
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    _: User = Depends(require_role(["admin", "rapla_editor"])),
 ) -> TeachingLoadAssignmentListResponse:
     assignments = get_teaching_loads(db)
     return TeachingLoadAssignmentListResponse(
@@ -41,11 +41,11 @@ def list_teaching_loads(
 def get_teaching_load_entry(
     assignment_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    _: User = Depends(require_role(["admin", "rapla_editor"])),
 ) -> TeachingLoadAssignmentResponse:
     assignment = get_teaching_load_by_id(db, assignment_id)
     if assignment is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Teaching load assignment not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Nie znaleziono przydziału godzin")
 
     return TeachingLoadAssignmentResponse(**map_teaching_load_to_response(assignment))
 
@@ -54,7 +54,7 @@ def get_teaching_load_entry(
 def create_teaching_load_entry(
     payload: TeachingLoadAssignmentCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin")),
+    current_user: User = Depends(require_role(["admin", "rapla_editor"])),
 ) -> TeachingLoadAssignmentResponse:
     assignment = create_teaching_load(db, payload)
     response_payload = TeachingLoadAssignmentResponse(**map_teaching_load_to_response(assignment))
@@ -77,11 +77,11 @@ def update_teaching_load_entry(
     assignment_id: int,
     payload: TeachingLoadAssignmentUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin")),
+    current_user: User = Depends(require_role(["admin", "rapla_editor"])),
 ) -> TeachingLoadAssignmentResponse:
     assignment = get_teaching_load_by_id(db, assignment_id)
     if assignment is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Teaching load assignment not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Nie znaleziono przydziału godzin")
 
     old_values = map_teaching_load_to_response(assignment)
 
@@ -106,15 +106,15 @@ def patch_teaching_load_entry(
     assignment_id: int,
     payload: TeachingLoadAssignmentPatch,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin")),
+    current_user: User = Depends(require_role(["admin", "rapla_editor"])),
 ) -> TeachingLoadAssignmentResponse:
     assignment = get_teaching_load_by_id(db, assignment_id)
     if assignment is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Teaching load assignment not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Nie znaleziono przydziału godzin")
 
     changes = payload.model_dump(exclude_unset=True)
     if not changes:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No changes provided")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Nie podano żadnych zmian")
 
     old_values = map_teaching_load_to_response(assignment)
 
@@ -138,11 +138,11 @@ def patch_teaching_load_entry(
 def delete_teaching_load_entry(
     assignment_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin")),
+    current_user: User = Depends(require_role(["admin", "rapla_editor"])),
 ) -> None:
     assignment = get_teaching_load_by_id(db, assignment_id)
     if assignment is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Teaching load assignment not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Nie znaleziono przydziału godzin")
 
     old_values = map_teaching_load_to_response(assignment)
     delete_teaching_load(db, assignment)
