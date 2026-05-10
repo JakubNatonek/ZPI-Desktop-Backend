@@ -43,7 +43,6 @@ def seed_all() -> None:
 
         
         seed_model.seed_teaching_loads(db)
-        seed_model.seed_groups(db)
 
         # NOTE: WTF is this dogshit
         # seed_departments_for_user(db)
