@@ -20,11 +20,6 @@ from app.cruds.rapla.crud_rapla_language_abbreviations import get_language_abbre
 
 
 def seed_define_nauczyciel(db: Session, rapla_admin_uuid: str) -> None:
-    """Seed a `dynatt:nauczyciel` define-element using example data from XML.
-
-    This function does not parse XML; it uses the hard-coded values taken from
-    the provided example (doc:name, annotations, optionals and permissions).
-    """
 
     # Example values (from the XML snippet)
     uuid = None

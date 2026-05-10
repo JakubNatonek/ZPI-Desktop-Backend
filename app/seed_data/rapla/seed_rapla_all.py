@@ -10,6 +10,7 @@ from app.seed_data.rapla.seed_model.seed_define_room_from_example import seed_de
 from app.seed_data.rapla.seed_model.seed_define_przedmiot_from_example import seed_define_przedmiot
 from app.seed_data.rapla.seed_model.seed_define_zajencia_from_example import seed_define_zajencia
 from app.seed_data.rapla.seed_model.seed_rapla_category_prents import seed_rapla_category_parent
+from app.seed_data.rapla.seed_model.seed_define_grupa_from_example import seed_define_grupa
 
 
 def seed_rapla_all(db: Session, admin_id: int) -> None:
@@ -27,5 +28,7 @@ def seed_rapla_all(db: Session, admin_id: int) -> None:
     seed_define_nauczyciel(db, rapla_admin_uuid)
     seed_define_dezyderata(db, rapla_admin_uuid)
     seed_define_zajencia(db, rapla_admin_uuid)
+    seed_define_grupa(db, rapla_admin_uuid)
+
 
     print("All seed data applied.")

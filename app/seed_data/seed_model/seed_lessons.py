@@ -16,6 +16,10 @@ from app.models.model_subject import Subject
 from app.models.model_user import User
 from app.schemas.room import RoomCreate
 from app.schemas.subject import SubjectCreate
+from app.cruds.crud_lesson_for_group import create_lesson_for_group_mapping
+from app.cruds.crud_group import create_group
+from app.models.model_group import Group
+import re
 
 
 TYPE_ACTIVITY_ALIASES: dict[str, str] = {
@@ -138,6 +142,38 @@ def _build_activity_lookup(db: Session) -> dict[str, Activity]:
 	return lookup
 
 
+def _build_group_lookup(db: Session) -> dict[str, Group]:
+	lookup: dict[str, Group] = {}
+	for group in db.query(Group).all():
+		code = (group.code or "").strip()
+		if not code:
+			continue
+
+		key = code.lower()
+		if key not in lookup:
+			lookup[key] = group
+	return lookup
+
+
+def _resolve_group(db: Session, group_lookup: dict[str, Group], group_code: str) -> Group | None:
+	code = group_code.strip()
+	if not code:
+		return None
+
+	key = code.lower()
+	group = group_lookup.get(key)
+	if group is not None:
+		return group
+
+	try:
+		group = create_group(db, code=code)
+	except Exception:
+		return None
+
+	group_lookup[key] = group
+	return group
+
+
 def _resolve_activity(
 	db: Session,
 	activity_lookup: dict[str, Activity],
@@ -239,6 +275,7 @@ def seed_lessons(db: Session, path: str = "data/JSON DATA/lessons.json") -> None
 		data = json.load(fh)
 
 	activity_lookup = _build_activity_lookup(db)
+	group_lookup = _build_group_lookup(db)
 	room_lookup = _build_room_lookup(db)
 	user_lookup = _build_user_lookup(db)
 	default_room_type_id = _resolve_default_room_type_id(db)
@@ -301,7 +338,7 @@ def seed_lessons(db: Session, path: str = "data/JSON DATA/lessons.json") -> None
 		if existing is not None:
 			continue
 
-		create_lesson(
+		lesson = create_lesson(
 			db,
 			lesson_date=lesson_date,
 			start_time=start_time,
@@ -311,5 +348,23 @@ def seed_lessons(db: Session, path: str = "data/JSON DATA/lessons.json") -> None
 			user_id=user_id,
 		)
 		created_count += 1
+
+		# Attach groups to the created lesson. The `groups` field may contain
+		# one or more group tokens separated by commas/semicolons/pipes. If a
+		# Group does not exist, create it and then map the lesson to the group.
+		raw_groups = entry.get("groups") or ""
+		if raw_groups:
+			tokens = [t.strip() for t in re.split(r"[;,|]", raw_groups) if t and t.strip()]
+			for tok in tokens:
+				group = _resolve_group(db, group_lookup, tok)
+				if group is None:
+					skipped_count += 1
+					continue
+
+				try:
+					create_lesson_for_group_mapping(db, lesson_id=cast(int, lesson.id), group_id=cast(int, group.id))
+				except Exception:
+					# don't fail the whole seeding on mapping errors
+					continue
 
 	print(f"Lessons seeded. Added: {created_count}, skipped: {skipped_count}")

@@ -19,6 +19,9 @@ SAMPLE_SUBJECTS = [
 	{"id": 10, "name": "Inzynieria oprogramowania", "activity": "projekty", "type_display": "P", "room_properties": "projektowa", "blocked": False, "periodic": True},
 	{"id": 11, "name": "Matematyka dyskretna", "activity": "cwiczenia", "type_display": "C", "room_properties": "cwiczeniowa", "blocked": False, "periodic": True},
 	{"id": 12, "name": "Matematyka dyskretna", "activity": "konsultacje", "type_display": "K", "room_properties": "konsultacyjna", "blocked": False, "periodic": False},
+	{"id": 14, "name": "Zespołowe przedsięwzięcie inżynierskie", "activity": "projekty", "type_display": "P", "room_properties": "", "blocked": False, "periodic": True},
+    {"id": 15, "name": "Seminarium dyplomowe/Przygotowanie pracy dyplomowej", "activity": "seminaria", "type_display": "S", "room_properties": "", "blocked": False, "periodic": True},
+    {"id": 16, "name": "Teoria podejmowania decyzji", "activity": "wyklady", "type_display": "W", "room_properties": "", "blocked": False, "periodic": True},
 ]
 
 

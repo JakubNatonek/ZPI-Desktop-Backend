@@ -154,7 +154,7 @@ def get_lecturer_semester_grades(db: Session, lecturer_id: int) -> list[Lecturer
             LecturerSemesterGradesResponse(
                 semester=semester,
                 semester_label=f"Semestr {semester}",
-                students=students_payload,
+                # students=students_payload,
             )
         )
 

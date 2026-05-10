@@ -21,11 +21,6 @@ from app.cruds.rapla.crud_rapla_permission_for_define_element import add_permiss
 from app.cruds.rapla.crud_rapla_language_abbreviations import get_language_abbreviation_by_language
 
 def seed_define_room(db: Session, rapla_admin_uuid: str) -> None:
-   """Seed a `dynatt:room` define-element using example data from XML.
-
-   This function does not parse XML; it uses the hard-coded values taken from
-   the provided example (doc:name, annotations, optionals and permissions).
-   """
 
    uuid = None
    name = "dynatt:room"

@@ -21,7 +21,7 @@ FIELD_OF_STUDY_SEED = [
 		"abbrevation": "IS",
 		"year": 2,
 		"department": "WI",
-		"subject_ids": [9, 10, 11, 12],
+		"subject_ids": [9, 10, 11, 12, 13, 14, 15],
 	},
 ]
 

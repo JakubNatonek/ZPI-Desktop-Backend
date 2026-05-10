@@ -9,10 +9,14 @@ from app.cruds.rapla.crud_rapla_room_to_resourc import get_resorsc_by_room_id
 from app.cruds.rapla.crud_rapla_subject_to_resourc import get_resourc_by_subject_id
 from app.cruds.rapla.crud_rapla_users import get_first_rapla_users_by_username
 from app.cruds.rapla.rapla_format_datetime import format_rapla_date
+from app.cruds.crud_subject_for_field_of_study import get_primary_field_of_study_for_subject
+from app.cruds.crud_department_for_field_of_study import get_departments_for_field_of_study
 from app.models.model_lessons import Lesson
 from app.schemas.rapla.reservations.schema_rapla_apontment import SchemaRaplaApointment
 from app.schemas.rapla.reservations.schema_rapla_reservation_zajencia import SchemaRaplaReservationZajencia
 from app.schemas.rapla.schema_rapla_permision import RaplaPermission
+from app.cruds.crud_lesson_for_group import	get_groups_for_lesson
+from app.cruds.rapla.crud_rapla_group_to_resourc import get_resourc_by_group_id
 
 
 def get_lessons(db: Session) -> list[Lesson]:
@@ -129,8 +133,14 @@ def lessons_to_schema(db: Session) -> list[SchemaRaplaReservationZajencia]:
 		lesson_date = cast(date, lesson.date)
 		start_time = cast(time, lesson.start_time).strftime("%H:%M:%S")
 		end_time = cast(time, lesson.end_time).strftime("%H:%M:%S")
+		groups = get_groups_for_lesson(db, lesson.id)
 
 		allocate: list[str] = []
+		for group in groups:
+			group_resource = get_resourc_by_group_id(db, cast(int, group.id))
+			if group_resource is not None and getattr(group_resource, "uuid", None):
+				allocate.append(cast(str, group_resource.uuid))
+
 		subject_resource = get_resourc_by_subject_id(db, cast(int, lesson.subject_id))
 		if subject_resource is not None and getattr(subject_resource, "uuid", None):
 			allocate.append(cast(str, subject_resource.uuid))
@@ -163,6 +173,35 @@ def lessons_to_schema(db: Session) -> list[SchemaRaplaReservationZajencia]:
 
 		reservation = reservations_by_key.get(name_value)
 		if reservation is None:
+			# base permissions (read for others)
+			permissions = [
+				RaplaPermission(
+					group="category[key='read-events-from-others']",
+					access="read",
+				)
+			]
+
+
+			field_of_study = None
+			if getattr(lesson, "subject_id", None) is not None:
+				field_of_study = get_primary_field_of_study_for_subject(db, cast(int, lesson.subject_id))
+
+
+
+			if field_of_study is not None:
+				departments = get_departments_for_field_of_study(db, cast(int, getattr(field_of_study, "id", None))) or []
+				seen = set()
+				for dept in departments:
+					abbr = getattr(dept, "abbreviation", None)
+					if not abbr:
+						continue
+					group = f"category[key='{abbr}_Editor']"
+					if group in seen:
+						continue
+					seen.add(group)
+					permissions.append(RaplaPermission(group=group, access="Edit"))
+			
+
 			reservation = SchemaRaplaReservationZajencia(
 				uuid=str(uuid4()),
 				owner=owner_uuid,
@@ -171,12 +210,7 @@ def lessons_to_schema(db: Session) -> list[SchemaRaplaReservationZajencia]:
 				last_changed_by=owner_uuid,
 				appointments=[appointment],
 				name=name_value,
-				permissions=[
-					RaplaPermission(
-						group="category[key='read-events-from-others']",
-						access="read",
-					)
-				],
+				permissions=permissions,
 			)
 			reservations_by_key[name_value] = reservation
 		else:

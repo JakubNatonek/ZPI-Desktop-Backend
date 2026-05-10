@@ -18,6 +18,11 @@ def seed_rooms(db: Session) -> None:
 		{"id": 4, "number": "101", "seats": 25, "description": "Sala ćwiczeniowa", "room_type_name": "Ćwiczeniowa", "departments": ["WSiS"], "activities": ["ćwiczenia", "seminaria"], "special_equipment": ["Flipchart", "Tablica interaktywna"]},
 		{"id": 5, "number": "102", "seats": 15, "description": "Laboratorium fizyczne", "room_type_name": "Laboratoryjna", "departments": ["WI"], "activities": ["laboratoria"], "special_equipment": ["Komputer", "Klimatyzacja"]},
 		{"id": 6, "number": "001", "seats": 100, "description": "Duża aula", "room_type_name": "Wykładowa", "departments": ["WKFiB", "WLiZ"], "activities": ["wykłady", "konferencje"], "special_equipment": ["Projektor", "Ekran", "Nagłośnienie", "Mikrofon"]},
+		# Rooms used in lessons.json (added to ensure lesson seeding finds rooms)
+		{"id": 7, "number": "1.5", "seats": 25, "description": "", "room_type_name": "Wykładowa", "departments": ["WI"], "activities": [], "special_equipment": []},
+		{"id": 8, "number": "2.6", "seats": 25, "description": "", "room_type_name": "Wykładowa", "departments": ["WI"], "activities": [], "special_equipment": []},
+		{"id": 9, "number": "1.10A", "seats": 20, "description": "", "room_type_name": "Wykładowa", "departments": ["WI"], "activities": [], "special_equipment": []},
+		{"id": 10, "number": "0.8", "seats": 30, "description": "", "room_type_name": "Wykładowa", "departments": ["WI"], "activities": [], "special_equipment": []},
 	]
 
 	created_count = 0

@@ -22,3 +22,15 @@ def create_field_of_study(db: Session, name: str, abbrevation: str, year: int) -
     db.add(field_of_study)
     db.flush()
     return field_of_study
+
+
+def get_field_of_study_by_abbrevation_and_year(db: Session, abbrevation: str, year: int) -> Optional[FieldOfStudy]:
+    try:
+        return (
+            db.query(FieldOfStudy)
+            .filter(FieldOfStudy.abbrevation == abbrevation)
+            .filter(FieldOfStudy.year == int(year))
+            .first()
+        )
+    except Exception:
+        return None

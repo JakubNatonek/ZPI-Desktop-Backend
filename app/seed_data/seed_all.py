@@ -35,6 +35,7 @@ def seed_all() -> None:
 
         seed_model.seed_subjects(db)
         seed_field_of_study(db)
+        seed_model.seed_groups(db)
 
         seed_model.seed_lessons(db)
 

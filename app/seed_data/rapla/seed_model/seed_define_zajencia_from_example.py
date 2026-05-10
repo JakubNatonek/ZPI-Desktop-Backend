@@ -24,7 +24,6 @@ from app.cruds.rapla.crud_rapla_language_abbreviations import get_language_abbre
 
 
 def seed_define_zajencia(db: Session, rapla_admin_uuid: str) -> None:
-	"""Seed a `dynatt:zajencia` define-element using example data from XML."""
 
 	uuid = None
 	name = "dynatt:zajencia"
