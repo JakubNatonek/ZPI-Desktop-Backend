@@ -12,9 +12,16 @@ class TeachingLoadAssignment(Base):
     subject_id = Column(Integer, ForeignKey("subject.id", ondelete="CASCADE"), nullable=False, index=True)
     activity_id = Column(Integer, ForeignKey("activities.id", ondelete="CASCADE"), nullable=False, index=True)
     semester_id = Column(Integer, ForeignKey("semesters.id", ondelete="CASCADE"), nullable=False, index=True)
+    subject_for_field_of_study_id = Column(
+        Integer,
+        ForeignKey("subject_for_field_of_study.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
     hours = Column(Integer, nullable=False)
 
     teacher = relationship("User", back_populates="teaching_load_assignments", foreign_keys=[teacher_id])
     subject = relationship("Subject")
     activity = relationship("Activity")
     semester = relationship("Semestr")
+    subject_for_field_of_study = relationship("SubjectForFieldOfStudy")

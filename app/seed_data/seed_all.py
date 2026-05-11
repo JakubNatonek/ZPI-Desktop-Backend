@@ -39,16 +39,18 @@ def seed_all() -> None:
 
         seed_model.seed_lessons(db)
 
+        # Subject preferences for lecturers
+        seed_model.seed_subject_preferences(db)
+
         # default availability preference for a test user
         seed_model.seed_dezyderata(db)
 
         
-
+        seed_model.seed_teaching_loads(db)
 
         # NOTE: WTF is this dogshit
         # seed_departments_for_user(db)
         # seed_grades(db)
-        # seed_groups(db)
         # seed_subjects(db)
         # seed_teacher_student_profiles(db)
 

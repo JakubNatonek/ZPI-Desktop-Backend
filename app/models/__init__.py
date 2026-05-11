@@ -47,6 +47,7 @@ from app.models.model_title_for_user import TitleForUser
 from app.models.model_teacher import Teacher
 from app.models.model_subject import Subject
 from app.models.model_subject_activity import SubjectActivity
+from app.models.model_subject_preference import SubjectPreference
 from app.models.model_field_of_study import FieldOfStudy
 from app.models.model_department_for_field_of_study import DepartmentForFieldOfStudy
 from app.models.model_subject_for_field_of_study import SubjectForFieldOfStudy
@@ -101,6 +102,7 @@ __all__ = [
     "Student",
     "Subject",
     "SubjectActivity",
+    "SubjectPreference",
     "FieldOfStudy",
     "DepartmentForFieldOfStudy",
     "SubjectForFieldOfStudy",

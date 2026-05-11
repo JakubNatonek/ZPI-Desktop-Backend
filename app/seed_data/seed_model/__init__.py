@@ -4,7 +4,6 @@ from app.seed_data.seed_model.seed_dezyderata import seed_dezyderata
 from app.seed_data.seed_model.seed_departments import seed_departments
 from app.seed_data.seed_model.seed_departments_for_user import seed_departments_for_user
 from app.seed_data.seed_model.seed_grades import seed_grades
-from app.seed_data.seed_model.seed_groups import seed_groups
 from app.seed_data.seed_model.seed_roles import seed_roles
 from app.seed_data.seed_model.seed_announcements import seed_announcements
 from app.seed_data.seed_model.seed_rooms import seed_rooms
@@ -20,6 +19,8 @@ from app.seed_data.seed_model.seed_thesis import seed_thesis
 from app.seed_data.seed_model.seed_thesis_proposals import seed_thesis_proposals
 from app.seed_data.seed_model.seed_thesis_settings import seed_thesis_settings
 from app.seed_data.seed_model.seed_users import seed_users
+from app.seed_data.seed_model.seed_teaching_loads import seed_teaching_loads
+from app.seed_data.seed_model.seed_subject_preferences import seed_subject_preferences
 
 __all__ = [
 	"seed_days",
@@ -28,7 +29,6 @@ __all__ = [
 	"seed_departments",
 	"seed_departments_for_user",
 	"seed_grades",
-	"seed_groups",
 	"seed_roles",
 	"seed_announcements",
 	"seed_rooms",
@@ -44,4 +44,6 @@ __all__ = [
 	"seed_users",
 	"seed_admin",
 	"seed_titles",
+	"seed_teaching_loads",
+	"seed_subject_preferences",
 ]

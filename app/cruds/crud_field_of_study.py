@@ -24,6 +24,14 @@ def create_field_of_study(db: Session, name: str, abbrevation: str, year: int) -
     return field_of_study
 
 
+def get_field_of_studies(db: Session) -> list[FieldOfStudy]:
+    return (
+        db.query(FieldOfStudy)
+        .order_by(FieldOfStudy.name.asc(), FieldOfStudy.year.asc(), FieldOfStudy.id.asc())
+        .all()
+    )
+
+
 def get_field_of_study_by_abbrevation_and_year(db: Session, abbrevation: str, year: int) -> Optional[FieldOfStudy]:
     try:
         return (
