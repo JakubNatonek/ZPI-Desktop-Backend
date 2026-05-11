@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from app.models.model_teaching_load import TeachingLoadAssignment
+from app.models.model_teaching_load_assignment import TeachingLoadAssignment
 from app.models.model_user import User
 from app.models.model_subject import Subject
 from app.models.model_activity import Activity

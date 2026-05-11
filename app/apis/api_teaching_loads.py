@@ -4,13 +4,7 @@ from sqlalchemy.orm import Session
 from app.auth.current_user import get_current_user, user_has_role
 from app.core.database import get_db
 from app.cruds.crud_audit_logs import create_audit_log
-from app.cruds.crud_teaching_loads import (
-    get_all_teaching_loads,
-    get_teaching_load_by_id,
-    create_teaching_load,
-    patch_teaching_load,
-    delete_teaching_load,
-)
+
 from app.models.model_user import User
 from app.schemas.teaching_load import (
     TeachingLoadAssignmentDto,

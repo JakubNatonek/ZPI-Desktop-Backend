@@ -103,7 +103,7 @@ app.include_router(field_of_study_router)
 app.include_router(teaching_loads_router)
 app.include_router(subject_preferences_router)
 app.include_router(special_equipment_router)
-app.include_router(audit_router)
+# app.include_router(audit_router)
 
 # NOTE: Not fully implemented
 app.include_router(rapla_file_router)
