@@ -54,9 +54,6 @@ def seed_all() -> None:
         # audit log history
         seed_model.seed_audit_logs(db)
 
-        
-        seed_model.seed_teaching_loads(db)
-
         # NOTE: WTF is this dogshit
         # seed_departments_for_user(db)
         # seed_grades(db)

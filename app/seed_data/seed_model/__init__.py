@@ -23,7 +23,6 @@ from app.seed_data.seed_model.seed_users import seed_users
 from app.seed_data.seed_model.seed_unavailability_notes import seed_unavailability_notes
 from app.seed_data.seed_model.seed_teaching_loads import seed_teaching_loads
 from app.seed_data.seed_model.seed_audit_logs import seed_audit_logs
-from app.seed_data.seed_model.seed_teaching_loads import seed_teaching_loads
 from app.seed_data.seed_model.seed_subject_preferences import seed_subject_preferences
 
 __all__ = [
@@ -52,6 +51,5 @@ __all__ = [
 	"seed_teaching_loads",
 	"seed_subject_preferences",
 	"seed_unavailability_notes",
-	"seed_teaching_loads",
 	"seed_audit_logs",
 ]
