@@ -4,6 +4,14 @@ from sqlalchemy.orm import Session
 from app.auth.current_user import get_current_user, user_has_role
 from app.core.database import get_db
 from app.cruds.crud_audit_logs import create_audit_log
+from app.cruds.crud_teaching_load import (
+    get_teaching_loads,
+    get_teaching_load_by_id,
+    create_teaching_load,
+    patch_teaching_load,
+    delete_teaching_load,
+    map_teaching_load_to_response,
+)
 
 from app.models.model_user import User
 from app.schemas.teaching_load import (
@@ -27,7 +35,7 @@ def list_teaching_loads(
     current_user: User = Depends(get_current_user),
 ) -> TeachingLoadListResponse:
     _require_admin(current_user)
-    items = get_all_teaching_loads(db)
+    items = [map_teaching_load_to_response(item) for item in get_teaching_loads(db)]
     return TeachingLoadListResponse(items=items)
 
 
@@ -49,15 +57,9 @@ def create_assignment(
         db, "TeachingLoadAssignment", result.id, "create",
         modified_by=current_user.user_id,
         modified_by_name=_user_label,
-        new_values={
-            "teacher": f"{result.teacher_title or ''} {result.teacher_first_name} {result.teacher_last_name}".strip(),
-            "subject_name": result.subject_name,
-            "activity_name": result.activity_name,
-            "semester_name": result.semester_name,
-            "hours": result.hours,
-        },
+        new_values=map_teaching_load_to_response(result),
     )
-    return result
+    return map_teaching_load_to_response(result)
 
 
 @router.patch("/{assignment_id}", response_model=TeachingLoadAssignmentDto, summary="Edytuj przydział godzin")
@@ -69,18 +71,18 @@ def update_assignment(
 ) -> TeachingLoadAssignmentDto:
     _require_admin(current_user)
     old = get_teaching_load_by_id(db, assignment_id)
-    result = patch_teaching_load(db, assignment_id, payload)
-    if result is None:
+    if old is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Nie znaleziono przydziału")
+    result = patch_teaching_load(db, old, payload)
     _user_label = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
     create_audit_log(
         db, "TeachingLoadAssignment", assignment_id, "update",
         modified_by=current_user.user_id,
         modified_by_name=_user_label,
-        old_values={"hours": old.hours} if old else None,
-        new_values={"hours": result.hours},
+        old_values=map_teaching_load_to_response(old) if old else None,
+        new_values=map_teaching_load_to_response(result),
     )
-    return result
+    return map_teaching_load_to_response(result)
 
 
 @router.delete("/{assignment_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Usuń przydział godzin")
@@ -91,18 +93,13 @@ def remove_assignment(
 ) -> None:
     _require_admin(current_user)
     old = get_teaching_load_by_id(db, assignment_id)
-    if not delete_teaching_load(db, assignment_id):
+    if old is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Nie znaleziono przydziału")
+    delete_teaching_load(db, old)
     _user_label = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
     create_audit_log(
         db, "TeachingLoadAssignment", assignment_id, "delete",
         modified_by=current_user.user_id,
         modified_by_name=_user_label,
-        old_values={
-            "teacher": f"{old.teacher_title or ''} {old.teacher_first_name} {old.teacher_last_name}".strip() if old else None,
-            "subject_name": old.subject_name if old else None,
-            "activity_name": old.activity_name if old else None,
-            "semester_name": old.semester_name if old else None,
-            "hours": old.hours if old else None,
-        } if old else None,
+        old_values=map_teaching_load_to_response(old) if old else None,
     )

@@ -1,6 +1,8 @@
+from datetime import datetime, timezone
+from typing import Any, Dict, Optional, cast
+
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
-from datetime import datetime
-from typing import Dict, Any, Optional
 from app.models.model_audit_log import AuditLog
 from app.models.model_user import User
 
@@ -13,14 +15,17 @@ def log_change(
     new_values: Optional[Dict[str, Any]],
     user_id: Optional[int]
 ):
+    encoded_old_values = jsonable_encoder(old_values) if old_values is not None else None
+    encoded_new_values = jsonable_encoder(new_values) if new_values is not None else None
+
     audit_entry = AuditLog(
         entity_name=entity_name,
         entity_id=entity_id,
         action=action,
-        old_values=old_values,
-        new_values=new_values,
+        old_values=encoded_old_values,
+        new_values=encoded_new_values,
         modified_by=user_id,
-        timestamp=datetime.utcnow()
+        timestamp=datetime.now(timezone.utc)
     )
     db.add(audit_entry)
     db.commit()
@@ -33,7 +38,7 @@ def get_audit_logs(db: Session):
 def acknowledge_changes(db: Session, user_id: int):
     user = db.query(User).filter(User.user_id == user_id).first()
     if user:
-        user.last_changes_viewed_at = datetime.utcnow()
+        cast(Any, user).last_changes_viewed_at = datetime.now(timezone.utc)
         db.commit()
         db.refresh(user)
     return user
