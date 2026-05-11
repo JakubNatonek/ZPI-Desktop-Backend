@@ -15,6 +15,7 @@ from app.auth.jwt_utils import (
     decode_refresh_token,
     refresh_expiry_datetime,
 )
+from app.auth.password_utils import verify_password
 from app.cruds.crud_departments_for_user import get_departments_for_user
 from app.cruds.crud_login import (
     authenticate_user,
@@ -206,15 +207,18 @@ def refresh_tokens(request: Request, response: Response, db: Session = Depends(g
 @router.post(
     "/change-one-time-password",
     response_model=ChangePasswordResponse,
-    summary="Zmień jednorazowe hasło użytkownika",
+    summary="Zmień hasło użytkownika",
 )
 def change_password(
     payload: ChangePasswordRequest,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> ChangePasswordResponse:
+    # Sprawdź czy aktualne hasło jest poprawne
+    if not verify_password(payload.current_password, current_user.password_hash):
+        raise HTTPException(status_code=400, detail="Aktualne hasło jest niepoprawne.")
     update_user_password(db, current_user, payload.new_password)
-    return ChangePasswordResponse(message="One-time password changed successfully")
+    return ChangePasswordResponse(message="Hasło zmienione pomyślnie")
 
 
 @router.post(

@@ -77,6 +77,7 @@ class UserLogin(BaseModel):
 
 class ChangePasswordRequest(BaseModel):
     """Dane do zmiany hasła użytkownika."""
+    current_password: str = ""
     new_password: str
     confirm_new_password: str
 
