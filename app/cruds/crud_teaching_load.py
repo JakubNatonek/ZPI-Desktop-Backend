@@ -174,16 +174,19 @@ def create_teaching_load(
     _get_subject(db, payload.subject_id)
     _get_activity(db, payload.activity_id)
     _get_semester(db, payload.semester_id)
+    if payload.field_of_study_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Wybierz poprawny rocznik",
+        )
+    _get_field_of_study(db, payload.field_of_study_id)
     _ensure_subject_activity_link(db, payload.subject_id, payload.activity_id)
 
-    subject_field_mapping = None
-    if payload.field_of_study_id is not None:
-        _get_field_of_study(db, payload.field_of_study_id)
-        subject_field_mapping = add_subject_to_field_of_study(
-            db,
-            subject_id=payload.subject_id,
-            field_of_study_id=payload.field_of_study_id,
-        )
+    subject_field_mapping = add_subject_to_field_of_study(
+        db,
+        subject_id=payload.subject_id,
+        field_of_study_id=payload.field_of_study_id,
+    )
 
     existing = _get_existing_assignment(
         db,
@@ -191,7 +194,7 @@ def create_teaching_load(
         subject_id=payload.subject_id,
         activity_id=payload.activity_id,
         semester_id=payload.semester_id,
-        subject_for_field_of_study_id=subject_field_mapping.id if subject_field_mapping is not None else None,
+        subject_for_field_of_study_id=subject_field_mapping.id,
     )
     if existing is not None:
         raise HTTPException(
@@ -205,7 +208,7 @@ def create_teaching_load(
         activity_id=payload.activity_id,
         semester_id=payload.semester_id,
         hours=payload.hours,
-        subject_for_field_of_study_id=subject_field_mapping.id if subject_field_mapping is not None else None,
+        subject_for_field_of_study_id=subject_field_mapping.id,
     )
     db.add(assignment)
     db.commit()
@@ -223,16 +226,19 @@ def update_teaching_load(
     _get_subject(db, payload.subject_id)
     _get_activity(db, payload.activity_id)
     _get_semester(db, payload.semester_id)
+    if payload.field_of_study_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Wybierz poprawny rocznik",
+        )
+    _get_field_of_study(db, payload.field_of_study_id)
     _ensure_subject_activity_link(db, payload.subject_id, payload.activity_id)
 
-    subject_field_mapping = None
-    if payload.field_of_study_id is not None:
-        _get_field_of_study(db, payload.field_of_study_id)
-        subject_field_mapping = add_subject_to_field_of_study(
-            db,
-            subject_id=payload.subject_id,
-            field_of_study_id=payload.field_of_study_id,
-        )
+    subject_field_mapping = add_subject_to_field_of_study(
+        db,
+        subject_id=payload.subject_id,
+        field_of_study_id=payload.field_of_study_id,
+    )
 
     existing = _get_existing_assignment(
         db,
@@ -240,7 +246,7 @@ def update_teaching_load(
         subject_id=payload.subject_id,
         activity_id=payload.activity_id,
         semester_id=payload.semester_id,
-        subject_for_field_of_study_id=subject_field_mapping.id if subject_field_mapping is not None else None,
+        subject_for_field_of_study_id=subject_field_mapping.id,
     )
     if existing is not None and existing.id != assignment.id:
         raise HTTPException(
@@ -253,9 +259,7 @@ def update_teaching_load(
     assignment.activity_id = payload.activity_id
     assignment.semester_id = payload.semester_id
     assignment.hours = payload.hours
-    assignment.subject_for_field_of_study_id = (
-        subject_field_mapping.id if subject_field_mapping is not None else None
-    )
+    assignment.subject_for_field_of_study_id = subject_field_mapping.id
 
     db.add(assignment)
     db.commit()
@@ -284,14 +288,13 @@ def patch_teaching_load(
     if "field_of_study_id" in data and data["field_of_study_id"] is not None:
         _get_field_of_study(db, data["field_of_study_id"])
 
-    field_of_study_sent = "field_of_study_id" in data
     target_teacher_id = data.get("teacher_id", assignment.teacher_id)
     target_subject_id = data.get("subject_id", assignment.subject_id)
     target_activity_id = data.get("activity_id", assignment.activity_id)
     target_semester_id = data.get("semester_id", assignment.semester_id)
-    target_field_of_study_id = data.get("field_of_study_id") if field_of_study_sent else None
+    target_field_of_study_id = data.get("field_of_study_id")
 
-    if not field_of_study_sent and assignment.subject_for_field_of_study is not None:
+    if target_field_of_study_id is None and assignment.subject_for_field_of_study is not None:
         target_field_of_study_id = assignment.subject_for_field_of_study.field_of_study_id
 
     _ensure_subject_activity_link(db, target_subject_id, target_activity_id)
@@ -303,7 +306,7 @@ def patch_teaching_load(
             subject_id=target_subject_id,
             field_of_study_id=target_field_of_study_id,
         )
-    elif not field_of_study_sent and assignment.subject_for_field_of_study is not None:
+    elif assignment.subject_for_field_of_study is not None:
         subject_field_mapping = assignment.subject_for_field_of_study
 
     existing = _get_existing_assignment(
@@ -325,8 +328,6 @@ def patch_teaching_load(
 
     if subject_field_mapping is not None:
         assignment.subject_for_field_of_study_id = subject_field_mapping.id
-    elif field_of_study_sent:
-        assignment.subject_for_field_of_study_id = None
 
     db.add(assignment)
     db.commit()

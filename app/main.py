@@ -47,7 +47,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     init_database()
     #run_migrations() # NOTE: this should not be done evry time the server is run
 
-    # seed_all() # NOTE: Works only for empty DB with correct tables
+    #seed_all() # NOTE: Works only for empty DB with correct tables
     yield
 
 
