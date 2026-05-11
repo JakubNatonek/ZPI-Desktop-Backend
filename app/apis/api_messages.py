@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -25,6 +26,10 @@ def _isoformat_or_none(value) -> str | None:
 )
 def get_messages_for_user(
     user_id: int = Query(..., description="ID użytkownika, dla którego pobieramy wiadomości"),
+    since: str | None = Query(
+        None,
+        description="Opcjonalny filtr ISO 8601 — zwraca tylko wiadomości z created_at > since (do pollingu)",
+    ),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> List[MessageResponse]:
@@ -32,11 +37,22 @@ def get_messages_for_user(
     Zwraca wiadomości dla konwersacji, w których uczestniczy `user_id`.
     Endpoint nie deszyfruje danych — zwraca dokładnie to, co jest zapisane w bazie.
 
+    Gdy podano parametr ``since`` (ISO 8601), zwracane są wyłącznie wiadomości
+    utworzone po tej dacie — co pozwala na efektywny polling co X sekund.
+
     Uprawnienia: użytkownik może pobrać swoje wiadomości; użytkownik z rolą 'admin' może pobrać dowolnego.
     """
     # Permission check: allow self or admin
     if current_user.user_id != user_id and not user_has_role(current_user, "admin"):
         raise HTTPException(status_code=403, detail="Brak dostępu do żądanych wiadomości")
+
+    # Parse optional `since` filter
+    since_dt: datetime | None = None
+    if since:
+        try:
+            since_dt = datetime.fromisoformat(since)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Nieprawidłowy format daty 'since'. Oczekiwano ISO 8601.")
 
     conversation_ids = [
         conversation_id
@@ -51,12 +67,15 @@ def get_messages_for_user(
     if not conversation_ids:
         return []
 
-    messages = (
+    query = (
         db.query(Message)
         .filter(Message.conversation_id.in_(conversation_ids))
-        .order_by(Message.created_at.asc())
-        .all()
     )
+
+    if since_dt is not None:
+        query = query.filter(Message.created_at > since_dt)
+
+    messages = query.order_by(Message.created_at.asc()).all()
 
     return [
         MessageResponse(
