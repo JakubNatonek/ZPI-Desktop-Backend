@@ -34,6 +34,7 @@ def seed_teaching_loads(db: Session) -> None:
 	# Only consider subjects that were created by seed_subjects (match by name)
 	seeded_subject_names = {entry["name"] for entry in SAMPLE_SUBJECTS}
 	subjects = db.query(Subject).filter(Subject.name.in_(list(seeded_subject_names))).all()
+	activities = db.query(Activity).all()
 	semester = db.query(Semestr).first()
 	
 	if not subjects or not activities or not semester:
@@ -43,7 +44,7 @@ def seed_teaching_loads(db: Session) -> None:
 	# Create sample assignments
 	sample_assignments = []
 	for idx, lecturer in enumerate(lecturers[:3]):  # First 3 lecturers
-		for subject in subjects:
+		for subject_idx, subject in enumerate(subjects):
 			# pick activity linked to the subject: prefer primary type_link, else first subject_activity
 			activity_id = None
 			if getattr(subject, "type_link", None) and getattr(subject.type_link, "activity", None):
@@ -67,7 +68,7 @@ def seed_teaching_loads(db: Session) -> None:
 			sample_assignments.append({
 				"teacher_id": lecturer.user_id,
 				"subject_id": subject.id,
-				"activity_id": activity.id,
+				"activity_id": activity_id,
 				"semester_id": semester.id,
 				"subject_for_field_of_study_id": subject_field_mapping.id,
 				"hours": hours,

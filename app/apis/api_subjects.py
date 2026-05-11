@@ -19,6 +19,14 @@ from app.schemas.subject import SubjectCreate, SubjectListResponse, SubjectRespo
 router = APIRouter(prefix="/subjects", tags=["subjects"])
 
 
+@router.get("/public/list", response_model=SubjectListResponse, summary="Pobierz publiczną listę przedmiotów")
+def list_subjects_public(
+    db: Session = Depends(get_db),
+) -> SubjectListResponse:
+    subjects = get_subjects(db)
+    return SubjectListResponse(items=[SubjectResponse(**map_subject_to_response(subject)) for subject in subjects])
+
+
 @router.get("/list", response_model=SubjectListResponse, summary="Pobierz listę przedmiotów")
 def list_subjects(
     db: Session = Depends(get_db),

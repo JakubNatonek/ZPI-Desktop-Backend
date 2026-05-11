@@ -28,6 +28,7 @@ from app.apis.api_subjects import router as subjects_router
 from app.apis.api_field_of_study import router as field_of_study_router
 from app.apis.api_special_equipment import router as special_equipment_router
 from app.apis.api_teaching_loads import router as teaching_loads_router
+from app.apis.api_subject_preferences import router as subject_preferences_router
 from app.apis.rapla.api_rapla_file import router as rapla_file_router
 
 from app.apis.api_dezyderata import router as dezyderata_router
@@ -100,6 +101,7 @@ app.include_router(activities_router)
 app.include_router(subjects_router)
 app.include_router(field_of_study_router)
 app.include_router(teaching_loads_router)
+app.include_router(subject_preferences_router)
 app.include_router(special_equipment_router)
 app.include_router(audit_router)
 
