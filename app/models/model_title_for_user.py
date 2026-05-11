@@ -14,3 +14,4 @@ class TitleForUser(Base):
     title_id = Column(Integer, ForeignKey("title.id"), index=True, nullable=False)
 
     user = relationship("User", back_populates="title_assignments")
+    title = relationship("TitleModel", foreign_keys=[title_id])

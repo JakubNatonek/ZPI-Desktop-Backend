@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.auth.current_user import get_current_user, user_has_role
 from app.core.database import get_db
+from app.cruds.crud_audit_logs import create_audit_log
 from app.cruds.crud_unavailability_notes import (
     create_unavailability_note,
     get_unavailability_notes_for_user,
@@ -24,8 +25,6 @@ from app.schemas.unavailability_note import (
 
 router = APIRouter(prefix="/unavailability-notes", tags=["unavailability-notes"])
 
-
-from app.cruds.crud_audit import log_change
 
 @router.post(
     "",
@@ -64,22 +63,25 @@ async def create_note(
             description=payload.description,
             note_type=payload.note_type,
         )
-        
-        response_model = UnavailabilityNoteResponse.model_validate(note)
-        
-        log_change(
-            db=db,
-            entity_name="UnavailabilityNote",
-            entity_id=note.id,
-            action="CREATE",
-            old_values=None,
-            new_values=response_model.model_dump(mode='json'),
-            user_id=current_user.user_id
+        create_audit_log(
+            db, "UnavailabilityNote", int(note.id), "create",
+            modified_by=current_user.user_id,
+            modified_by_name=f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email,
+            new_values={
+                "user_id": note.user_id,
+                "start_date": str(note.start_date),
+                "end_date": str(note.end_date) if note.end_date else None,
+                "description": note.description,
+                "note_type": note.note_type.value if note.note_type else None,
+                "status": note.status.value if note.status else None,
+            },
         )
-
-        return response_model
+        return UnavailabilityNoteResponse.model_validate(note)
     except ValueError as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
 
 
 @router.get(
@@ -181,14 +183,6 @@ def update_note_status(
             detail="Brak dostępu. Wymagana rola: Admin",
         )
 
-    note_old = get_unavailability_note_by_id(db, note_id)
-    if not note_old:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Notatka o ID {note_id} nie znaleziona",
-        )
-    old_values = UnavailabilityNoteResponse.model_validate(note_old).model_dump(mode='json')
-
     note = update_unavailability_note_status(db, note_id, payload.status)
     if not note:
         raise HTTPException(
@@ -196,19 +190,13 @@ def update_note_status(
             detail=f"Notatka o ID {note_id} nie znaleziona",
         )
 
-    response_model = UnavailabilityNoteResponse.model_validate(note)
-
-    log_change(
-        db=db,
-        entity_name="UnavailabilityNote",
-        entity_id=note.id,
-        action="UPDATE",
-        old_values=old_values,
-        new_values=response_model.model_dump(mode='json'),
-        user_id=current_user.user_id
+    create_audit_log(
+        db, "UnavailabilityNote", note_id, "update",
+        modified_by=current_user.user_id,
+        modified_by_name=f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email,
+        new_values={"status": note.status.value if note.status else None},
     )
-
-    return response_model
+    return UnavailabilityNoteResponse.model_validate(note)
 
 
 @router.get(

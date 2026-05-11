@@ -34,8 +34,8 @@ from app.apis.rapla.api_rapla_file import router as rapla_file_router
 from app.apis.api_dezyderata import router as dezyderata_router
 from app.apis.api_unavailability_notes import router as unavailability_notes_router
 from app.apis.api_notifications import router as notifications_router
-from app.apis.api_audit import router as audit_router
-from app.apis.api_groups import router as groups_router
+from app.apis.api_audit_logs import router as audit_logs_router
+from app.apis.api_teaching_loads import router as teaching_loads_router
 
 # NOTE: Semi example data to use and maybe import to proper app.
 from app.seed_data.seed_all import seed_all
@@ -115,7 +115,8 @@ app.include_router(admin_thesis_router)
 app.include_router(grades_router)
 app.include_router(unavailability_notes_router)
 app.include_router(notifications_router)
-app.include_router(groups_router)
+app.include_router(audit_logs_router)
+app.include_router(teaching_loads_router)
 
 
 

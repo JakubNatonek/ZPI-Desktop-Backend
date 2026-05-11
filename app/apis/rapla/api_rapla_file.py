@@ -1,28 +1,68 @@
 from pathlib import Path
+from typing import Optional
 
-from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Query
 from fastapi.responses import FileResponse
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
+from app.auth.current_user import get_current_user
 from app.core.database import get_db
 from app.cruds.rapla.crud_rapla_categories import get_rapla_categories_schema
 from app.cruds.rapla.crud_rapla_users import get_rapla_users_schema
 from app.cruds.rapla.crud_rapla_define_element import get_define_element_full_schema
+from app.cruds.rapla.crud_rapla_imported_reservation import upsert_rapla_reservations
+from app.models.model_user import User
+from app.models.rapla.model_rapla_imported_reservation import RaplaImportedReservation
 from app.schemas.rapla.schema_rapla_file import RaplaFile
 from app.schemas.rapla.schema_rapla_grammar import RaplaGrammar
 from app.schemas.rapla.schema_rapla_resources import SchemaRaplaResources
 from app.cruds.rapla.crud_rapla_app_user_to_resourc import all_app_user_to_resourc_schema
 from app.cruds.rapla.crud_rapla_room_to_resourc import all_room_to_resourc_schema
 from app.cruds.rapla.crud_rapla_subject_to_resourc import all_subject_to_resourc_schema
+from app.services.rapla_xml_parser import parse_rapla_reservations
 from app.cruds.rapla.crud_rapla_semester_to_resourc import all_semester_to_resourc_schema
 from app.cruds.crud_dezyderata import dezyderaty_to_schema
 from app.cruds.crud_lessons import lessons_to_schema
 from app.cruds.rapla.crud_rapla_group_to_resourc import all_group_to_resourc_schema
 
 
-
-
 router = APIRouter(prefix="/rapla", tags=["rapla"])
+
+
+class RaplaReservationDto(BaseModel):
+	id: int
+	uuid: str
+	name: Optional[str]
+	color: Optional[str]
+	reservation_type: Optional[str]
+	reservation_uuid: Optional[str]
+	activity_type: Optional[str]
+	start_date: Optional[str]
+	start_time: Optional[str]
+	end_date: Optional[str]
+	end_time: Optional[str]
+	repeating_type: Optional[str]
+	repeating_end_date: Optional[str]
+	allocate: Optional[list[str]]
+	room_names: Optional[list[str]]
+	teacher_names: Optional[list[str]]
+	semester_names: Optional[list[str]]
+	group_names: Optional[list[str]]
+
+	model_config = {"from_attributes": True}
+
+
+@router.get(
+        "/reservations",
+        response_model=list[RaplaReservationDto],
+        summary="Get all imported Rapla reservations"
+    )
+def get_rapla_reservations(
+        db: Session = Depends(get_db),
+        _: User = Depends(get_current_user),
+    ) -> list[RaplaImportedReservation]:
+    return db.query(RaplaImportedReservation).order_by(RaplaImportedReservation.start_date.asc()).all()
 
 
 @router.get(
@@ -62,12 +102,13 @@ def generate_rapla_file(
 
 
 @router.post(
-		"/file/import", 
+		"/file/import",
 		summary="Import Rapla XML file into DB"
 	)
 async def import_rapla_file(
-		file: UploadFile = File(...), 
-		db: Session = Depends(get_db)
+		file: UploadFile = File(...),
+		db: Session = Depends(get_db),
+		current_user: User = Depends(get_current_user),
 	):
 	# Basic content-type check
 	if file.content_type not in ("application/xml", "text/xml", "application/octet-stream"):
@@ -79,19 +120,20 @@ async def import_rapla_file(
 	except Exception:
 		raise HTTPException(status_code=400, detail="Unable to decode file as UTF-8")
 
-	# Default summary in case import is not yet implemented
-	summary = {}
-
 	try:
-		# r = parse_rapla_xml(xml_text)
-		pass
+		reservations = parse_rapla_reservations(xml_text)
 	except Exception as e:
 		raise HTTPException(status_code=400, detail=f"Failed to parse Rapla XML: {e}")
 
-	
+	modified_by_name = f"{current_user.first_name} {current_user.last_name}".strip() or str(current_user.user_id)
+
 	try:
-		# summary = import_rapla_file_to_db(db, r)
-		pass
+		summary = upsert_rapla_reservations(
+			db=db,
+			reservations=reservations,
+			modified_by=current_user.user_id,
+			modified_by_name=modified_by_name,
+		)
 	except Exception as e:
 		raise HTTPException(status_code=500, detail=f"Failed to import Rapla data: {e}")
 

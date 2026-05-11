@@ -1,20 +1,23 @@
-from pydantic import BaseModel
-from typing import Optional, Dict, Any
 from datetime import datetime
+from typing import Any, Optional
 
-class AuditLogResponse(BaseModel):
+from pydantic import BaseModel
+
+
+class AuditLogDto(BaseModel):
     id: int
     entity_name: str
     entity_id: int
     action: str
-    old_values: Optional[Dict[str, Any]] = None
-    new_values: Optional[Dict[str, Any]] = None
+    old_values: Optional[Any] = None
+    new_values: Optional[Any] = None
     modified_by: Optional[int] = None
-    modified_by_name: Optional[str] = None
+    modified_by_name: str
     timestamp: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
 
-class AcknowledgeRequest(BaseModel):
-    pass
+
+class AuditLogResponseDto(BaseModel):
+    last_changes_viewed_at: Optional[datetime] = None
+    logs: list[AuditLogDto]

@@ -11,6 +11,7 @@ from app.cruds.crud_department import get_departments_by_ids
 from app.cruds.crud_special_equipment import get_special_equipment_by_ids
 from app.cruds.rapla.crud_rapla_resourc import create_resourc
 from app.cruds.rapla.crud_rapla_room_to_resourc import create_room_to_resourc_mapping, get_resorsc_by_room_id
+from app.models.rapla.model_rapla_room_to_resourc import RaplaRoomToResourc
 from app.cruds.rapla.crud_rapla_permission import (
     create_permission,
     get_permission_by_access,
@@ -231,6 +232,7 @@ def update_room(db: Session, room: Room, payload: RoomUpdate) -> Room:
 
 
 def delete_room(db: Session, room: Room) -> None:
+    db.query(RaplaRoomToResourc).filter(RaplaRoomToResourc.room_id == room.id).delete()
     db.delete(room)
     db.commit()
 

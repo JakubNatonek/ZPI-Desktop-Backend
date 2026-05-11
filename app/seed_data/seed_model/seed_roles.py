@@ -10,6 +10,7 @@ class RolaEnum(str, PyEnum):
     WYKLADOWCA = "wykladowca"
     STUDENT = "student"
     RAPLA_EDITOR = "rapla_editor"
+    WYKLADOWCA_RAPLA_EDITOR = "wykladowca_rapla_editor"
     INNE = "inne"
 
 

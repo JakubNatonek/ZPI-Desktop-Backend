@@ -31,7 +31,7 @@ from app.schemas.dezyderata import (
 router = APIRouter(prefix="/dezyderaty", tags=["dezyderaty"])
 
 ADMIN_ROLE_IDS = {1}
-ADMIN_ROLE_NAMES = {"admin"}
+ADMIN_ROLE_NAMES = {"admin", "rapla_editor", "wykladowca_rapla_editor"}
 LECTURER_ROLE_IDS = {2}
 LECTURER_ROLE_NAMES = {"wykładowca", "wykladowca", "lecturer"}
 

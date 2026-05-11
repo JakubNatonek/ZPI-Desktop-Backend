@@ -87,6 +87,25 @@ from app.models.rapla.model_rapla_subject_to_resourc import RaplaSubjectToResour
 from app.models.rapla.model_rapla_room_type_to_category import RaplaRoomTypeToCategory
 from app.models.rapla.model_rapla_user_to_app_user import RaplaUserToAppUser
 from app.models.rapla.model_rapla_user import RaplaUser
+from app.models.rapla.model_rapla_title_to_category import RaplaTitleToCategory
+from app.models.rapla.model_rapla_annotation import RaplaAnnotation
+from app.models.rapla.model_rapla_annotation_for_define_element import RaplaAnnotationForDefineElement
+from app.models.rapla.model_rapla_annotation_for_optional_element import RaplaAnnotationForOptionalElement
+from app.models.rapla.model_rapla_app_user_to_resourc import RaplaAppUserToResourc
+from app.models.rapla.model_rapla_constraint import RaplaConstraint
+from app.models.rapla.model_rapla_constraint_for_optional_element import RaplaConstraintForOptionalElement
+from app.models.rapla.model_rapla_data_type import RaplaDataType
+from app.models.rapla.model_rapla_data_type_for_optional_element import RaplaDataTypeForOptionalElement
+from app.models.rapla.model_rapla_define_element import RaplaDefineElement
+from app.models.rapla.model_rapla_laguage_name_for_define_element import RaplaLanguageNameForDefineElement
+from app.models.rapla.model_rapla_language_name_for_optional_element import RaplaLanguageNameForOptionalElement
+from app.models.rapla.model_rapla_optional_element import RaplaOptionalElement
+from app.models.rapla.model_rapla_optional_element_for_define_element import RaplaOptionalElementForDefineElement
+from app.models.rapla.model_rapla_permission import RaplaPermission
+from app.models.rapla.model_rapla_permission_for_define_element import RaplaPermissionForDefineElement
+from app.models.rapla.model_rapla_permission_for_resourc import RaplaPermissionForResourc
+from app.models.rapla.model_rapla_semester_to_resourc import RaplaSemesterToResourc
+from app.models.rapla.model_rapla_imported_reservation import RaplaImportedReservation
 
 __all__ = [
     "Base",

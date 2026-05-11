@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.auth.current_user import get_current_user
 from app.core.database import get_db
+from app.cruds.crud_audit_logs import create_audit_log
 from app.cruds.room.crud_room import (
     create_room,
     delete_room,
@@ -62,17 +63,12 @@ def create_room_entry(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Room number already exists")
 
     created = create_room(db, payload)
-    
-    log_change(
-        db=db,
-        entity_name="Room",
-        entity_id=created.id,
-        action="CREATE",
-        old_values=None,
+    create_audit_log(
+        db, "Room", int(created.id), "create",
+        modified_by=current_user.user_id,
+        modified_by_name=f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email,
         new_values=map_room_to_response(created),
-        user_id=current_user.user_id
     )
-    
     return RoomResponse(**map_room_to_response(created))
 
 
@@ -93,18 +89,15 @@ def update_room_entry(
     if existing is not None and existing.id != room_id:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Room number already exists")
 
+    old_values = map_room_to_response(room)
     updated = update_room(db, room, payload)
-    
-    log_change(
-        db=db,
-        entity_name="Room",
-        entity_id=updated.id,
-        action="UPDATE",
+    create_audit_log(
+        db, "Room", room_id, "update",
+        modified_by=current_user.user_id,
+        modified_by_name=f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email,
         old_values=old_values,
         new_values=map_room_to_response(updated),
-        user_id=current_user.user_id
     )
-    
     return RoomResponse(**map_room_to_response(updated))
 
 
@@ -120,13 +113,9 @@ def delete_room_entry(
 
     old_values = map_room_to_response(room)
     delete_room(db, room)
-
-    log_change(
-        db=db,
-        entity_name="Room",
-        entity_id=room_id,
-        action="DELETE",
+    create_audit_log(
+        db, "Room", room_id, "delete",
+        modified_by=current_user.user_id,
+        modified_by_name=f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email,
         old_values=old_values,
-        new_values=None,
-        user_id=current_user.user_id
     )
