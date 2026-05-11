@@ -8,7 +8,7 @@ from app.models.model_role_for_user import RolesForUser
 from app.schemas.audit_log import AuditLogDto, AuditLogResponseDto
 
 # Roles whose changes should appear in the audit log view
-_PLAN_ROLES = {"admin", "rapla_editor"}
+_PLAN_ROLES = {"admin", "rapla_editor", "wykladowca_rapla_editor"}
 
 
 def get_all_logs(db: Session) -> list[AuditLog]:

@@ -25,6 +25,9 @@ _ENTITY = "rapla_reservation"
 _TRACKED_FIELDS = (
     "name",
     "color",
+    "reservation_type",
+    "reservation_uuid",
+    "activity_type",
     "start_date",
     "start_time",
     "end_date",
@@ -35,6 +38,7 @@ _TRACKED_FIELDS = (
     "room_names",
     "teacher_names",
     "semester_names",
+    "group_names",
 )
 
 
@@ -42,6 +46,9 @@ def _row_to_dict(row: RaplaImportedReservation) -> dict:
     return {
         "name": row.name,
         "color": row.color,
+        "reservation_type": row.reservation_type,
+        "reservation_uuid": row.reservation_uuid,
+        "activity_type": row.activity_type,
         "start_date": row.start_date,
         "start_time": row.start_time,
         "end_date": row.end_date,
@@ -52,6 +59,7 @@ def _row_to_dict(row: RaplaImportedReservation) -> dict:
         "room_names": row.room_names or [],
         "teacher_names": row.teacher_names or [],
         "semester_names": row.semester_names or [],
+        "group_names": row.group_names or [],
     }
 
 
@@ -116,6 +124,9 @@ def upsert_rapla_reservations(
                 uuid=parsed.uuid,
                 name=parsed.name,
                 color=parsed.color,
+                reservation_type=parsed.reservation_type,
+                reservation_uuid=parsed.reservation_uuid,
+                activity_type=parsed.activity_type,
                 start_date=parsed.start_date,
                 start_time=parsed.start_time,
                 end_date=parsed.end_date,
@@ -126,6 +137,7 @@ def upsert_rapla_reservations(
                 room_names=parsed.room_names,
                 teacher_names=parsed.teacher_names,
                 semester_names=parsed.semester_names,
+                group_names=parsed.group_names,
             )
             db.add(row)
             db.flush()  # get the generated id
@@ -149,6 +161,9 @@ def upsert_rapla_reservations(
                 # Update stored row
                 existing.name = parsed.name
                 existing.color = parsed.color
+                existing.reservation_type = parsed.reservation_type
+                existing.reservation_uuid = parsed.reservation_uuid
+                existing.activity_type = parsed.activity_type
                 existing.start_date = parsed.start_date
                 existing.start_time = parsed.start_time
                 existing.end_date = parsed.end_date
@@ -159,6 +174,7 @@ def upsert_rapla_reservations(
                 existing.room_names = parsed.room_names
                 existing.teacher_names = parsed.teacher_names
                 existing.semester_names = parsed.semester_names
+                existing.group_names = parsed.group_names
                 db.flush()
 
                 create_audit_log(

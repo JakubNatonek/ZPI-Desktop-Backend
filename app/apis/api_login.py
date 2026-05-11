@@ -62,9 +62,16 @@ def _set_refresh_cookie(response: Response, refresh_token: str) -> None:
 
 def _resolve_primary_role(role_names: list[str]) -> str:
     normalized_roles = [role.strip().lower() for role in role_names if role and role.strip()]
+    role_set = set(normalized_roles)
 
-    for candidate in ("admin", "wykladowca", "lecturer", "planista", "planner", "student"):
-        if candidate in normalized_roles:
+    # Użytkownik z obiema rolami (wykładowca + rapla_editor) lub rolą kombinowaną
+    has_lecturer = bool(role_set.intersection({"wykladowca", "lecturer"}))
+    has_rapla_editor = "rapla_editor" in role_set
+    if has_lecturer and has_rapla_editor:
+        return "wykladowca_rapla_editor"
+
+    for candidate in ("admin", "wykladowca_rapla_editor", "wykladowca", "lecturer", "rapla_editor", "planista", "planner", "student"):
+        if candidate in role_set:
             return candidate
 
     return normalized_roles[0] if normalized_roles else "admin"

@@ -41,10 +41,18 @@ class RaplaImportedReservation(Base):
     # JSON list of idref strings from <rapla:allocate> elements
     allocate = Column(JSON, nullable=True)
 
+    # Reservation type: 'dezyderata' or 'zajencia'
+    reservation_type = Column(String(50), nullable=False, server_default="dezyderata")
+    # Original rapla:reservation UUID (one reservation may expand to many appointment rows)
+    reservation_uuid = Column(String(200), nullable=True, index=True)
+    # Activity type resolved from przedmiot resource (e.g. 'wyklady', 'laboratoria')
+    activity_type = Column(String(100), nullable=True)
+
     # Resolved human-readable resource names (populated from XML resource definitions)
     room_names = Column(JSON, nullable=True)       # list[str] — sala(e)
     teacher_names = Column(JSON, nullable=True)    # list[str] — prowadzący
     semester_names = Column(JSON, nullable=True)   # list[str] — semestr(y)
+    group_names = Column(JSON, nullable=True)      # list[str] — grupy
 
     last_imported_at = Column(
         DateTime(timezone=True), nullable=False, default=_utcnow, onupdate=_utcnow

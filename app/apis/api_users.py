@@ -203,7 +203,7 @@ def set_user_public_key(
 )
 def admin_list_users(
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    _: User = Depends(require_role(["admin", "rapla_editor", "wykladowca_rapla_editor"])),
 ) -> List[AdminUserListResponse]:
     users = get_all_users(db)
     return [

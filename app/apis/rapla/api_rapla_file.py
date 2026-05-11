@@ -32,6 +32,9 @@ class RaplaReservationDto(BaseModel):
 	uuid: str
 	name: Optional[str]
 	color: Optional[str]
+	reservation_type: Optional[str]
+	reservation_uuid: Optional[str]
+	activity_type: Optional[str]
 	start_date: Optional[str]
 	start_time: Optional[str]
 	end_date: Optional[str]
@@ -42,6 +45,7 @@ class RaplaReservationDto(BaseModel):
 	room_names: Optional[list[str]]
 	teacher_names: Optional[list[str]]
 	semester_names: Optional[list[str]]
+	group_names: Optional[list[str]]
 
 	model_config = {"from_attributes": True}
 
