@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.cruds.crud_audit import log_change
+from app.cruds.crud_audit_logs import create_audit_log
 from app.cruds.crud_teaching_load import (
     create_teaching_load,
     delete_teaching_load,
@@ -21,6 +21,31 @@ from app.schemas.teaching_load import (
     TeachingLoadAssignmentResponse,
     TeachingLoadAssignmentUpdate,
 )
+
+
+_AUDIT_KEY_PL: dict[str, str] = {
+    "teacher_id": "Dydaktyk",
+    "teacher_title": "Tytuł",
+    "teacher_first_name": "Imię wykładowcy",
+    "teacher_last_name": "Nazwisko wykładowcy",
+    "subject_id": "Przedmiot",
+    "subject_name": "Nazwa przedmiotu",
+    "activity_id": "Typ zajęć",
+    "activity_name": "Nazwa typu zajęć",
+    "semester_id": "Semestr",
+    "semester_name": "Nazwa semestru",
+    "field_of_study_id": "Rocznik",
+    "field_of_study_label": "Kierunek / rocznik",
+    "hours": "Liczba godzin",
+    "id": "ID",
+}
+
+
+def _translate_record(record: dict | None) -> dict | None:
+    """Przetłumacz klucze rekordu na czytelne polskie nazwy."""
+    if record is None:
+        return None
+    return {_AUDIT_KEY_PL.get(k, k): v for k, v in record.items()}
 
 
 router = APIRouter(prefix="/teaching-loads", tags=["teaching-loads"])
@@ -59,14 +84,13 @@ def create_teaching_load_entry(
     assignment = create_teaching_load(db, payload)
     response_payload = TeachingLoadAssignmentResponse(**map_teaching_load_to_response(assignment))
 
-    log_change(
-        db=db,
-        entity_name="TeachingLoadAssignment",
-        entity_id=assignment.id,
-        action="CREATE",
+    _admin_label = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
+    create_audit_log(
+        db, "TeachingLoadAssignment", int(assignment.id), "create",
+        modified_by=current_user.user_id,
+        modified_by_name=_admin_label,
         old_values=None,
-        new_values=response_payload.model_dump(mode="json"),
-        user_id=current_user.user_id,
+        new_values=_translate_record(response_payload.model_dump(mode="json")),
     )
 
     return response_payload
@@ -88,14 +112,13 @@ def update_teaching_load_entry(
     updated = update_teaching_load(db, assignment, payload)
     response_payload = TeachingLoadAssignmentResponse(**map_teaching_load_to_response(updated))
 
-    log_change(
-        db=db,
-        entity_name="TeachingLoadAssignment",
-        entity_id=updated.id,
-        action="UPDATE",
-        old_values=old_values,
-        new_values=response_payload.model_dump(mode="json"),
-        user_id=current_user.user_id,
+    _admin_label = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
+    create_audit_log(
+        db, "TeachingLoadAssignment", int(updated.id), "update",
+        modified_by=current_user.user_id,
+        modified_by_name=_admin_label,
+        old_values=_translate_record(old_values),
+        new_values=_translate_record(response_payload.model_dump(mode="json")),
     )
 
     return response_payload
@@ -121,14 +144,13 @@ def patch_teaching_load_entry(
     updated = patch_teaching_load(db, assignment, payload)
     response_payload = TeachingLoadAssignmentResponse(**map_teaching_load_to_response(updated))
 
-    log_change(
-        db=db,
-        entity_name="TeachingLoadAssignment",
-        entity_id=updated.id,
-        action="UPDATE",
-        old_values=old_values,
-        new_values=response_payload.model_dump(mode="json"),
-        user_id=current_user.user_id,
+    _admin_label = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
+    create_audit_log(
+        db, "TeachingLoadAssignment", int(updated.id), "update",
+        modified_by=current_user.user_id,
+        modified_by_name=_admin_label,
+        old_values=_translate_record(old_values),
+        new_values=_translate_record(response_payload.model_dump(mode="json")),
     )
 
     return response_payload
@@ -147,12 +169,11 @@ def delete_teaching_load_entry(
     old_values = map_teaching_load_to_response(assignment)
     delete_teaching_load(db, assignment)
 
-    log_change(
-        db=db,
-        entity_name="TeachingLoadAssignment",
-        entity_id=assignment_id,
-        action="DELETE",
-        old_values=old_values,
+    _admin_label = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
+    create_audit_log(
+        db, "TeachingLoadAssignment", int(assignment_id), "delete",
+        modified_by=current_user.user_id,
+        modified_by_name=_admin_label,
+        old_values=_translate_record(old_values),
         new_values=None,
-        user_id=current_user.user_id,
     )
