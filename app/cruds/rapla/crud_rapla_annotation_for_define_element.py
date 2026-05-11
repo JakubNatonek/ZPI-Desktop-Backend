@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.models.rapla.model_rapla_annotation_for_define_element import (
     RaplaAnnotationForDefineElement as RaplaAnnotationForDefineElementModel,
 )
+from app.models.rapla.model_rapla_annotation import RaplaAnnotation as RaplaAnnotationModel
 
 
 def get_relation_by_id(db: Session, relation_id: int) -> Optional[RaplaAnnotationForDefineElementModel]:
@@ -29,6 +30,19 @@ def list_relations_for_define_element(db: Session, define_element_id: int) -> Li
     return (
         db.query(RaplaAnnotationForDefineElementModel)
         .filter(RaplaAnnotationForDefineElementModel.define_element_id == define_element_id)
+        .all()
+    )
+
+
+def list_annotations_for_define_element(db: Session, define_element_id: int) -> List[RaplaAnnotationModel]:
+    return (
+        db.query(RaplaAnnotationModel)
+        .join(
+            RaplaAnnotationForDefineElementModel,
+            RaplaAnnotationModel.id == RaplaAnnotationForDefineElementModel.annotation_id,
+        )
+        .filter(RaplaAnnotationForDefineElementModel.define_element_id == define_element_id)
+        .order_by(RaplaAnnotationForDefineElementModel.id.asc())
         .all()
     )
 

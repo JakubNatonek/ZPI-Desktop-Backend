@@ -16,7 +16,7 @@ from app.cruds.rapla.crud_rapla_language_name_for_optional_element import list_l
 from app.cruds.rapla.crud_rapla_language_name import get_language_name_schema_by_id
 from app.cruds.rapla.crud_rapla_constraint_for_optional_element import list_constraints_for_optional_element
 from app.cruds.rapla.crud_rapla_constraint import get_constraint_schema_by_id
-from app.cruds.rapla.crud_rapla_annotation_for_optional_element import list_relations_for_optional_element as list_annotation_relations
+from app.cruds.rapla.crud_rapla_annotation_for_optional_element import list_annotations_for_optional_element
 from app.cruds.rapla.crud_rapla_annotation import get_annotation_schema_by_id
 
 
@@ -39,10 +39,7 @@ def list_optional_elements(db: Session, skip: Optional[int] = None, limit: Optio
 
 
 def create_optional_element(db: Session, name: str, default_value: Optional[str] = None) -> RaplaOptionalElement:
-    existing = get_optional_element_by_name(db, name)
-    if existing:
-        return existing
-
+    # Always create a new optional element to avoid sharing across defines.
     el = RaplaOptionalElement(name=name, default_value=default_value)
     db.add(el)
     db.commit()
@@ -91,14 +88,11 @@ def get_optional_element_full_schema_by_id(db: Session, element_id: int) -> Opti
     ann_schemas: list[RaplaAnnotationSchema] = []
 
     try:
-        ann_rels = list_annotation_relations(db, element_id)
+        ann_rows = list_annotations_for_optional_element(db, element_id)
     except Exception:
-        ann_rels = []
-    for ar in ann_rels:
-        ann_id = getattr(ar, "annotation_id", None)
-        if ann_id is None:
-            continue
-        a = get_annotation_schema_by_id(db, ann_id)
+        ann_rows = []
+    for ann_row in ann_rows:
+        a = get_annotation_schema_by_id(db, cast(int, ann_row.id))
         if a is not None:
             ann_schemas.append(a)
 

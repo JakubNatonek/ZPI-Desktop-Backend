@@ -36,6 +36,19 @@ def list_relations_for_optional_element(db: Session, optional_element_id: int) -
     )
 
 
+def list_annotations_for_optional_element(db: Session, optional_element_id: int) -> List[RaplaAnnotationModel]:
+    return (
+        db.query(RaplaAnnotationModel)
+        .join(
+            RaplaAnnotationForOptionalElementModel,
+            RaplaAnnotationModel.id == RaplaAnnotationForOptionalElementModel.annotation_id,
+        )
+        .filter(RaplaAnnotationForOptionalElementModel.optional_element_id == optional_element_id)
+        .order_by(RaplaAnnotationForOptionalElementModel.id.asc())
+        .all()
+    )
+
+
 def add_relation(db: Session, annotation_id: int, optional_element_id: int) -> RaplaAnnotationForOptionalElementModel:
     existing = get_relation(db, annotation_id=annotation_id, optional_element_id=optional_element_id)
     if existing:

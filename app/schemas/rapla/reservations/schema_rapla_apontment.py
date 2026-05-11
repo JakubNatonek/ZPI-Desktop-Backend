@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import xml.etree.ElementTree as ET
 
 from app.schemas.rapla.rapla_namespaces import RAPLA_NS
@@ -11,7 +11,8 @@ class SchemaRaplaApointment:
     start_time: str
     end_date: str
     end_time: str
-    repeating: SchemaRaplaRepeating
+    repeating: SchemaRaplaRepeating | None = None
+    allocate: list[str] = field(default_factory=list)
 
     def to_xml(self, parent: ET.Element) -> ET.Element:
         appointment = ET.SubElement(
@@ -26,7 +27,12 @@ class SchemaRaplaApointment:
             },
         )
         
-        self.repeating.to_xml(appointment)
+        if self.repeating is not None:
+            self.repeating.to_xml(appointment)
+
+        for idref in (self.allocate or []):
+            if idref:
+                ET.SubElement(appointment, f"{{{RAPLA_NS}}}allocate", {"idref": idref})
 
         return appointment
-	
+

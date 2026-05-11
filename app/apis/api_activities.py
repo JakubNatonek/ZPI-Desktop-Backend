@@ -48,11 +48,13 @@ def get_activity_entry(
     return _to_activity_response(activity)
 
 
+from app.cruds.crud_audit import log_change
+
 @router.post("", response_model=ActivityResponse, status_code=status.HTTP_201_CREATED, summary="Dodaj aktywnosc")
 def create_activity_entry(
     payload: ActivityCreate,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    current_user: User = Depends(require_role("admin")),
 ) -> ActivityResponse:
     cleaned_name = payload.name.strip()
     if not cleaned_name:
@@ -64,7 +66,18 @@ def create_activity_entry(
     activity = create_activity(db, cleaned_name)
     db.commit()
     db.refresh(activity)
-    return _to_activity_response(activity)
+    
+    log_change(
+        db=db,
+        entity_name="Activity",
+        entity_id=activity.id,
+        action="CREATE",
+        old_values=None,
+        new_values={"name": activity.name},
+        user_id=current_user.user_id
+    )
+
+    return ActivityResponse(id=cast(int, activity.id), name=cast(str, activity.name))
 
 
 @router.put("/{activity_id}", response_model=ActivityResponse, summary="Edytuj aktywnosc")
@@ -72,8 +85,14 @@ def update_activity_entry(
     activity_id: int,
     payload: ActivityUpdate,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    current_user: User = Depends(require_role("admin")),
 ) -> ActivityResponse:
+    activity_old = get_activity_by_id(db, activity_id)
+    if activity_old is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Activity not found")
+        
+    old_values = {"name": activity_old.name}
+
     try:
         activity = update_activity(db, activity_id, payload.name)
     except ValueError as exc:
@@ -82,15 +101,31 @@ def update_activity_entry(
     if activity is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ACTIVITY_NOT_FOUND)
 
-    return _to_activity_response(activity)
+    log_change(
+        db=db,
+        entity_name="Activity",
+        entity_id=activity.id,
+        action="UPDATE",
+        old_values=old_values,
+        new_values={"name": activity.name},
+        user_id=current_user.user_id
+    )
+
+    return ActivityResponse(id=cast(int, activity.id), name=cast(str, activity.name))
 
 
 @router.delete("/{activity_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Usun aktywnosc")
 def delete_activity_entry(
     activity_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    current_user: User = Depends(require_role("admin")),
 ) -> None:
+    activity_old = get_activity_by_id(db, activity_id)
+    if activity_old is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Activity not found")
+        
+    old_values = {"name": activity_old.name}
+
     try:
         deleted = delete_activity(db, activity_id)
     except IntegrityError as exc:
@@ -101,4 +136,14 @@ def delete_activity_entry(
         ) from exc
 
     if not deleted:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=ACTIVITY_NOT_FOUND)
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Activity not found")
+
+    log_change(
+        db=db,
+        entity_name="Activity",
+        entity_id=activity_id,
+        action="DELETE",
+        old_values=old_values,
+        new_values=None,
+        user_id=current_user.user_id
+    )

@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, cast
 
 from sqlalchemy import text
 from sqlalchemy.orm import Session
@@ -9,7 +9,16 @@ from fastapi import HTTPException, status
 from app.cruds.crud_activity import get_activities_by_ids
 from app.cruds.crud_department import get_departments_by_ids
 from app.cruds.crud_special_equipment import get_special_equipment_by_ids
+from app.cruds.rapla.crud_rapla_resourc import create_resourc
+from app.cruds.rapla.crud_rapla_room_to_resourc import create_room_to_resourc_mapping, get_resorsc_by_room_id
+from app.cruds.rapla.crud_rapla_permission import (
+    create_permission,
+    get_permission_by_access,
+    get_permission_by_access_and_group,
+)
+from app.cruds.rapla.crud_rapla_permission_for_resourc import create_permission_for_resourc
 from app.cruds.room.crud_room_type import get_room_type_by_id
+from app.models.rapla.model_rapla_resourc import ModelRaplaResourc
 from app.models.model_room import Room
 from app.schemas.room import RoomCreate, RoomUpdate
 
@@ -77,6 +86,54 @@ def _resolve_room_type(db: Session, room_type_id: int):
     return room_type
 
 
+def _ensure_department_permissions_for_room(db: Session, room: Room) -> None:
+    if room.id is None:
+        return
+
+    resource = get_resorsc_by_room_id(db, room.id)
+    if resource is None or resource.id is None:
+        return
+
+    for department in room.departments:
+        abbreviation = cast(str | None, getattr(department, "abbreviation", None))
+        if not abbreviation:
+            continue
+
+        group = f"category[key='{abbreviation}_Editor']"
+        perm = get_permission_by_access_and_group(db, "allocate_conflicts", group)
+        if perm is None:
+            perm = create_permission(db, access="allocate_conflicts", group=group)
+
+        try:
+            create_permission_for_resourc(db, cast(int, resource.id), cast(int, perm.id))
+        except Exception:
+            continue
+
+def _ensure_permission_for_resource(db: Session, res: ModelRaplaResourc):
+    perm = get_permission_by_access(db, access="read_no_allocation")
+    if perm is None:
+        perm = create_permission(db, access="read_no_allocation")
+    try:
+        create_permission_for_resourc(db, cast(int, res.id), cast(int, perm.id))
+    except Exception as e:
+        print(f"Failed to assign permission to rapla_resourc id={res.id}: {e}")
+    return perm
+
+def _ensure_rapla_resource_mapping_for_room(db: Session, room: Room) -> ModelRaplaResourc:
+    if room.id is None:
+        raise RuntimeError("Room must be persisted before creating Rapla mapping")
+
+    existing = get_resorsc_by_room_id(db, room.id)
+    if existing is not None:
+        _ensure_department_permissions_for_room(db, room)
+        return
+
+    resource = create_resourc(db)
+    create_room_to_resourc_mapping(db, room_id=room.id, rapla_resourc_id=resource.id)
+    _ensure_department_permissions_for_room(db, room)
+    return resource
+
+
 def get_rooms(db: Session) -> list[Room]:
     return db.query(Room).options(
         selectinload(Room.room_type),
@@ -117,6 +174,45 @@ def create_room(db: Session, payload: RoomCreate) -> Room:
     db.add(room)
     db.commit()
     db.refresh(room)
+
+    res = _ensure_rapla_resource_mapping_for_room(db, room)
+   
+    _ensure_permission_for_resource(db, res)
+    return room
+
+
+def create_room_for_seed(
+    db: Session,
+    *,
+    room_id: int,
+    room_number: str,
+    seats_count: int,
+    room_type_id: int,
+    departments: list[int],
+    activities: list[int],
+    special_equipment: list[int],
+    description: Optional[str] = None,
+) -> Room:
+    _sync_room_id_sequence(db)
+
+    room = Room(
+        id=room_id,
+        number=room_number.strip(),
+        seats=seats_count,
+        description=description,
+        room_type=_resolve_room_type(db, room_type_id),
+    )
+    room.departments = _resolve_departments(db, departments)
+    room.activities = _resolve_activities(db, activities)
+    room.special_equipment = _resolve_special_equipment(db, special_equipment)
+
+    db.add(room)
+    db.commit()
+    db.refresh(room)
+
+    res = _ensure_rapla_resource_mapping_for_room(db, room)
+
+    _ensure_permission_for_resource(db, res)
     return room
 
 def update_room(db: Session, room: Room, payload: RoomUpdate) -> Room:

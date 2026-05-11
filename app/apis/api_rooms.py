@@ -57,18 +57,31 @@ def get_room(
     return _to_room_response(room)
 
 
+from app.cruds.crud_audit import log_change
+
 @router.post("", response_model=RoomResponse, status_code=status.HTTP_201_CREATED, summary="Utwórz salę")
 def create_room_entry(
     payload: RoomCreate,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    current_user: User = Depends(require_role("admin")),
 ) -> RoomResponse:
     existing = get_room_by_number(db, payload.room_number)
     if existing is not None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Room number already exists")
 
     created = create_room(db, payload)
-    return _to_room_response(created)
+    
+    log_change(
+        db=db,
+        entity_name="Room",
+        entity_id=created.id,
+        action="CREATE",
+        old_values=None,
+        new_values=map_room_to_response(created),
+        user_id=current_user.user_id
+    )
+    
+    return RoomResponse(**map_room_to_response(created))
 
 
 @router.put("/{room_id}", response_model=RoomResponse, summary="Edytuj salę")
@@ -76,23 +89,50 @@ def update_room_entry(
     room_id: int,
     payload: RoomUpdate,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    current_user: User = Depends(require_role("admin")),
 ) -> RoomResponse:
     room = _get_room_or_404(db, room_id)
+
+    old_values = map_room_to_response(room)
 
     existing = get_room_by_number(db, payload.room_number)
     if existing is not None and existing.id != room_id:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Room number already exists")
 
     updated = update_room(db, room, payload)
-    return _to_room_response(updated)
+    
+    log_change(
+        db=db,
+        entity_name="Room",
+        entity_id=updated.id,
+        action="UPDATE",
+        old_values=old_values,
+        new_values=map_room_to_response(updated),
+        user_id=current_user.user_id
+    )
+    
+    return RoomResponse(**map_room_to_response(updated))
 
 
 @router.delete("/{room_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Usuń salę")
 def delete_room_entry(
     room_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    current_user: User = Depends(require_role("admin")),
 ) -> None:
-    room = _get_room_or_404(db, room_id)
+    room = get_room_by_id(db, room_id)
+    if room is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
+
+    old_values = map_room_to_response(room)
     delete_room(db, room)
+
+    log_change(
+        db=db,
+        entity_name="Room",
+        entity_id=room_id,
+        action="DELETE",
+        old_values=old_values,
+        new_values=None,
+        user_id=current_user.user_id
+    )

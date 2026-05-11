@@ -17,6 +17,7 @@ class User(Base):
     password_hash = Column(String, nullable=False)
     must_change_password = Column(Boolean, nullable=False, default=False)
     last_seen_at = Column(DateTime(timezone=True), nullable=True)
+    last_changes_viewed_at = Column(DateTime(timezone=True), nullable=True)
 
     roles_for_user = relationship(
         "RolesForUser",
@@ -72,5 +73,20 @@ class User(Base):
         "Student",
         back_populates="user",
         uselist=False,
+        cascade="all, delete-orphan",
+    )
+    unavailability_notes = relationship(
+        "UnavailabilityNote",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    notifications = relationship(
+        "Notification",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    teaching_load_assignments = relationship(
+        "TeachingLoadAssignment",
+        back_populates="teacher",
         cascade="all, delete-orphan",
     )

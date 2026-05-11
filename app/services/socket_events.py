@@ -62,18 +62,14 @@ def _authenticate_ws_connection(environ: dict, auth: dict | None) -> int | None:
         return None
 
     user_id = payload.get("user_id")
-    roles = payload.get("roles")
-    if user_id is None or roles is None:
-        print("[WS AUTH] Token payload missing user_id or roles")
-        return None
+    # Support both legacy `role` and newer `roles` list in token payload
+    role = payload.get("role")
+    if role is None:
+        roles_list = payload.get("roles") or []
+        role = roles_list[0] if isinstance(roles_list, (list, tuple)) and roles_list else None
 
-    if isinstance(roles, str):
-        token_roles = {roles.lower()}
-    else:
-        token_roles = {str(role).lower() for role in roles if role is not None}
-
-    if not token_roles:
-        print("[WS AUTH] Token payload has no usable roles")
+    if user_id is None or role is None:
+        print("[WS AUTH] Token payload missing user_id or role")
         return None
 
     # 4) Verify user exists in the database

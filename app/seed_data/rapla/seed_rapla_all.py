@@ -1,11 +1,14 @@
-from sqlalchemy.orm import Session
+﻿from sqlalchemy.orm import Session
 
 from app.seed_data.rapla.seed_model.seed_rapla_language_abbreviations import seed_language_abbreviations
 from app.seed_data.rapla.seed_model.seed_rapla_user_to_app_user import seed_rapla_user_to_app_user
-from app.seed_data.rapla.seed_model.seed_rapla_users import seed_rapla_users
+from app.seed_data.rapla.seed_model.seed_rapla_users import seed_rapla_department_editor_users, seed_rapla_users
 from app.seed_data.rapla.seed_model.seed_rapla_user_groups import seed_rapla_user_groups
 from app.seed_data.rapla.seed_model.seed_define_nauczyciel_from_example import seed_define_nauczyciel
 from app.seed_data.rapla.seed_model.seed_define_dezyteraty_from_example import seed_define_dezyderata
+from app.seed_data.rapla.seed_model.seed_define_room_from_example import seed_define_room
+from app.seed_data.rapla.seed_model.seed_define_przedmiot_from_example import seed_define_przedmiot
+from app.seed_data.rapla.seed_model.seed_define_zajencia_from_example import seed_define_zajencia
 from app.seed_data.rapla.seed_model.seed_rapla_category_prents import seed_rapla_category_parent
 
 
@@ -16,9 +19,13 @@ def seed_rapla_all(db: Session, admin_id: int) -> None:
 
     seed_language_abbreviations(db)
     seed_rapla_user_groups(db)
+    seed_rapla_department_editor_users(db)
     # top category for futer use
-    # seed_rapla_category_parent(db)
+    seed_rapla_category_parent(db)
+    seed_define_room(db, rapla_admin_uuid)
+    seed_define_przedmiot(db, rapla_admin_uuid)
     seed_define_nauczyciel(db, rapla_admin_uuid)
     seed_define_dezyderata(db, rapla_admin_uuid)
+    seed_define_zajencia(db, rapla_admin_uuid)
 
     print("All seed data applied.")

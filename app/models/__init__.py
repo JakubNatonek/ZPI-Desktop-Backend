@@ -47,6 +47,10 @@ from app.models.model_title_for_user import TitleForUser
 from app.models.model_teacher import Teacher
 from app.models.model_subject import Subject
 from app.models.model_subject_activity import SubjectActivity
+from app.models.model_subject_preference import SubjectPreference
+from app.models.model_field_of_study import FieldOfStudy
+from app.models.model_department_for_field_of_study import DepartmentForFieldOfStudy
+from app.models.model_subject_for_field_of_study import SubjectForFieldOfStudy
 from app.models.model_announcement import Announcement, AnnouncementSeen
 from app.models.model_activity import Activity
 from app.models.model_special_equipment import SpecialEquipment
@@ -63,14 +67,24 @@ from app.models.model_user import User
 from app.models.model_semestr import Semestr
 from app.models.model_dezyderata import Dezyderata
 from app.models.model_day import Day
+from app.models.model_lessons import Lesson
+from app.models.model_unavailability_note import UnavailabilityNote, NoteType, NoteStatus
+from app.models.model_notification import Notification
+from app.models.model_audit_log import AuditLog
+from app.models.model_teaching_load_assignment import TeachingLoadAssignment
 
 # -- Rapla models ---------------------------------------------------------
 from app.models.rapla.model_rapla_language_abbreviations import RaplaLanguageAbbreviations
+from app.models.rapla.model_rapla_activity_to_category import RaplaActivityToCategory
 from app.models.rapla.model_rapla_language_name_for_category import RaplaLanguageNameForCategory
 from app.models.rapla.model_rapla_category import RaplaCategory
 from app.models.rapla.model_rapla_department_for_category import RaplaDepartmentForCategory
 from app.models.rapla.model_rapla_group_for_user import RaplaGroupForUser
 from app.models.rapla.model_rapla_language_name import RaplaLanguageName
+from app.models.rapla.model_rapla_resourc import ModelRaplaResourc
+from app.models.rapla.model_rapla_room_to_resourc import RaplaRoomToResourc
+from app.models.rapla.model_rapla_subject_to_resourc import RaplaSubjectToResourc
+from app.models.rapla.model_rapla_room_type_to_category import RaplaRoomTypeToCategory
 from app.models.rapla.model_rapla_user_to_app_user import RaplaUserToAppUser
 from app.models.rapla.model_rapla_user import RaplaUser
 
@@ -88,6 +102,10 @@ __all__ = [
     "Student",
     "Subject",
     "SubjectActivity",
+    "SubjectPreference",
+    "FieldOfStudy",
+    "DepartmentForFieldOfStudy",
+    "SubjectForFieldOfStudy",
     "TitleForUser",
     "TitleModel",
     "Teacher",
@@ -99,13 +117,25 @@ __all__ = [
     "DepartmentsForUser",
     "Group",
     "Message",
+    "UnavailabilityNote",
+    "NoteType",
+    "NoteStatus",
+    "AuditLog",
+    "Notification",
+    "Lesson",
+    "TeachingLoadAssignment",
     # RAPLA Section
+    "RaplaActivityToCategory",
     "RaplaCategory",
     "RaplaDepartmentForCategory",
     "RaplaGroupForUser",
     "RaplaLanguageAbbreviations",
     "RaplaLanguageName",
     "RaplaLanguageNameForCategory",
+    "ModelRaplaResourc",
+    "RaplaRoomToResourc",
+    "RaplaSubjectToResourc",
+    "RaplaRoomTypeToCategory",
     "RaplaUser",
     "RaplaUserToAppUser",
 ]

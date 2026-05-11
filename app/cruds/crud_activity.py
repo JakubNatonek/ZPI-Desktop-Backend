@@ -1,10 +1,11 @@
 from typing import Optional
+from typing import cast
 
 from sqlalchemy.orm import Session
 
 from app.models.model_activity import Activity
-from app.schemas.rapla.schema_rapla_categories import RaplaCategory
-from app.cruds.rapla.crud_rapla_categories import get_rapla_category_by_key
+from app.cruds.rapla.crud_rapla_activity_to_category import create_activity_category_mapping
+from app.cruds.rapla.crud_rapla_categories import create_rapla_category
 
 def get_all_activities(db: Session) -> list[Activity]:
     return db.query(Activity).order_by(Activity.name.asc()).all()
@@ -29,16 +30,39 @@ def get_activity_by_name(db: Session, name: str) -> Optional[Activity]:
     return db.query(Activity).filter(Activity.name == cleaned_name).first()
 
 
+def ensure_activity_rapla_category(db: Session, activity: Activity) -> None:
+    root_category = create_rapla_category(
+        db,
+        key="typy_przedmiotow",
+        language_names=[("en", "typy_przedmiotow")],
+    )
+
+    activity_category = create_rapla_category(
+        db,
+        key=cast(str, activity.name),
+        parent_id=cast(int, root_category.id),
+        language_names=[("en", cast(str, activity.name))],
+    )
+
+    create_activity_category_mapping(
+        db,
+        activity_id=cast(int, activity.id),
+        category_id=cast(int, activity_category.id),
+    )
+
+
 def create_activity(db: Session, name: str) -> Activity:
     activity = Activity(name=name.strip())
     db.add(activity)
     db.flush()
+    ensure_activity_rapla_category(db, activity)
     return activity
 
 
 def get_or_create_activity(db: Session, name: str) -> Activity:
     activity = get_activity_by_name(db, name)
     if activity is not None:
+        ensure_activity_rapla_category(db, activity)
         return activity
 
     return create_activity(db, name)

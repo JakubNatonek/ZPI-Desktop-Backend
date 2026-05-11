@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 
 from app.core.database import SessionLocal
 from app.seed_data import seed_model
+from app.seed_data.seed_model.seed_field_of_study import seed_field_of_study
 
 
 from app.seed_data.rapla.seed_rapla_all import seed_rapla_all
@@ -33,17 +34,22 @@ def seed_all() -> None:
         seed_model.seed_thesis_proposals(db)
 
         seed_model.seed_subjects(db)
+        seed_field_of_study(db)
+
+        seed_model.seed_lessons(db)
+
+        # Subject preferences for lecturers
+        seed_model.seed_subject_preferences(db)
 
         # default availability preference for a test user
         seed_model.seed_dezyderata(db)
 
         
-
+        seed_model.seed_teaching_loads(db)
 
         # NOTE: WTF is this dogshit
         # seed_departments_for_user(db)
         # seed_grades(db)
-        # seed_groups(db)
         # seed_subjects(db)
         # seed_teacher_student_profiles(db)
 

@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, cast
 from datetime import datetime, timezone
 from uuid import uuid4
 
@@ -6,7 +6,7 @@ from uuid import uuid4
 from sqlalchemy.orm import Session
 
 from app.models.rapla.model_rapla_resourc import ModelRaplaResourc
-
+from app.cruds.rapla.crud_rapla_users import get_first_rapla_users_by_username
 
 def get_resourc_by_id(db: Session, id: int) -> Optional[ModelRaplaResourc]:
     return db.query(ModelRaplaResourc).filter(ModelRaplaResourc.id == id).first()
@@ -27,7 +27,7 @@ def list_resourcs(db: Session, skip: Optional[int] = None, limit: Optional[int] 
 
 def create_resourc(
     db: Session, 
-    owner: str, 
+    owner: str | None = None, 
     uuid: str | None = None, 
     created_at:datetime | None = None, 
     last_changed:datetime | None = None, 
@@ -38,6 +38,12 @@ def create_resourc(
         existing = get_resourc_by_uuid(db, uuid)
         if existing is not None:
             return existing
+    
+    if owner is None:
+        system_user = get_first_rapla_users_by_username(db, "system")
+        if system_user is None:
+            raise ValueError("Missing Rapla 'system' user; cannot infer resource owner")
+        owner = cast(str, system_user.uuid)
 
     if last_changed_by is None:
         last_changed_by = owner

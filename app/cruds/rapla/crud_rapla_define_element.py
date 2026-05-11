@@ -17,7 +17,7 @@ from app.schemas.rapla.schema_rapla_define import Define as DefineSchema
 # helpers
 from app.cruds.rapla.crud_rapla_language_name_for_define_element import list_language_names_for_define_element
 from app.cruds.rapla.crud_rapla_language_name import get_language_name_schema_by_id
-from app.cruds.rapla.crud_rapla_annotation_for_define_element import list_relations_for_define_element as list_annotation_relations
+from app.cruds.rapla.crud_rapla_annotation_for_define_element import list_annotations_for_define_element
 from app.cruds.rapla.crud_rapla_annotation import get_annotation_schema_by_id
 from app.cruds.rapla.crud_rapla_optional_element_for_define_element import list_relations_for_define_element as list_optional_relations_for_define_element
 from app.cruds.rapla.crud_rapla_optional_element import get_optional_element_full_schema_by_id
@@ -118,11 +118,11 @@ def get_define_element_full_schema_by_id(db: Session, element_id: int) -> Define
     # Annotations
     ann_schemas: list[RaplaAnnotationSchema] = []
     try:
-        ann_rels = list_annotation_relations(db, element_id)
+        ann_rows = list_annotations_for_define_element(db, element_id)
     except Exception:
-        ann_rels = []
-    for ar in ann_rels:
-        a = get_annotation_schema_by_id(db, cast(int, ar.id))
+        ann_rows = []
+    for ann_row in ann_rows:
+        a = get_annotation_schema_by_id(db, cast(int, ann_row.id))
         if a is not None:
             ann_schemas.append(a)
     annotations_obj = RaplaAnnotationsSchema(annotations=ann_schemas) if ann_schemas else RaplaAnnotationsSchema()
@@ -134,7 +134,7 @@ def get_define_element_full_schema_by_id(db: Session, element_id: int) -> Define
     except Exception:
         optional_rels = []
     for orow in optional_rels:
-        opt_schema = get_optional_element_full_schema_by_id(db, cast(int, orow.id) )
+        opt_schema = get_optional_element_full_schema_by_id(db, cast(int, orow.optional_element_id))
         if opt_schema is not None:
             optionals.append(RaplaOptionalSchema(opt_schema))
     

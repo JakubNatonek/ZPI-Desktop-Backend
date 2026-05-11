@@ -19,10 +19,20 @@ def list_annotations(db: Session, skip: int = 0, limit: int = 100) -> List[Rapla
 
 def create_annotation(
     db: Session,
-    *,
     key: str,
     value: Optional[str] = None,
 ) -> RaplaAnnotationModel:
+    existing = (
+        db.query(RaplaAnnotationModel)
+        .filter(
+            RaplaAnnotationModel.key == key,
+            RaplaAnnotationModel.value == value,
+        )
+        .first()
+    )
+    if existing is not None:
+        return existing
+
     db_obj = RaplaAnnotationModel(
         key=key, value=value
     )

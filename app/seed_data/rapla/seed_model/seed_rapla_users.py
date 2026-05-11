@@ -1,9 +1,54 @@
-from typing import cast
+﻿from typing import cast
 
 from sqlalchemy.orm import Session
 
-from app.models.rapla.model_rapla_user import RaplaUser
+from app.cruds.rapla.crud_rapla_categories import get_rapla_category_by_key
+from app.cruds.rapla.crud_rapla_group_for_user import add_rapla_group_for_user
 from app.cruds.rapla.crud_rapla_users import create_rapla_user
+from app.models.model_department import Department
+from app.models.rapla.model_rapla_user import RaplaUser
+
+
+def _ensure_department_editor_user(db: Session, abbreviation: str) -> None:
+    username = f"{abbreviation}_Editor"
+
+    user = db.query(RaplaUser).filter(RaplaUser.username == username).first()
+    if user is None:
+        user = create_rapla_user(
+            db,
+            username=username,
+            email=f"{abbreviation.lower()}_editor@department.local",
+            password="",
+            name=username,
+            isadmin=False,
+        )
+
+
+    required_group_keys = [
+        "read-events-from-others",
+        "create-events",
+        username,
+    ]
+
+    for group_key in required_group_keys:
+        category = get_rapla_category_by_key(db, group_key)
+        if category is None:
+            continue
+        category_id = cast(int, category.id)
+
+        add_rapla_group_for_user(db, rapla_user_id=cast(int, user.id), category_id=category_id)
+
+
+def seed_rapla_department_editor_users(db: Session) -> None:
+    departments = db.query(Department).order_by(Department.abbreviation.asc()).all()
+    for department in departments:
+        abbreviation = cast(str | None, getattr(department, "abbreviation", None))
+        if not abbreviation:
+            continue
+        if abbreviation.strip().upper() == "ADM":
+            continue
+
+        _ensure_department_editor_user(db, abbreviation)
 
 
 def seed_rapla_users(db: Session) -> tuple[int, str]:

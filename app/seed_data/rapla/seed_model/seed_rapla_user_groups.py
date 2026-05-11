@@ -1,8 +1,9 @@
+﻿from typing import cast
+
 from sqlalchemy.orm import Session
 
-from typing import cast
-
 from app.cruds.rapla.crud_rapla_categories import create_rapla_category
+from app.models.model_department import Department
 
 
 def seed_rapla_user_groups(db: Session) -> None:
@@ -11,6 +12,7 @@ def seed_rapla_user_groups(db: Session) -> None:
         key="user-groups",
         language_names=[("en", "user-groups")],
     )
+
     create_rapla_category(
         db,
         key="create-events",
@@ -29,3 +31,19 @@ def seed_rapla_user_groups(db: Session) -> None:
         parent_id=cast(int, category.id),
         language_names=[("en", "See events of other users")],
     )
+
+    departments = db.query(Department).order_by(Department.abbreviation.asc()).all()
+    for department in departments:
+        abbreviation = cast(str | None, getattr(department, "abbreviation", None))
+        if not abbreviation:
+            continue
+        if abbreviation.strip().upper() == "ADM":
+            continue
+
+        group_key = f"{abbreviation}_Editor"
+        create_rapla_category(
+            db,
+            key=group_key,
+            parent_id=cast(int, category.id),
+            language_names=[("en", group_key)],
+        )

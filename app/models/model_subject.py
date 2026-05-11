@@ -25,3 +25,10 @@ class Subject(Base):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
+    field_links = relationship(
+        "SubjectForFieldOfStudy",
+        back_populates="subject",
+        foreign_keys="SubjectForFieldOfStudy.subject_id",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+    )

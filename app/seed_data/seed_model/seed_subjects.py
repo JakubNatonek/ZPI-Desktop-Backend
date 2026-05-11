@@ -1,8 +1,9 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 
 from app.cruds.crud_activity import get_or_create_activity
-from app.models.model_subject import Subject
-from app.models.model_subject_activity import SubjectActivity
+from app.schemas.subject import SubjectCreate
+from app.cruds.crud_subject import create_subject
 
 
 SAMPLE_SUBJECTS = [
@@ -25,10 +26,7 @@ def seed_subjects(db: Session) -> None:
 	"""Seed subjects table with example data and linked activity types."""
 
 	created_count = 0
-	updated_count = 0
-	link_count = 0
 	for payload in SAMPLE_SUBJECTS:
-		subject_id = payload["id"]
 		subject_name = payload["name"]
 		activity_name = payload["activity"]
 		type_display = payload["type_display"]
@@ -36,54 +34,30 @@ def seed_subjects(db: Session) -> None:
 		blocked = payload["blocked"]
 		periodic = payload["periodic"]
 
-		subject = db.query(Subject).filter_by(id=subject_id).first()
-		if subject is None:
-			subject = Subject(
-				id=subject_id,
-				name=subject_name,
-				type_id=None,
-				type_display=type_display,
-				room_properties=room_properties,
-				blocked=blocked,
-				periodic=periodic,
-			)
-			db.add(subject)
-			db.flush()
-			created_count += 1
-		else:
-			subject.name = subject_name
-			subject.type_display = type_display
-			subject.room_properties = room_properties
-			subject.blocked = blocked
-			subject.periodic = periodic
-			updated_count += 1
-
 		activity = get_or_create_activity(db, activity_name)
-		link = (
-			db.query(SubjectActivity)
-			.filter(
-				SubjectActivity.subject_id == subject.id,
-				SubjectActivity.activity_id == activity.id,
+		if activity.id is None:
+			continue
+
+		try:
+			subject = create_subject(
+				db,
+				SubjectCreate(
+					name=subject_name,
+					activity_id=activity.id,
+					type_display=type_display,
+					room_properties=room_properties,
+					blocked=blocked,
+					periodic=periodic,
+				)
 			)
-			.first()
+			created_count += 1
+		except Exception:
+			continue
+
+	db.execute(
+		text(
+			"SELECT setval(pg_get_serial_sequence('subject', 'id'), COALESCE((SELECT MAX(id) FROM subject), 0) + 1, false)"
 		)
-		if link is None:
-			link = SubjectActivity(subject_id=subject.id, activity_id=activity.id)
-			db.add(link)
-			db.flush()
-			link_count += 1
-
-		subject.type_id = link.id
-		db.add(subject)
-
-		(
-			db.query(SubjectActivity)
-			.filter(
-				SubjectActivity.subject_id == subject.id,
-				SubjectActivity.id != link.id,
-			)
-			.delete(synchronize_session=False)
-		)
-
+	)
 	db.commit()
-	print(f"Subjects seeded. Added: {created_count}, Updated: {updated_count}, Links added: {link_count}")
+	print(f"Subjects seeded. Added: {created_count}")
