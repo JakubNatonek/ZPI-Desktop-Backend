@@ -24,6 +24,7 @@ from app.services.rapla_xml_parser import parse_rapla_reservations
 from app.cruds.rapla.crud_rapla_semester_to_resourc import all_semester_to_resourc_schema
 from app.cruds.crud_dezyderata import dezyderaty_to_schema
 from app.cruds.crud_lessons import lessons_to_schema
+from app.cruds.crud_teaching_load import teaching_load_assignments_to_schema
 from app.cruds.rapla.crud_rapla_group_to_resourc import all_group_to_resourc_schema
 
 
@@ -90,6 +91,7 @@ def generate_rapla_file(
 
 	reservations = dezyderaty_to_schema(db)
 	reservations.zajencia = lessons_to_schema(db)
+	reservations.zajencia.extend(teaching_load_assignments_to_schema(db))
 
 	data = RaplaFile(users=users, categories=categories, grammar=grammar, resources=resources, reservations=reservations)
 	data.save_to_file(str(output_path))
