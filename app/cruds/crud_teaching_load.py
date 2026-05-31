@@ -23,9 +23,11 @@ from app.cruds.crud_subject_for_field_of_study import (
 )
 from app.cruds.rapla.crud_rapla_app_user_to_resourc import get_resorsc_by_user_id
 from app.cruds.rapla.crud_rapla_group_to_resourc import get_resourc_by_group_id
+from app.cruds.rapla.crud_rapla_room_to_resourc import get_resorsc_by_room_id
 from app.cruds.rapla.crud_rapla_subject_to_resourc import get_resourc_by_subject_id
 from app.cruds.rapla.crud_rapla_users import get_first_rapla_users_by_username
 from app.cruds.rapla.rapla_format_datetime import format_rapla_date
+from app.cruds.room.crud_room import get_room_by_id
 from app.schemas.teaching_load import (
     TeachingLoadAssignmentCreate,
     TeachingLoadAssignmentPatch,
@@ -44,6 +46,7 @@ def _load_with_relations(db: Session, assignment_id: int) -> Optional[TeachingLo
             selectinload(TeachingLoadAssignment.subject),
             selectinload(TeachingLoadAssignment.activity),
             selectinload(TeachingLoadAssignment.semester),
+            selectinload(TeachingLoadAssignment.room),
             selectinload(TeachingLoadAssignment.subject_for_field_of_study).selectinload(
                 SubjectForFieldOfStudy.field_of_study
             ),
@@ -117,6 +120,15 @@ def _get_field_of_study(db: Session, field_of_study_id: int) -> FieldOfStudy:
     return field_of_study
 
 
+def _get_room(db: Session, room_id: int) -> None:
+    room = get_room_by_id(db, room_id)
+    if room is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Unknown room id: {room_id}",
+        )
+
+
 def _ensure_subject_activity_link(db: Session, subject_id: int, activity_id: int) -> None:
     link = (
         db.query(SubjectActivity)
@@ -162,6 +174,7 @@ def get_teaching_loads(db: Session) -> list[TeachingLoadAssignment]:
             selectinload(TeachingLoadAssignment.subject),
             selectinload(TeachingLoadAssignment.activity),
             selectinload(TeachingLoadAssignment.semester),
+            selectinload(TeachingLoadAssignment.room),
             selectinload(TeachingLoadAssignment.subject_for_field_of_study).selectinload(
                 SubjectForFieldOfStudy.field_of_study
             ),
@@ -189,6 +202,8 @@ def create_teaching_load(
     _get_subject(db, payload.subject_id)
     _get_activity(db, payload.activity_id)
     _get_semester(db, payload.semester_id)
+    if payload.room_id is not None:
+        _get_room(db, payload.room_id)
     if payload.field_of_study_id is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -224,6 +239,7 @@ def create_teaching_load(
         semester_id=payload.semester_id,
         hours=payload.hours,
         subject_for_field_of_study_id=subject_field_mapping.id,
+        room_id=payload.room_id,
     )
     db.add(assignment)
     db.commit()
@@ -241,6 +257,8 @@ def update_teaching_load(
     _get_subject(db, payload.subject_id)
     _get_activity(db, payload.activity_id)
     _get_semester(db, payload.semester_id)
+    if payload.room_id is not None:
+        _get_room(db, payload.room_id)
     if payload.field_of_study_id is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -275,6 +293,7 @@ def update_teaching_load(
     assignment.semester_id = payload.semester_id
     assignment.hours = payload.hours
     assignment.subject_for_field_of_study_id = subject_field_mapping.id
+    assignment.room_id = payload.room_id
 
     db.add(assignment)
     db.commit()
@@ -300,6 +319,8 @@ def patch_teaching_load(
         _get_activity(db, data["activity_id"])
     if "semester_id" in data:
         _get_semester(db, data["semester_id"])
+    if "room_id" in data and data["room_id"] is not None:
+        _get_room(db, data["room_id"])
     if "field_of_study_id" in data and data["field_of_study_id"] is not None:
         _get_field_of_study(db, data["field_of_study_id"])
 
@@ -362,6 +383,7 @@ def map_teaching_load_to_response(assignment: TeachingLoadAssignment) -> dict:
     subject = assignment.subject
     activity = assignment.activity
     semester = assignment.semester
+    room = assignment.room
     subject_field = assignment.subject_for_field_of_study
     field_of_study = subject_field.field_of_study if subject_field is not None else None
     field_of_study_label = None
@@ -382,6 +404,8 @@ def map_teaching_load_to_response(assignment: TeachingLoadAssignment) -> dict:
         "semester_name": semester.nazwa if semester else None,
         "field_of_study_id": subject_field.field_of_study_id if subject_field is not None else None,
         "field_of_study_label": field_of_study_label,
+        "room_id": assignment.room_id,
+        "room_number": room.number if room is not None else None,
         "hours": assignment.hours,
     }
 
@@ -393,6 +417,7 @@ def teaching_load_assignments_to_schema(db: Session) -> list[SchemaRaplaReservat
             selectinload(TeachingLoadAssignment.teacher),
             selectinload(TeachingLoadAssignment.subject),
             selectinload(TeachingLoadAssignment.semester),
+            selectinload(TeachingLoadAssignment.room),
             selectinload(TeachingLoadAssignment.subject_for_field_of_study).selectinload(
                 SubjectForFieldOfStudy.field_of_study
             ),
@@ -447,9 +472,10 @@ def teaching_load_assignments_to_schema(db: Session) -> list[SchemaRaplaReservat
         if subject_resource is not None and getattr(subject_resource, "uuid", None):
             allocate.append(cast(str, subject_resource.uuid))
 
-        # room_resource = get_resorsc_by_room_id(db, cast(int, assignment.room_id))  # TODO: missing room_id.
-        # if room_resource is not None and getattr(room_resource, "uuid", None):
-        #     allocate.append(cast(str, room_resource.uuid))
+        if getattr(assignment, "room_id", None) is not None:
+            room_resource = get_resorsc_by_room_id(db, cast(int, assignment.room_id))
+            if room_resource is not None and getattr(room_resource, "uuid", None):
+                allocate.append(cast(str, room_resource.uuid))
 
         teacher_resource = get_resorsc_by_user_id(db, cast(int, assignment.teacher_id))
         if teacher_resource is not None and getattr(teacher_resource, "uuid", None):

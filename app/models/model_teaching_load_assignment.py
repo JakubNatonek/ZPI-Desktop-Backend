@@ -18,6 +18,7 @@ class TeachingLoadAssignment(Base):
         nullable=True,
         index=True,
     )
+    room_id = Column(Integer, ForeignKey("room.id", ondelete="SET NULL"), nullable=True, index=True)
     hours = Column(Integer, nullable=False)
 
     teacher = relationship("User", back_populates="teaching_load_assignments", foreign_keys=[teacher_id])
@@ -25,3 +26,4 @@ class TeachingLoadAssignment(Base):
     activity = relationship("Activity")
     semester = relationship("Semestr")
     subject_for_field_of_study = relationship("SubjectForFieldOfStudy")
+    room = relationship("Room")

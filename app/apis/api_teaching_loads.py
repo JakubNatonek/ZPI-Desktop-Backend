@@ -36,6 +36,8 @@ _AUDIT_KEY_PL: dict[str, str] = {
     "semester_name": "Nazwa semestru",
     "field_of_study_id": "Rocznik",
     "field_of_study_label": "Kierunek / rocznik",
+    "room_id": "Sala",
+    "room_number": "Numer sali",
     "hours": "Liczba godzin",
     "id": "ID",
 }

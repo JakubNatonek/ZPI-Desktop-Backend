@@ -113,6 +113,12 @@ def ensure_teaching_load_assignment_schema() -> None:
                 )
             )
 
+    if "room_id" not in columns:
+        with engine.begin() as connection:
+            connection.execute(
+                text("ALTER TABLE teaching_load_assignments ADD COLUMN room_id INTEGER NULL")
+            )
+
     if "group_id" in columns:
         with engine.begin() as connection:
             connection.execute(
@@ -133,6 +139,17 @@ def ensure_teaching_load_assignment_schema() -> None:
             )
 
     if not any(
+        index["name"] == "ix_teaching_load_assignments_room_id"
+        for index in inspector.get_indexes("teaching_load_assignments")
+    ):
+        with engine.begin() as connection:
+            connection.execute(
+                text(
+                    "CREATE INDEX ix_teaching_load_assignments_room_id ON teaching_load_assignments (room_id)"
+                )
+            )
+
+    if not any(
         foreign_key["constrained_columns"] == ["subject_for_field_of_study_id"]
         and foreign_key["referred_table"] == "subject_for_field_of_study"
         for foreign_key in inspector.get_foreign_keys("teaching_load_assignments")
@@ -141,6 +158,18 @@ def ensure_teaching_load_assignment_schema() -> None:
             connection.execute(
                 text(
                     "ALTER TABLE teaching_load_assignments ADD CONSTRAINT fk_teaching_load_assignments_subject_for_field_of_study_id_subject_for_field_of_study FOREIGN KEY (subject_for_field_of_study_id) REFERENCES subject_for_field_of_study (id) ON DELETE SET NULL"
+                )
+            )
+
+    if not any(
+        foreign_key["constrained_columns"] == ["room_id"]
+        and foreign_key["referred_table"] == "room"
+        for foreign_key in inspector.get_foreign_keys("teaching_load_assignments")
+    ):
+        with engine.begin() as connection:
+            connection.execute(
+                text(
+                    "ALTER TABLE teaching_load_assignments ADD CONSTRAINT fk_teaching_load_assignments_room_id_room FOREIGN KEY (room_id) REFERENCES room (id) ON DELETE SET NULL"
                 )
             )
 

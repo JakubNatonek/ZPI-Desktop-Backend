@@ -8,6 +8,7 @@ from collections.abc import AsyncIterator
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.database import init_database
+from scripts.migration_runner import run_migrations
 
 from app.apis.api_login import router as login_router
 from app.apis.api_users import router as users_router
@@ -45,7 +46,7 @@ from app.models.model_teaching_load_assignment import TeachingLoadAssignment
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     init_database()
-    #run_migrations() # NOTE: this should not be done evry time the server is run
+    # run_migrations() 
 
     # seed_all() # NOTE: Works only for empty DB with correct tables
     yield

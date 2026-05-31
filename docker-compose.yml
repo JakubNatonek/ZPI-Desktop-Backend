@@ -11,6 +11,19 @@ services:
         condition: service_healthy
     ports:
       - "8000:8000"
+  seed:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: zpi-backend-seed
+    env_file:
+      - .env.docker
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["python", "-m", "app.seed_data.seed_all"]
+    profiles:
+      - seed
   db:
     image: postgres:16
     container_name: zpi-postgres

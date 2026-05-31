@@ -8,6 +8,7 @@ class TeachingLoadAssignmentBase(BaseModel):
     semester_id: int = Field(ge=1)
     hours: int = Field(ge=1)
     field_of_study_id: int = Field(ge=1)
+    room_id: int | None = Field(default=None, ge=1)
 
 
 class TeachingLoadAssignmentCreate(TeachingLoadAssignmentBase):
@@ -25,6 +26,7 @@ class TeachingLoadAssignmentPatch(BaseModel):
     semester_id: int | None = Field(default=None, ge=1)
     hours: int | None = Field(default=None, ge=1)
     field_of_study_id: int | None = Field(default=None, ge=1)
+    room_id: int | None = Field(default=None, ge=1)
 
 
 class TeachingLoadAssignmentResponse(BaseModel):
@@ -41,6 +43,8 @@ class TeachingLoadAssignmentResponse(BaseModel):
     semester_name: str | None = None
     field_of_study_id: int | None = None
     field_of_study_label: str | None = None
+    room_id: int | None = None
+    room_number: str | None = None
     hours: int
 
 

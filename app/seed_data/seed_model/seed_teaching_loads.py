@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from sqlalchemy import and_
 
 from app.models.model_user import User
@@ -8,6 +8,7 @@ from app.seed_data.seed_model.seed_subjects import SAMPLE_SUBJECTS
 from app.models.model_activity import Activity
 from app.models.model_semestr import Semestr
 from app.models.model_teaching_load_assignment import TeachingLoadAssignment
+from app.models.model_room import Room
 from app.cruds.crud_roles_for_user import get_roles_for_user
 from app.cruds.crud_subject_for_field_of_study import (
     add_subject_to_field_of_study,
@@ -16,6 +17,72 @@ from app.cruds.crud_subject_for_field_of_study import (
 from app.cruds.crud_audit import log_change
 from app.cruds.crud_teaching_load import map_teaching_load_to_response
 from app.models.model_subject_activity import SubjectActivity
+
+
+def _normalize_room_property(value: str | None) -> str:
+    return (value or "").strip().lower()
+
+
+def _guess_room_type(room_properties: str | None) -> str | None:
+    normalized = _normalize_room_property(room_properties)
+    if not normalized:
+        return None
+
+    if "wyklad" in normalized:
+        return "Wykładowa"
+    if "labor" in normalized or "komputer" in normalized:
+        return "Laboratoryjna"
+    if "cwic" in normalized:
+        return "Ćwiczeniowa"
+    if "projekt" in normalized:
+        return "Projektowa"
+    if "semin" in normalized:
+        return "Seminaryjna"
+    if "konsult" in normalized:
+        return "Konsultacyjna"
+
+    return None
+
+
+def _build_room_indexes(rooms: list[Room]) -> tuple[dict[int, list[Room]], dict[str, list[Room]]]:
+    by_activity: dict[int, list[Room]] = {}
+    by_type: dict[str, list[Room]] = {}
+
+    for room in rooms:
+        for activity in getattr(room, "activities", []) or []:
+            if activity.id is None:
+                continue
+            by_activity.setdefault(int(activity.id), []).append(room)
+
+        room_type_name = getattr(getattr(room, "room_type", None), "type", None)
+        if room_type_name:
+            by_type.setdefault(str(room_type_name), []).append(room)
+
+    for rooms_list in list(by_activity.values()) + list(by_type.values()):
+        rooms_list.sort(key=lambda item: item.id or 0)
+
+    return by_activity, by_type
+
+
+def _select_room_id(
+    rooms: list[Room],
+    rooms_by_activity: dict[int, list[Room]],
+    rooms_by_type: dict[str, list[Room]],
+    activity_id: int | None,
+    room_properties: str | None,
+) -> int | None:
+    if activity_id is not None:
+        candidates = rooms_by_activity.get(int(activity_id))
+        if candidates:
+            return candidates[0].id
+
+    desired_type = _guess_room_type(room_properties)
+    if desired_type:
+        candidates = rooms_by_type.get(desired_type)
+        if candidates:
+            return candidates[0].id
+
+    return rooms[0].id if rooms else None
 
 
 def seed_teaching_loads(db: Session) -> None:
@@ -45,6 +112,14 @@ def seed_teaching_loads(db: Session) -> None:
     if not semester:
         print("No semester found. Skipping teaching load seeding.")
         return
+
+    rooms = (
+        db.query(Room)
+        .options(selectinload(Room.activities), selectinload(Room.room_type))
+        .order_by(Room.id.asc())
+        .all()
+    )
+    rooms_by_activity, rooms_by_type = _build_room_indexes(rooms)
 
     # Build a mapping of subject name -> activity_ids from SAMPLE_SUBJECTS
     # to determine which activity type goes with each subject variant
@@ -118,6 +193,14 @@ def seed_teaching_loads(db: Session) -> None:
 
             hours = 30  # default hours per preferred subject
 
+            room_id = _select_room_id(
+                rooms,
+                rooms_by_activity,
+                rooms_by_type,
+                activity_id,
+                subject.room_properties if subject else None,
+            )
+
             # Check if this assignment already exists
             exists = (
                 db.query(TeachingLoadAssignment)
@@ -157,6 +240,7 @@ def seed_teaching_loads(db: Session) -> None:
                     activity_id=activity_id,
                     semester_id=semester.id,
                     subject_for_field_of_study_id=subject_field_mapping.id,
+                    room_id=room_id,
                     hours=hours,
                 )
                 db.add(assignment)
