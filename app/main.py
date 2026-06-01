@@ -8,7 +8,7 @@ from collections.abc import AsyncIterator
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.database import init_database
-from app.core.security_headers import SecurityHeadersMiddleware
+from app.core.security_headers import SecurityHeadersASGIMiddleware
 from scripts.migration_runner import run_migrations
 
 from app.apis.api_login import router as login_router
@@ -88,9 +88,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.add_middleware(SecurityHeadersMiddleware)
-
-
 # Include routers
 
 app.include_router(login_router)
@@ -132,5 +129,5 @@ def read_root() -> dict[str, str]:
 # FastAPI app for HTTP tests (pytest TestClient). Production ASGI adds Socket.IO below.
 fastapi_app = app
 
-# Export ASGI app with Socket.IO support.
-app = socketio.ASGIApp(sio, other_asgi_app=fastapi_app)
+# Export ASGI app with Socket.IO support and security headers on all HTTP responses.
+app = SecurityHeadersASGIMiddleware(socketio.ASGIApp(sio, other_asgi_app=fastapi_app))

@@ -8,7 +8,11 @@ from starlette.applications import Starlette
 from starlette.responses import JSONResponse
 from starlette.routing import Route
 
-from app.core.security_headers import SECURITY_HEADERS, SecurityHeadersMiddleware
+from app.core.security_headers import (
+    ANTI_CLICKJACKING_HEADERS,
+    SECURITY_HEADERS,
+    SecurityHeadersASGIMiddleware,
+)
 
 
 async def _health(_: object) -> JSONResponse:
@@ -18,7 +22,7 @@ async def _health(_: object) -> JSONResponse:
 @pytest.fixture
 def api_client() -> Iterator[TestClient]:
     app = Starlette(routes=[Route("/", _health)])
-    app.add_middleware(SecurityHeadersMiddleware)
+    app = SecurityHeadersASGIMiddleware(app)
     with TestClient(app) as test_client:
         yield test_client
 
@@ -33,9 +37,16 @@ def test_root_includes_content_security_policy(api_client: TestClient) -> None:
     assert "frame-ancestors 'none'" in csp
 
 
+def test_root_includes_anti_clickjacking_headers(api_client: TestClient) -> None:
+    response = api_client.get("/")
+
+    assert response.headers.get("x-frame-options") == ANTI_CLICKJACKING_HEADERS["X-Frame-Options"]
+    csp = response.headers.get("content-security-policy", "")
+    assert "frame-ancestors 'none'" in csp
+
+
 def test_root_includes_additional_security_headers(api_client: TestClient) -> None:
     response = api_client.get("/")
 
     assert response.headers.get("x-content-type-options") == "nosniff"
-    assert response.headers.get("x-frame-options") == "DENY"
     assert response.headers.get("referrer-policy") == "strict-origin-when-cross-origin"
