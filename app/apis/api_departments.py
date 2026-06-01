@@ -46,7 +46,7 @@ def create_department_entry(
 )
 def list_departments(
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    _: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
 ) -> list[DepartmentResponse]:
     departments = get_all_departments(db)
     return [DepartmentResponse(id = cast(int, department.id), name = cast(str, department.name), abbreviation = cast(str, department.abbreviation)) for department in departments]
@@ -60,7 +60,7 @@ def list_departments(
 def get_department_entry(
     department_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    _: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
 ) -> DepartmentResponse:
     department = get_department_by_id(db, department_id)
     if department is None:

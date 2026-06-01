@@ -28,7 +28,7 @@ router = APIRouter(prefix="/special-equipment", tags=["special-equipment"])
 @router.get("/list", response_model=List[SpecialEquipmentResponse], summary="Lista wyposazenia specjalnego")
 def list_special_equipment(
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    _: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
 ) -> List[SpecialEquipmentResponse]:
     items = get_all_special_equipment(db)
     return [SpecialEquipmentResponse(id=cast(int, item.id), name=cast(str, item.name)) for item in items]
@@ -38,7 +38,7 @@ def list_special_equipment(
 def get_special_equipment_entry(
     special_equipment_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    _: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
 ) -> SpecialEquipmentResponse:
     item = get_special_equipment_by_id(db, special_equipment_id)
     if item is None:
@@ -51,7 +51,7 @@ def get_special_equipment_entry(
 def create_special_equipment_entry(
     payload: SpecialEquipmentCreate,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    _: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
 ) -> SpecialEquipmentResponse:
     cleaned_name = payload.name.strip()
     if not cleaned_name:
@@ -71,7 +71,7 @@ def update_special_equipment_entry(
     special_equipment_id: int,
     payload: SpecialEquipmentUpdate,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    _: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
 ) -> SpecialEquipmentResponse:
     try:
         item = update_special_equipment(db, special_equipment_id, payload.name)
@@ -88,7 +88,7 @@ def update_special_equipment_entry(
 def delete_special_equipment_entry(
     special_equipment_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    _: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
 ) -> None:
     try:
         deleted = delete_special_equipment(db, special_equipment_id)

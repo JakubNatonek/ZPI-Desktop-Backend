@@ -1,16 +1,9 @@
-"""Parser for Rapla XML files.
-
-Extracts reservation/appointment data together with resolved resource names
-(rooms, teachers, semesters) referenced via <rapla:allocate idref="...">.
-"""
 from __future__ import annotations
 
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
 from typing import Optional
 
-
-# --- Rapla XML namespaces ---------------------------------------------------
 _RAPLA     = "http://rapla.sourceforge.net/rapla"
 _DYNATT    = "http://rapla.sourceforge.net/dynamictype"
 _EXTENSION = "http://rapla.sourceforge.net/extension"
@@ -27,47 +20,39 @@ _TAG_DYNATT_COLOR = f"{{{_DYNATT}}}color"
 _TAG_DYNATT_DEZYDERATA = f"{{{_DYNATT}}}dezyderata"
 _TAG_DYNATT_ZAJENCIA   = f"{{{_DYNATT}}}zajencia"
 _TAG_DYNATT_PRZEDMIOT  = f"{{{_DYNATT}}}przedmiot"
-_TAG_DYNATT_GRUPA      = f"{{{_DYNATT}}}grupa"
+_TAG_DYNATT_GRUPA      = f"{{{_DYNATT}}}grupa" 
 
-# room fields
 _TAG_ROOM         = f"{{{_DYNATT}}}room"
 _TAG_ROOM_NUMBER  = f"{{{_DYNATT}}}room_number"
 
-# teacher fields
 _TAG_NAUCZYCIEL   = f"{{{_DYNATT}}}nauczyciel"
 _TAG_IMIE         = f"{{{_DYNATT}}}imie"
 _TAG_NAZWISKO     = f"{{{_DYNATT}}}nazwisko"
 
-# semester / period fields
 _TAG_PERIOD       = f"{{{_EXTENSION}}}period"
 _TAG_PERIOD_NAME  = f"{{{_EXTENSION}}}name"
 
 
 @dataclass
 class ParsedReservation:
-    uuid: str           # appointment UUID (unique per calendar occurrence)
+    uuid: str           
     name: Optional[str] = None
     color: Optional[str] = None
 
-    # reservation type and origin
     reservation_type: str = "dezyderata"
-    reservation_uuid: Optional[str] = None   # original rapla:reservation id
-    activity_type: Optional[str] = None      # e.g. 'wyklady', 'laboratoria'
+    reservation_uuid: Optional[str] = None   
+    activity_type: Optional[str] = None      # 'wyklady', 'laboratoria'
 
-    # appointment fields
     start_date: Optional[str] = None
     start_time: Optional[str] = None
     end_date: Optional[str] = None
     end_time: Optional[str] = None
 
-    # repeating
     repeating_type: Optional[str] = None
     repeating_end_date: Optional[str] = None
 
-    # raw resource UUID references
     allocate: list[str] = field(default_factory=list)
 
-    # resolved human-readable names (populated during parsing)
     room_names: list[str] = field(default_factory=list)
     teacher_names: list[str] = field(default_factory=list)
     semester_names: list[str] = field(default_factory=list)
@@ -101,15 +86,10 @@ def _strip_category_key(value: str) -> str:
     return value
 
 
-# ---------------------------------------------------------------------------
-# Resource name extraction helpers
-# ---------------------------------------------------------------------------
-
 def _build_resource_map(root: ET.Element) -> dict[str, dict]:
     """Return a mapping uuid -> {type, name, ...} for all resource/person/extension elements."""
     result: dict[str, dict] = {}
 
-    # --- Rooms, Subjects, Groups: <rapla:resource id="..."><dynatt:room|przedmiot|grupa>…
     for el in root.iter(_TAG_RESOURCE):
         uuid = el.get("id", "").strip()
         if not uuid:
@@ -139,7 +119,6 @@ def _build_resource_map(root: ET.Element) -> dict[str, dict]:
                     group_name = (name_el.text or "").strip() if name_el is not None else ""
                     result[uuid] = {"type": "group", "name": group_name or uuid}
 
-    # --- Teachers: <rapla:person id="..."><dynatt:nauczyciel>…
     for el in root.iter(_TAG_PERSON):
         uuid = el.get("id", "").strip()
         if not uuid:
@@ -156,11 +135,9 @@ def _build_resource_map(root: ET.Element) -> dict[str, dict]:
             tytul    = _strip_category_key((tytul_el.text   or "").strip()) if tytul_el   is not None else ""
             wydzial  = _strip_category_key((wydzial_el.text or "").strip()) if wydzial_el is not None else ""
 
-            # Rapla-like label: surname first, then first name, title and department.
             full = " ".join(filter(None, [nazwisko, imie, tytul, wydzial])) or uuid
             result[uuid] = {"type": "teacher", "name": full, "department": wydzial}
 
-    # --- Semesters: <rapla:extension id="..."><ext:period><ext:name>…
     for el in root.iter(_TAG_EXTENSION):
         uuid = el.get("id", "").strip()
         if not uuid:
@@ -179,18 +156,8 @@ def _build_resource_map(root: ET.Element) -> dict[str, dict]:
     return result
 
 
-# ---------------------------------------------------------------------------
-# Main parse function
-# ---------------------------------------------------------------------------
-
 def parse_rapla_reservations(xml_text: str) -> list[ParsedReservation]:
-    """Parse a Rapla XML string and return all reservation entries.
 
-    Each <rapla:appointment> inside a reservation becomes its own ParsedReservation
-    row, identified by the appointment UUID.  Resource UUIDs in <rapla:allocate>
-    are resolved to human-readable names stored in room_names / teacher_names /
-    semester_names / group_names lists.
-    """
     root = ET.fromstring(xml_text)
 
     resource_map = _build_resource_map(root)
@@ -202,12 +169,10 @@ def parse_rapla_reservations(xml_text: str) -> list[ParsedReservation]:
         if not res_uuid:
             continue
 
-        # Detect reservation type and extract shared fields once.
         dezyderata_el = res_el.find(_TAG_DYNATT_DEZYDERATA)
         zajencia_el   = res_el.find(_TAG_DYNATT_ZAJENCIA)
         res_type = "zajencia" if zajencia_el is not None else "dezyderata"
 
-        # Resolve shared name / color / activity_type.
         shared_name: Optional[str] = None
         shared_color: Optional[str] = None
         shared_activity: Optional[str] = None
@@ -228,9 +193,8 @@ def parse_rapla_reservations(xml_text: str) -> list[ParsedReservation]:
                     shared_name     = subject_resource["name"]
                     shared_activity = subject_resource.get("activity") or None
                 else:
-                    shared_name = subject_uuid  # fallback to UUID if not found
+                    shared_name = subject_uuid  
 
-        # Collect allocate idrefs (dedup, order-preserving).
         seen_alloc:    dict[str, None] = {}
         seen_rooms:    dict[str, None] = {}
         seen_teachers: dict[str, None] = {}
@@ -261,7 +225,6 @@ def parse_rapla_reservations(xml_text: str) -> list[ParsedReservation]:
         shared_semester_names = list(seen_semesters)
         shared_group_names   = list(seen_groups)
 
-        # One ParsedReservation per <rapla:appointment>.
         appt_els = res_el.findall(_TAG_APPOINTMENT)
         if not appt_els:
             continue

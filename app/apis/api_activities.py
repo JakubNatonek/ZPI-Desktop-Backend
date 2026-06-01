@@ -25,7 +25,7 @@ router = APIRouter(prefix="/activities", tags=["activities"])
 @router.get("/list", response_model=List[ActivityResponse], summary="Lista aktywnosci")
 def list_activities(
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    _: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
 ) -> List[ActivityResponse]:
     activities = get_all_activities(db)
     return [ActivityResponse(id=cast(int, activity.id), name=cast(str, activity.name)) for activity in activities]
@@ -35,7 +35,7 @@ def list_activities(
 def get_activity_entry(
     activity_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    _: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
 ) -> ActivityResponse:
     activity = get_activity_by_id(db, activity_id)
     if activity is None:
@@ -43,8 +43,6 @@ def get_activity_entry(
 
     return ActivityResponse(id=cast(int, activity.id), name=cast(str, activity.name))
 
-
-from app.cruds.crud_audit import log_change
 
 @router.post("", response_model=ActivityResponse, status_code=status.HTTP_201_CREATED, summary="Dodaj aktywnosc")
 def create_activity_entry(

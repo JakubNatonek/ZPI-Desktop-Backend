@@ -31,7 +31,7 @@ router = APIRouter(prefix="/rooms", tags=["rooms"])
 @router.get("/list", response_model=RoomListResponse, summary="Pobierz listę sal")
 def list_rooms(
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    _: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
 ) -> RoomListResponse:
     rooms = get_rooms(db)
     return RoomListResponse(items=[RoomResponse(**map_room_to_response(room)) for room in rooms])
@@ -41,7 +41,7 @@ def list_rooms(
 def get_room(
     room_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    _: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
 ) -> RoomResponse:
     room = get_room_by_id(db, room_id)
     if room is None:
@@ -50,13 +50,11 @@ def get_room(
     return RoomResponse(**map_room_to_response(room))
 
 
-from app.cruds.crud_audit import log_change
-
 @router.post("", response_model=RoomResponse, status_code=status.HTTP_201_CREATED, summary="Utwórz salę")
 def create_room_entry(
     payload: RoomCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin")),
+    current_user: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
 ) -> RoomResponse:
     existing = get_room_by_number(db, payload.room_number)
     if existing is not None:
@@ -77,13 +75,11 @@ def update_room_entry(
     room_id: int,
     payload: RoomUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin")),
+    current_user: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
 ) -> RoomResponse:
     room = get_room_by_id(db, room_id)
     if room is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Room not found")
-
-    old_values = map_room_to_response(room)
 
     existing = get_room_by_number(db, payload.room_number)
     if existing is not None and existing.id != room_id:
@@ -105,7 +101,7 @@ def update_room_entry(
 def delete_room_entry(
     room_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin")),
+    current_user: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
 ) -> None:
     room = get_room_by_id(db, room_id)
     if room is None:

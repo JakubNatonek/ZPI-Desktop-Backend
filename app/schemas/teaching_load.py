@@ -50,3 +50,10 @@ class TeachingLoadAssignmentResponse(BaseModel):
 
 class TeachingLoadAssignmentListResponse(BaseModel):
     items: list[TeachingLoadAssignmentResponse]
+
+
+# Aliases used by crud_teaching_loads and api_teaching_loads
+TeachingLoadAssignmentDto = TeachingLoadAssignmentResponse
+TeachingLoadCreatePayload = TeachingLoadAssignmentCreate
+TeachingLoadPatchPayload = TeachingLoadAssignmentPatch
+TeachingLoadListResponse = TeachingLoadAssignmentListResponse

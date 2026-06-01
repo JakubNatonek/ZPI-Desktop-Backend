@@ -20,18 +20,19 @@ from app.schemas.subject import SubjectCreate, SubjectListResponse, SubjectRespo
 router = APIRouter(prefix="/subjects", tags=["subjects"])
 
 
-@router.get("/public/list", response_model=SubjectListResponse, summary="Pobierz publiczną listę przedmiotów")
-def list_subjects_public(
+@router.get("/list", response_model=SubjectListResponse, summary="Pobierz listę przedmiotów")
+def list_subjects(
     db: Session = Depends(get_db),
+    _: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
 ) -> SubjectListResponse:
     subjects = get_subjects(db)
     return SubjectListResponse(items=[SubjectResponse(**map_subject_to_response(subject)) for subject in subjects])
 
 
-@router.get("/list", response_model=SubjectListResponse, summary="Pobierz listę przedmiotów")
-def list_subjects(
+@router.get("/public/list", response_model=SubjectListResponse, summary="Pobierz listę przedmiotów (wszystkie role)")
+def list_subjects_public(
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    _: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor", "lecturer", "planner"])),
 ) -> SubjectListResponse:
     subjects = get_subjects(db)
     return SubjectListResponse(items=[SubjectResponse(**map_subject_to_response(subject)) for subject in subjects])
@@ -41,7 +42,7 @@ def list_subjects(
 def get_subject_entry(
     subject_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    _: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
 ) -> SubjectResponse:
     subject = get_subject_by_id(db, subject_id)
     if subject is None:
@@ -54,7 +55,7 @@ def get_subject_entry(
 def create_subject_entry(
     payload: SubjectCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin")),
+    current_user: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
 ) -> SubjectResponse:
     if not payload.name.strip():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Subject name cannot be empty")
@@ -85,7 +86,7 @@ def update_subject_entry(
     subject_id: int,
     payload: SubjectUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin")),
+    current_user: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
 ) -> SubjectResponse:
     subject = get_subject_by_id(db, subject_id)
     if subject is None:
@@ -118,7 +119,7 @@ def update_subject_entry(
 def delete_subject_entry(
     subject_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role("admin")),
+    current_user: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
 ) -> None:
     subject = get_subject_by_id(db, subject_id)
     if subject is None:

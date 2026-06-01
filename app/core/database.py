@@ -6,13 +6,13 @@ from urllib.parse import quote_plus
 from dotenv import load_dotenv
 import psycopg2
 from psycopg2 import sql
-from sqlalchemy import create_engine, inspect, text
+from sqlalchemy import create_engine
 from sqlalchemy.engine.url import make_url
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 
-load_dotenv()
+load_dotenv(override=True)
 
 def build_database_url() -> str:
     """Build database URL from environment variables with optional direct override."""
@@ -64,13 +64,24 @@ def ensure_database_exists() -> bool:
 
     maintenance_db = os.getenv("POSTGRES_MAINTENANCE_DB", "postgres")
 
-    connection = psycopg2.connect(
-        dbname=maintenance_db,
-        user=url.username,
-        password=url.password,
-        host=url.host or "localhost",
-        port=url.port or 5432,
-    )
+    connect_kwargs = {
+        "dbname": maintenance_db,
+        "user": url.username,
+        "password": url.password,
+        "host": url.host or "localhost",
+        "port": url.port or 5432,
+    }
+
+    try:
+        connection = psycopg2.connect(**connect_kwargs)
+    except UnicodeDecodeError as exc:
+        raise RuntimeError(
+            "Unable to connect to PostgreSQL due to non-UTF8 response decoding. "
+            "This usually means authentication failed and PostgreSQL returned a localized "
+            "message in a non-UTF8 code page. Verify POSTGRES_USER/POSTGRES_PASSWORD in .env "
+            "match your local PostgreSQL credentials."
+        ) from exc
+
     connection.autocommit = True
 
     created = False
@@ -88,92 +99,6 @@ def ensure_database_exists() -> bool:
     return created
 
 
-def ensure_teaching_load_assignment_schema() -> None:
-    """Keep the teaching-load table aligned with the current ORM model.
-
-    This is a narrow compatibility fallback for environments where the Alembic
-    revision has not been applied yet but the app is already running against the
-    target database.
-    """
-    inspector = inspect(engine)
-
-    if "teaching_load_assignments" not in inspector.get_table_names():
-        return
-
-    columns = {
-        column["name"]
-        for column in inspector.get_columns("teaching_load_assignments")
-    }
-
-    if "subject_for_field_of_study_id" not in columns:
-        with engine.begin() as connection:
-            connection.execute(
-                text(
-                    "ALTER TABLE teaching_load_assignments ADD COLUMN subject_for_field_of_study_id INTEGER NULL"
-                )
-            )
-
-    if "room_id" not in columns:
-        with engine.begin() as connection:
-            connection.execute(
-                text("ALTER TABLE teaching_load_assignments ADD COLUMN room_id INTEGER NULL")
-            )
-
-    if "group_id" in columns:
-        with engine.begin() as connection:
-            connection.execute(
-                text("ALTER TABLE teaching_load_assignments DROP COLUMN group_id")
-            )
-
-    inspector = inspect(engine)
-
-    if not any(
-        index["name"] == "ix_teaching_load_assignments_subject_for_field_of_study_id"
-        for index in inspector.get_indexes("teaching_load_assignments")
-    ):
-        with engine.begin() as connection:
-            connection.execute(
-                text(
-                    "CREATE INDEX ix_teaching_load_assignments_subject_for_field_of_study_id ON teaching_load_assignments (subject_for_field_of_study_id)"
-                )
-            )
-
-    if not any(
-        index["name"] == "ix_teaching_load_assignments_room_id"
-        for index in inspector.get_indexes("teaching_load_assignments")
-    ):
-        with engine.begin() as connection:
-            connection.execute(
-                text(
-                    "CREATE INDEX ix_teaching_load_assignments_room_id ON teaching_load_assignments (room_id)"
-                )
-            )
-
-    if not any(
-        foreign_key["constrained_columns"] == ["subject_for_field_of_study_id"]
-        and foreign_key["referred_table"] == "subject_for_field_of_study"
-        for foreign_key in inspector.get_foreign_keys("teaching_load_assignments")
-    ):
-        with engine.begin() as connection:
-            connection.execute(
-                text(
-                    "ALTER TABLE teaching_load_assignments ADD CONSTRAINT fk_teaching_load_assignments_subject_for_field_of_study_id_subject_for_field_of_study FOREIGN KEY (subject_for_field_of_study_id) REFERENCES subject_for_field_of_study (id) ON DELETE SET NULL"
-                )
-            )
-
-    if not any(
-        foreign_key["constrained_columns"] == ["room_id"]
-        and foreign_key["referred_table"] == "room"
-        for foreign_key in inspector.get_foreign_keys("teaching_load_assignments")
-    ):
-        with engine.begin() as connection:
-            connection.execute(
-                text(
-                    "ALTER TABLE teaching_load_assignments ADD CONSTRAINT fk_teaching_load_assignments_room_id_room FOREIGN KEY (room_id) REFERENCES room (id) ON DELETE SET NULL"
-                )
-            )
-
-
 def init_database() -> None:
     """Ensure the database exists and create all ORM tables."""
     last_error = None
@@ -186,7 +111,6 @@ def init_database() -> None:
             importlib.import_module("app.models")
 
             Base.metadata.create_all(bind=engine)
-            ensure_teaching_load_assignment_schema()
 
             # # Run seeding only when the database was created by this process
             # if db_created:

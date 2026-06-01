@@ -26,6 +26,7 @@ def get_all_logs(db: Session) -> list[AuditLog]:
     return (
         db.query(AuditLog)
         .filter(AuditLog.modified_by.in_(plan_user_ids))
+        .filter(AuditLog.entity_name != "rapla_reservation")
         .order_by(AuditLog.timestamp.desc())
         .all()
     )

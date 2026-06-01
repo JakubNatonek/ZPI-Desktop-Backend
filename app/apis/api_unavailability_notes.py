@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.auth.current_user import get_current_user, user_has_role
+from app.dependencies.auth import require_role
 from app.core.database import get_db
 from app.cruds.crud_audit_logs import create_audit_log
 from app.cruds.crud_unavailability_notes import (
@@ -108,17 +109,12 @@ def get_my_notes(
 )
 def get_all_notes(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
 ) -> list[UnavailabilityNoteListResponse]:
     """
     Zwraca wszystkie notatki o niedostępności dla wszystkich użytkowników.
-    Dostęp: Admin
+    Dostęp: Admin, rapla_editor, lecturer_rapla_editor
     """
-    if not user_has_role(current_user, "admin"):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Brak dostępu. Wymagana rola: Admin",
-        )
 
     notes_with_users = get_all_unavailability_notes(db)
     result = []
@@ -138,17 +134,8 @@ def get_all_notes(
 )
 def get_pending_notes(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
 ) -> list[UnavailabilityNoteListResponse]:
-    """
-    Zwraca notatki o statusie 'pending' (oczekujące na rozpatrzenie).
-    Dostęp: Admin
-    """
-    if not user_has_role(current_user, "admin"):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Brak dostępu. Wymagana rola: Admin",
-        )
 
     notes_with_users = get_pending_unavailability_notes(db)
     result = []

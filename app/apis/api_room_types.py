@@ -24,7 +24,7 @@ router = APIRouter(prefix="/room-types", tags=["room-types"])
 @router.get("/list", response_model=List[RoomTypeResponse], summary="Lista typow sal")
 def list_room_types(
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    _: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
 ) -> List[RoomTypeResponse]:
     room_types = get_all_room_types(db)
     return [
@@ -41,7 +41,7 @@ def list_room_types(
 def get_room_type_entry(
     room_type_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    _: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
 ) -> RoomTypeResponse:
     room_type = get_room_type_by_id(db, room_type_id)
     if room_type is None:
@@ -58,7 +58,7 @@ def get_room_type_entry(
 def create_room_type_entry(
     payload: RoomTypeCreate,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    _: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
 ) -> RoomTypeResponse:
     cleaned_name = payload.name.strip()
     cleaned_abbreviation = payload.abbreviation.strip()
@@ -84,7 +84,7 @@ def update_room_type_entry(
     room_type_id: int,
     payload: RoomTypeUpdate,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    _: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
 ) -> RoomTypeResponse:
     cleaned_name = payload.name.strip()
     cleaned_abbreviation = payload.abbreviation.strip()
@@ -118,7 +118,7 @@ def update_room_type_entry(
 def delete_room_type_entry(
     room_type_id: int,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role("admin")),
+    _: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
 ) -> None:
     try:
         deleted = delete_room_type(db, room_type_id)

@@ -17,8 +17,12 @@ router = APIRouter(prefix="/subject-preferences", tags=["subject-preferences"])
 
 def _verify_authorization(current_user: User, target_user_id: int) -> None:
     """Verify that current user has permission to access target user's preferences."""
-    is_admin = user_has_role(current_user, "admin")
-    if not is_admin and current_user.user_id != target_user_id:
+    is_privileged = (
+        user_has_role(current_user, "admin")
+        or user_has_role(current_user, "rapla_editor")
+        or user_has_role(current_user, "lecturer_rapla_editor")
+    )
+    if not is_privileged and current_user.user_id != target_user_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You can only access your own preferences",

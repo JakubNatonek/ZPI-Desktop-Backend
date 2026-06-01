@@ -1,4 +1,14 @@
 services:
+  frontend:
+    build:
+      context: ../ZPI-Desktop-App
+      dockerfile: Dockerfile
+    container_name: zpi-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+
   backend:
     build:
       context: .
@@ -21,7 +31,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    command: ["python", "-m", "app.seed_data.seed_all"]
+    command: [ "python", "-m", "app.seed_data.seed_all" ]
     profiles:
       - seed
   db:
@@ -35,10 +45,10 @@ services:
       - ./db/init:/docker-entrypoint-initdb.d:ro
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
       interval: 5s
       timeout: 5s
       retries: 10
-      
+
 volumes:
   postgres_data:

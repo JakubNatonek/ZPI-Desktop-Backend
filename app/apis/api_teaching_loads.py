@@ -1,181 +1,136 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.auth.current_user import get_current_user, user_has_role
+from app.dependencies.auth import require_role
 from app.core.database import get_db
 from app.cruds.crud_audit_logs import create_audit_log
-from app.cruds.crud_teaching_load import (
-    create_teaching_load,
-    delete_teaching_load,
+from app.cruds.crud_teaching_loads import (
+    get_all_teaching_loads,
     get_teaching_load_by_id,
-    get_teaching_loads,
-    map_teaching_load_to_response,
+    create_teaching_load,
     patch_teaching_load,
-    update_teaching_load,
+    delete_teaching_load,
+    _build_dto,
 )
-from app.dependencies.auth import require_role
 from app.models.model_user import User
 from app.schemas.teaching_load import (
-    TeachingLoadAssignmentCreate,
-    TeachingLoadAssignmentListResponse,
-    TeachingLoadAssignmentPatch,
-    TeachingLoadAssignmentResponse,
-    TeachingLoadAssignmentUpdate,
+    TeachingLoadAssignmentDto,
+    TeachingLoadCreatePayload,
+    TeachingLoadPatchPayload,
+    TeachingLoadListResponse,
 )
-
-
-_AUDIT_KEY_PL: dict[str, str] = {
-    "teacher_id": "Dydaktyk",
-    "teacher_title": "Tytuł",
-    "teacher_first_name": "Imię wykładowcy",
-    "teacher_last_name": "Nazwisko wykładowcy",
-    "subject_id": "Przedmiot",
-    "subject_name": "Nazwa przedmiotu",
-    "activity_id": "Typ zajęć",
-    "activity_name": "Nazwa typu zajęć",
-    "semester_id": "Semestr",
-    "semester_name": "Nazwa semestru",
-    "field_of_study_id": "Rocznik",
-    "field_of_study_label": "Kierunek / rocznik",
-    "room_id": "Sala",
-    "room_number": "Numer sali",
-    "hours": "Liczba godzin",
-    "id": "ID",
-}
-
-
-def _translate_record(record: dict | None) -> dict | None:
-    """Przetłumacz klucze rekordu na czytelne polskie nazwy."""
-    if record is None:
-        return None
-    return {_AUDIT_KEY_PL.get(k, k): v for k, v in record.items()}
-
 
 router = APIRouter(prefix="/teaching-loads", tags=["teaching-loads"])
 
 
-@router.get("/list", response_model=TeachingLoadAssignmentListResponse, summary="Lista przydzialow godzin")
+def _require_admin(current_user: User) -> None:
+    if not user_has_role(current_user, "admin"):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Wymagana rola: admin")
+
+
+@router.get("/list", response_model=TeachingLoadListResponse, summary="Lista przydziałów godzin")
 def list_teaching_loads(
     db: Session = Depends(get_db),
-    _: User = Depends(require_role(["admin", "rapla_editor"])),
-) -> TeachingLoadAssignmentListResponse:
-    assignments = get_teaching_loads(db)
-    return TeachingLoadAssignmentListResponse(
-        items=[TeachingLoadAssignmentResponse(**map_teaching_load_to_response(item)) for item in assignments]
-    )
+    current_user: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
+) -> TeachingLoadListResponse:
+    items = get_all_teaching_loads(db)
+    return TeachingLoadListResponse(items=items)
 
 
-@router.get("/{assignment_id}", response_model=TeachingLoadAssignmentResponse, summary="Szczegoly przydzialu godzin")
-def get_teaching_load_entry(
-    assignment_id: int,
+@router.post(
+    "",
+    response_model=TeachingLoadAssignmentDto,
+    status_code=status.HTTP_201_CREATED,
+    summary="Utwórz przydział godzin",
+)
+def create_assignment(
+    payload: TeachingLoadCreatePayload,
     db: Session = Depends(get_db),
-    _: User = Depends(require_role(["admin", "rapla_editor"])),
-) -> TeachingLoadAssignmentResponse:
-    assignment = get_teaching_load_by_id(db, assignment_id)
-    if assignment is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Nie znaleziono przydziału godzin")
-
-    return TeachingLoadAssignmentResponse(**map_teaching_load_to_response(assignment))
-
-
-@router.post("", response_model=TeachingLoadAssignmentResponse, status_code=status.HTTP_201_CREATED, summary="Dodaj przydzial godzin")
-def create_teaching_load_entry(
-    payload: TeachingLoadAssignmentCreate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(require_role(["admin", "rapla_editor"])),
-) -> TeachingLoadAssignmentResponse:
-    assignment = create_teaching_load(db, payload)
-    response_payload = TeachingLoadAssignmentResponse(**map_teaching_load_to_response(assignment))
-
-    _admin_label = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
+    current_user: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
+) -> TeachingLoadAssignmentDto:
+    result = create_teaching_load(db, payload)
+    _user_label = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
     create_audit_log(
-        db, "TeachingLoadAssignment", int(assignment.id), "create",
+        db, "TeachingLoadAssignment", result.id, "create",
         modified_by=current_user.user_id,
-        modified_by_name=_admin_label,
-        old_values=None,
-        new_values=_translate_record(response_payload.model_dump(mode="json")),
+        modified_by_name=_user_label,
+        new_values={
+            "teacher": f"{result.teacher_title or ''} {result.teacher_first_name} {result.teacher_last_name}".strip(),
+            "subject_name": result.subject_name,
+            "activity_name": result.activity_name,
+            "semester_name": result.semester_name,
+            "hours": result.hours,
+        },
     )
+    return result
 
-    return response_payload
 
-
-@router.put("/{assignment_id}", response_model=TeachingLoadAssignmentResponse, summary="Zaktualizuj przydzial godzin")
-def update_teaching_load_entry(
+@router.patch("/{assignment_id}", response_model=TeachingLoadAssignmentDto, summary="Edytuj przydział godzin")
+def update_assignment(
     assignment_id: int,
-    payload: TeachingLoadAssignmentUpdate,
+    payload: TeachingLoadPatchPayload,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role(["admin", "rapla_editor"])),
-) -> TeachingLoadAssignmentResponse:
-    assignment = get_teaching_load_by_id(db, assignment_id)
-    if assignment is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Nie znaleziono przydziału godzin")
+    current_user: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
+) -> TeachingLoadAssignmentDto:
+    old_orm = get_teaching_load_by_id(db, assignment_id)
+    old = _build_dto(old_orm) if old_orm else None
+    result = patch_teaching_load(db, assignment_id, payload)
+    if result is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Nie znaleziono przydziału")
+    _user_label = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
 
-    old_values = map_teaching_load_to_response(assignment)
+    old_vals: dict = {}
+    new_vals: dict = {}
+    if old:
+        old_teacher = f"{old.teacher_title or ''} {old.teacher_first_name} {old.teacher_last_name}".strip()
+        new_teacher = f"{result.teacher_title or ''} {result.teacher_first_name} {result.teacher_last_name}".strip()
+        if old_teacher != new_teacher:
+            old_vals["teacher"] = old_teacher
+            new_vals["teacher"] = new_teacher
+        if (old.subject_name or "") != (result.subject_name or ""):
+            old_vals["subject_name"] = old.subject_name
+            new_vals["subject_name"] = result.subject_name
+        if (old.activity_name or "") != (result.activity_name or ""):
+            old_vals["activity_name"] = old.activity_name
+            new_vals["activity_name"] = result.activity_name
+        if (old.semester_name or "") != (result.semester_name or ""):
+            old_vals["semester_name"] = old.semester_name
+            new_vals["semester_name"] = result.semester_name
+        if old.hours != result.hours:
+            old_vals["hours"] = old.hours
+            new_vals["hours"] = result.hours
 
-    updated = update_teaching_load(db, assignment, payload)
-    response_payload = TeachingLoadAssignmentResponse(**map_teaching_load_to_response(updated))
-
-    _admin_label = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
     create_audit_log(
-        db, "TeachingLoadAssignment", int(updated.id), "update",
+        db, "TeachingLoadAssignment", assignment_id, "update",
         modified_by=current_user.user_id,
-        modified_by_name=_admin_label,
-        old_values=_translate_record(old_values),
-        new_values=_translate_record(response_payload.model_dump(mode="json")),
+        modified_by_name=_user_label,
+        old_values=old_vals or None,
+        new_values=new_vals or None,
     )
-
-    return response_payload
-
-
-@router.patch("/{assignment_id}", response_model=TeachingLoadAssignmentResponse, summary="Edytuj przydzial godzin (inline)")
-def patch_teaching_load_entry(
-    assignment_id: int,
-    payload: TeachingLoadAssignmentPatch,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(require_role(["admin", "rapla_editor"])),
-) -> TeachingLoadAssignmentResponse:
-    assignment = get_teaching_load_by_id(db, assignment_id)
-    if assignment is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Nie znaleziono przydziału godzin")
-
-    changes = payload.model_dump(exclude_unset=True)
-    if not changes:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Nie podano żadnych zmian")
-
-    old_values = map_teaching_load_to_response(assignment)
-
-    updated = patch_teaching_load(db, assignment, payload)
-    response_payload = TeachingLoadAssignmentResponse(**map_teaching_load_to_response(updated))
-
-    _admin_label = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
-    create_audit_log(
-        db, "TeachingLoadAssignment", int(updated.id), "update",
-        modified_by=current_user.user_id,
-        modified_by_name=_admin_label,
-        old_values=_translate_record(old_values),
-        new_values=_translate_record(response_payload.model_dump(mode="json")),
-    )
-
-    return response_payload
+    return result
 
 
-@router.delete("/{assignment_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Usun przydzial godzin")
-def delete_teaching_load_entry(
+@router.delete("/{assignment_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Usuń przydział godzin")
+def remove_assignment(
     assignment_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_role(["admin", "rapla_editor"])),
+    current_user: User = Depends(require_role(["admin", "rapla_editor", "lecturer_rapla_editor"])),
 ) -> None:
-    assignment = get_teaching_load_by_id(db, assignment_id)
-    if assignment is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Nie znaleziono przydziału godzin")
-
-    old_values = map_teaching_load_to_response(assignment)
-    delete_teaching_load(db, assignment)
-
-    _admin_label = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
+    old_orm = get_teaching_load_by_id(db, assignment_id)
+    old = _build_dto(old_orm) if old_orm else None
+    if not delete_teaching_load(db, assignment_id):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Nie znaleziono przydziału")
+    _user_label = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
     create_audit_log(
-        db, "TeachingLoadAssignment", int(assignment_id), "delete",
+        db, "TeachingLoadAssignment", assignment_id, "delete",
         modified_by=current_user.user_id,
-        modified_by_name=_admin_label,
-        old_values=_translate_record(old_values),
-        new_values=None,
+        modified_by_name=_user_label,
+        old_values={
+            "teacher": f"{old.teacher_title or ''} {old.teacher_first_name} {old.teacher_last_name}".strip() if old else None,
+            "subject_name": old.subject_name if old else None,
+            "activity_name": old.activity_name if old else None,
+            "semester_name": old.semester_name if old else None,
+            "hours": old.hours if old else None,
+        } if old else None,
     )
