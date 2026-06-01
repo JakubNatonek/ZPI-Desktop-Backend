@@ -8,6 +8,7 @@ from collections.abc import AsyncIterator
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.database import init_database
+from app.core.security_headers import SecurityHeadersMiddleware
 from scripts.migration_runner import run_migrations
 
 from app.apis.api_login import router as login_router
@@ -86,6 +87,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(SecurityHeadersMiddleware)
 
 
 # Include routers
