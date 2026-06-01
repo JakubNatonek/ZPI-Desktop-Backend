@@ -15,6 +15,7 @@ def _build_dto(assignment: TeachingLoadAssignment) -> TeachingLoadAssignmentDto:
     subject: Subject | None = assignment.subject
     activity: Activity | None = assignment.activity
     semester: Semestr | None = assignment.semester
+    room = assignment.room
 
     teacher_title: str | None = None
     if teacher and teacher.title_assignments:
@@ -34,6 +35,8 @@ def _build_dto(assignment: TeachingLoadAssignment) -> TeachingLoadAssignmentDto:
         activity_name=activity.name if activity else None,
         semester_id=assignment.semester_id,
         semester_name=semester.nazwa if semester else None,
+        room_id=assignment.room_id,
+        room_number=room.number if room else None,
         hours=assignment.hours,
     )
 
@@ -44,6 +47,7 @@ def _load_options():
         joinedload(TeachingLoadAssignment.subject),
         joinedload(TeachingLoadAssignment.activity),
         joinedload(TeachingLoadAssignment.semester),
+        joinedload(TeachingLoadAssignment.room),
     ]
 
 
@@ -64,6 +68,7 @@ def create_teaching_load(db: Session, payload: TeachingLoadCreatePayload) -> Tea
         subject_id=payload.subject_id,
         activity_id=payload.activity_id,
         semester_id=payload.semester_id,
+        room_id=payload.room_id,
         hours=payload.hours,
     )
     db.add(assignment)
