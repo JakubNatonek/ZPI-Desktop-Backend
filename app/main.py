@@ -126,5 +126,8 @@ def read_root() -> dict[str, str]:
     return {"status": "ok"}
 
 
+# FastAPI app for HTTP tests (pytest TestClient). Production ASGI adds Socket.IO below.
+fastapi_app = app
+
 # Export ASGI app with Socket.IO support.
-app = socketio.ASGIApp(sio, other_asgi_app=app)
+app = socketio.ASGIApp(sio, other_asgi_app=fastapi_app)

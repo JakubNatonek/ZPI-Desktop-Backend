@@ -31,3 +31,6 @@ htmlcov/
 .env
 .env.*
 docker-compose.temp.yml
+
+# Lokalne przewodniki dla agentów AI
+agent-backend.md

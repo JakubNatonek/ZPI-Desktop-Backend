@@ -41,15 +41,29 @@ def user_has_role(user: User, required_role: str | list[str] | set[str] | tuple[
     return not user_role_names.isdisjoint(required_role_names)
 
 
+def _extract_access_token(request: Request) -> str | None:
+    cookie_token = request.cookies.get("access_token")
+    if cookie_token:
+        return cookie_token
+
+    authorization = request.headers.get("Authorization")
+    if authorization:
+        scheme, _, credentials = authorization.partition(" ")
+        if scheme.lower() == "bearer" and credentials.strip():
+            return credentials.strip()
+
+    return None
+
+
 def get_current_user(
     request: Request,
     db: Session = Depends(get_db),
 ) -> User:
-    access_token = request.cookies.get("access_token")
+    access_token = _extract_access_token(request)
     if not access_token:
         raise HTTPException(
             status_code=401,
-            detail="Missing access token cookie",
+            detail="Missing access token",
         )
 
     try:

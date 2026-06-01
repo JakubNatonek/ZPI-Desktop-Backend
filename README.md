@@ -154,3 +154,14 @@ python -m alembic heads
 python -m alembic downgrade -1
 python -m alembic history
 ```
+
+## Testy (pytest)
+
+Wymagany działający PostgreSQL i plik `.env` (jak przy uruchomieniu API).
+
+```bash
+source .venv/bin/activate
+pytest -v
+```
+
+Szczegóły i tabela scenariuszy: [tests/README.md](tests/README.md).
