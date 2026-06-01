@@ -21,7 +21,7 @@ build/
 dist/
 *.egg-info/
 data/*
-
+app/data/
 # Coverage artifacts
 .coverage
 .coverage.*

@@ -1,6 +1,7 @@
 import json
 import unicodedata
 from datetime import datetime, date, time
+from pathlib import Path
 from typing import cast
 
 from sqlalchemy.orm import Session
@@ -38,6 +39,13 @@ TITLE_TOKENS = {
 	"prof",
 	"profesor",
 }
+
+
+def _resolve_data_path(path: str) -> Path:
+	file_path = Path(path)
+	if file_path.is_absolute():
+		return file_path
+	return (Path(__file__).resolve().parents[2] / file_path).resolve()
 
 
 def _normalize_text(value: str) -> str:
@@ -271,7 +279,7 @@ def _resolve_subject(
 
 
 def seed_lessons(db: Session, path: str = "data/JSON DATA/lessons.json") -> None:
-	with open(path, "r", encoding="utf-8") as fh:
+	with open(_resolve_data_path(path), "r", encoding="utf-8") as fh:
 		data = json.load(fh)
 
 	activity_lookup = _build_activity_lookup(db)
