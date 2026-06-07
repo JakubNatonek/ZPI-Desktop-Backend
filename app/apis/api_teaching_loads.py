@@ -61,6 +61,8 @@ def create_assignment(
             "activity_name": result.activity_name,
             "semester_name": result.semester_name,
             "hours": result.hours,
+            "field_of_study_label": result.field_of_study_label,
+            "group_label": result.group_label,
         },
     )
     return result
@@ -100,6 +102,12 @@ def update_assignment(
         if old.hours != result.hours:
             old_vals["hours"] = old.hours
             new_vals["hours"] = result.hours
+        if (old.field_of_study_label or "") != (result.field_of_study_label or ""):
+            old_vals["field_of_study_label"] = old.field_of_study_label
+            new_vals["field_of_study_label"] = result.field_of_study_label
+        if (old.group_label or "") != (result.group_label or ""):
+            old_vals["group_label"] = old.group_label
+            new_vals["group_label"] = result.group_label
 
     create_audit_log(
         db, "TeachingLoadAssignment", assignment_id, "update",
@@ -132,5 +140,7 @@ def remove_assignment(
             "activity_name": old.activity_name if old else None,
             "semester_name": old.semester_name if old else None,
             "hours": old.hours if old else None,
+            "field_of_study_label": old.field_of_study_label if old else None,
+            "group_label": old.group_label if old else None,
         } if old else None,
     )

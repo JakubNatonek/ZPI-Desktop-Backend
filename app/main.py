@@ -17,6 +17,7 @@ from app.apis.api_roles import router as roles_router
 from app.apis.api_chat import router as chat_router
 from app.apis.api_messages import router as messages_router
 from app.apis.api_announcements import router as announcements_router
+from app.apis.api_groups import router as groups_router
 from app.apis.thesis.api_thesis import router as thesis_router
 from app.apis.thesis.api_admin_thesis import router as admin_thesis_router
 from app.apis.api_grades import router as grades_router
@@ -96,6 +97,7 @@ app.include_router(departments_router)
 app.include_router(roles_router)
 app.include_router(chat_router)
 app.include_router(announcements_router)
+app.include_router(groups_router)
 app.include_router(rooms_router)
 app.include_router(room_types_router)
 app.include_router(activities_router)

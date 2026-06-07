@@ -5,8 +5,11 @@ from app.models.model_user import User
 from app.models.model_subject import Subject
 from app.models.model_activity import Activity
 from app.models.model_semestr import Semestr
+from app.models.model_group import Group
 from app.models.model_title_for_user import TitleForUser
 from app.models.model_title import TitleModel
+from app.models.model_subject_for_field_of_study import SubjectForFieldOfStudy
+from app.models.model_field_of_study import FieldOfStudy
 from app.schemas.teaching_load import TeachingLoadAssignmentDto, TeachingLoadCreatePayload, TeachingLoadPatchPayload
 
 
@@ -23,6 +26,17 @@ def _build_dto(assignment: TeachingLoadAssignment) -> TeachingLoadAssignmentDto:
         if hasattr(first_ta, "title") and first_ta.title:
             teacher_title = first_ta.title.name
 
+    subject_field = assignment.subject_for_field_of_study
+    field_of_study = subject_field.field_of_study if subject_field is not None else None
+    field_of_study_label: str | None = None
+    if field_of_study is not None:
+        field_of_study_label = f"{field_of_study.name} / {field_of_study.abbrevation} / {field_of_study.year}"
+
+    group = assignment.group if hasattr(assignment, 'group') else None
+    group_label: str | None = None
+    if group is not None:
+        group_label = getattr(group, 'code', None) or f"#{group.id}"
+
     return TeachingLoadAssignmentDto(
         id=assignment.id,
         teacher_id=assignment.teacher_id,
@@ -35,8 +49,12 @@ def _build_dto(assignment: TeachingLoadAssignment) -> TeachingLoadAssignmentDto:
         activity_name=activity.name if activity else None,
         semester_id=assignment.semester_id,
         semester_name=semester.nazwa if semester else None,
+        field_of_study_id=field_of_study.id if field_of_study else None,
+        field_of_study_label=field_of_study_label,
         room_id=assignment.room_id,
         room_number=room.number if room else None,
+        group_id=getattr(assignment, 'group_id', None),
+        group_label=group_label,
         hours=assignment.hours,
     )
 
@@ -48,6 +66,8 @@ def _load_options():
         joinedload(TeachingLoadAssignment.activity),
         joinedload(TeachingLoadAssignment.semester),
         joinedload(TeachingLoadAssignment.room),
+        joinedload(TeachingLoadAssignment.group),
+        joinedload(TeachingLoadAssignment.subject_for_field_of_study).joinedload(SubjectForFieldOfStudy.field_of_study),
     ]
 
 

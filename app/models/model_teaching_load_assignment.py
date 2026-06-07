@@ -1,4 +1,5 @@
 from sqlalchemy import Column, ForeignKey, Integer
+from sqlalchemy.orm import relationship as _rel  # avoid shadowing below
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
@@ -19,6 +20,7 @@ class TeachingLoadAssignment(Base):
         index=True,
     )
     room_id = Column(Integer, ForeignKey("room.id", ondelete="SET NULL"), nullable=True, index=True)
+    group_id = Column(Integer, ForeignKey("group.id", ondelete="SET NULL"), nullable=True, index=True)
     hours = Column(Integer, nullable=False)
 
     teacher = relationship("User", back_populates="teaching_load_assignments", foreign_keys=[teacher_id])
@@ -27,3 +29,4 @@ class TeachingLoadAssignment(Base):
     semester = relationship("Semestr")
     subject_for_field_of_study = relationship("SubjectForFieldOfStudy")
     room = relationship("Room")
+    group = relationship("Group")

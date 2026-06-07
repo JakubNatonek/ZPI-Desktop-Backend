@@ -427,6 +427,16 @@ def update_my_avatar(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> AvatarResponse:
+    if payload.avatar:
+        if not (payload.avatar.startswith("data:image/jpeg;base64,") or 
+                payload.avatar.startswith("data:image/png;base64,") or
+                payload.avatar.startswith("data:image/jpg;base64,")):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Niedozwolony format pliku. Dozwolone są tylko JPG i PNG.")
+        
+        # 10 MB limit w base64 to około 14 MB znaków (10 * 1024 * 1024 * 1.33)
+        if len(payload.avatar) > 14 * 1024 * 1024:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Rozmiar pliku przekracza dozwolone 10 MB.")
+
     current_user.avatar = payload.avatar
     db.commit()
     db.refresh(current_user)

@@ -9,6 +9,7 @@ from app.cruds.crud_department_for_field_of_study import get_departments_for_fie
 from app.cruds.crud_field_of_study_for_group import get_groups_from_maping_by_field_of_study_id
 from app.models.model_activity import Activity
 from app.models.model_field_of_study import FieldOfStudy
+from app.models.model_group import Group
 from app.models.model_semestr import Semestr
 from app.models.model_subject import Subject
 from app.models.model_subject_activity import SubjectActivity
@@ -47,6 +48,7 @@ def _load_with_relations(db: Session, assignment_id: int) -> Optional[TeachingLo
             selectinload(TeachingLoadAssignment.activity),
             selectinload(TeachingLoadAssignment.semester),
             selectinload(TeachingLoadAssignment.room),
+            selectinload(TeachingLoadAssignment.group),
             selectinload(TeachingLoadAssignment.subject_for_field_of_study).selectinload(
                 SubjectForFieldOfStudy.field_of_study
             ),
@@ -175,6 +177,7 @@ def get_teaching_loads(db: Session) -> list[TeachingLoadAssignment]:
             selectinload(TeachingLoadAssignment.activity),
             selectinload(TeachingLoadAssignment.semester),
             selectinload(TeachingLoadAssignment.room),
+            selectinload(TeachingLoadAssignment.group),
             selectinload(TeachingLoadAssignment.subject_for_field_of_study).selectinload(
                 SubjectForFieldOfStudy.field_of_study
             ),
@@ -240,6 +243,7 @@ def create_teaching_load(
         hours=payload.hours,
         subject_for_field_of_study_id=subject_field_mapping.id,
         room_id=payload.room_id,
+        group_id=payload.group_id,
     )
     db.add(assignment)
     db.commit()
@@ -294,6 +298,7 @@ def update_teaching_load(
     assignment.hours = payload.hours
     assignment.subject_for_field_of_study_id = subject_field_mapping.id
     assignment.room_id = payload.room_id
+    assignment.group_id = payload.group_id
 
     db.add(assignment)
     db.commit()
@@ -390,6 +395,11 @@ def map_teaching_load_to_response(assignment: TeachingLoadAssignment) -> dict:
     if field_of_study is not None:
         field_of_study_label = f"{field_of_study.name} / {field_of_study.abbrevation} / {field_of_study.year}"
 
+    group = assignment.group if hasattr(assignment, 'group') else None
+    group_label = None
+    if group is not None:
+        group_label = getattr(group, 'code', None) or f"#{group.id}"
+
     return {
         "id": assignment.id,
         "teacher_id": assignment.teacher_id,
@@ -406,6 +416,8 @@ def map_teaching_load_to_response(assignment: TeachingLoadAssignment) -> dict:
         "field_of_study_label": field_of_study_label,
         "room_id": assignment.room_id,
         "room_number": room.number if room is not None else None,
+        "group_id": getattr(assignment, 'group_id', None),
+        "group_label": group_label,
         "hours": assignment.hours,
     }
 
