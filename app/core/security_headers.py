@@ -22,12 +22,26 @@ ANTI_CLICKJACKING_HEADERS: dict[str, str] = {
     "Content-Security-Policy": API_CONTENT_SECURITY_POLICY,
 }
 
+# Prevents MIME sniffing (browsers must respect declared Content-Type).
+MIME_SNIFFING_HEADERS: dict[str, str] = {
+    "X-Content-Type-Options": "nosniff",
+}
+
 SECURITY_HEADERS: dict[str, str] = {
     **ANTI_CLICKJACKING_HEADERS,
-    "X-Content-Type-Options": "nosniff",
+    **MIME_SNIFFING_HEADERS,
     "Referrer-Policy": "strict-origin-when-cross-origin",
     "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+    "X-Permitted-Cross-Domain-Policies": "none",
 }
+
+
+def apply_security_headers(response: Response) -> None:
+    """Attach standard security headers to a Starlette/FastAPI response."""
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    for name, value in SECURITY_HEADERS.items():
+        if name not in response.headers:
+            response.headers[name] = value
 
 
 def _has_header(headers: list[tuple[bytes, bytes]], name: str) -> bool:
@@ -72,7 +86,5 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         call_next: Callable[[Request], Awaitable[Response]],
     ) -> Response:
         response = await call_next(request)
-        for name, value in SECURITY_HEADERS.items():
-            if name not in response.headers:
-                response.headers[name] = value
+        apply_security_headers(response)
         return response

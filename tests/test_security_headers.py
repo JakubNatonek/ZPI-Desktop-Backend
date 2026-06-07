@@ -10,6 +10,7 @@ from starlette.routing import Route
 
 from app.core.security_headers import (
     ANTI_CLICKJACKING_HEADERS,
+    MIME_SNIFFING_HEADERS,
     SECURITY_HEADERS,
     SecurityHeadersASGIMiddleware,
 )
@@ -45,8 +46,17 @@ def test_root_includes_anti_clickjacking_headers(api_client: TestClient) -> None
     assert "frame-ancestors 'none'" in csp
 
 
+def test_root_includes_x_content_type_options_nosniff(api_client: TestClient) -> None:
+    response = api_client.get("/")
+
+    assert (
+        response.headers.get("x-content-type-options")
+        == MIME_SNIFFING_HEADERS["X-Content-Type-Options"]
+    )
+
+
 def test_root_includes_additional_security_headers(api_client: TestClient) -> None:
     response = api_client.get("/")
 
-    assert response.headers.get("x-content-type-options") == "nosniff"
     assert response.headers.get("referrer-policy") == "strict-origin-when-cross-origin"
+    assert response.headers.get("x-permitted-cross-domain-policies") == "none"
