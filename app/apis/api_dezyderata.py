@@ -199,8 +199,8 @@ def create_or_update_dezyderata(
     for entry in payload.entries:
         if entry.day_id not in valid_day_ids:
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=f"Invalid day_id: {entry.day_id}")
-        if entry.to_hour < entry.from_hour:
-            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="to_hour cannot be earlier than from_hour")
+        if entry.end_time < entry.start_time:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="end_time cannot be earlier than start_time")
 
     created_items = replace_dezyderata_for_week(db, current_user.user_id, payload)
     

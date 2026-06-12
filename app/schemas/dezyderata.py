@@ -1,7 +1,7 @@
-from datetime import date
+from datetime import date, time
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 # Semestr schemas
@@ -29,9 +29,21 @@ class SemestrListResponse(BaseModel):
 # Dezyderata schemas
 class DezyderataEntryCreate(BaseModel):
     day_id: int = Field(ge=1, le=7)
-    from_hour: int = Field(ge=0, le=23)
-    to_hour: int = Field(ge=0, le=23)
+    start_time: time
+    end_time: time
     is_available: bool
+
+    @field_validator("start_time", "end_time", mode="after")
+    @classmethod
+    def round_to_five_minutes(cls, value: time) -> time:
+        total_seconds = value.hour * 3600 + value.minute * 60 + value.second
+        rounded_seconds = int((total_seconds + 150) // 300) * 300
+        if rounded_seconds >= 24 * 3600:
+            rounded_seconds = 23 * 3600 + 55 * 60
+
+        rounded_hour, remainder = divmod(rounded_seconds, 3600)
+        rounded_minute, rounded_second = divmod(remainder, 60)
+        return time(hour=rounded_hour, minute=rounded_minute, second=rounded_second)
 
 
 class DezyderataCreate(BaseModel):
@@ -48,8 +60,8 @@ class DezyderataResponse(BaseModel):
     data_do: date
     semestr_id: int
     day_id: int
-    from_hour: int
-    to_hour: int
+    start_time: time
+    end_time: time
     is_available: bool
     day_name: Optional[str] = None
     semestr_nazwa: Optional[str] = None
@@ -69,8 +81,8 @@ class DezyderataWithSemestrResponse(BaseModel):
     data_do: date
     semestr_id: int
     day_id: int
-    from_hour: int
-    to_hour: int
+    start_time: time
+    end_time: time
     is_available: bool
     semestr: SemestrResponse
 

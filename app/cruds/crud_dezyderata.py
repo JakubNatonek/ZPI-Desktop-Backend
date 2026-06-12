@@ -1,8 +1,9 @@
-from datetime import date, datetime, timezone
+from datetime import date, datetime, time, timezone
 from typing import List, Optional, cast
 from uuid import uuid4
 
 from sqlalchemy.orm import Session
+from sqlalchemy import case
 
 from app.models.model_day import Day
 from app.models.model_dezyderata import Dezyderata
@@ -23,6 +24,26 @@ from app.cruds.rapla.rapla_format_datetime import format_rapla_datetime
 from app.cruds.crud_semester import get_semestr_by_id
 from app.cruds.crud_day import get_first_day
 
+
+def _format_rapla_time(value: time) -> str:
+    return value.strftime("%H:%M:%S")
+
+
+def _normalize_storage_minutes(value: int) -> int:
+    if value <= 23:
+        return value * 60
+    return value
+
+
+def _time_to_storage_minutes(value: time) -> int:
+    return value.hour * 60 + value.minute
+
+
+def _storage_minutes_to_time(value: int) -> time:
+    minutes = _normalize_storage_minutes(value)
+    hours, remaining_minutes = divmod(minutes, 60)
+    return time(hour=hours, minute=remaining_minutes)
+
 # ----- Dezyderata CRUD -----
 
 def get_dezyderaty(db: Session, user_id: Optional[int] = None, semestr_id: Optional[int] = None) -> List[Dezyderata]:
@@ -31,7 +52,11 @@ def get_dezyderaty(db: Session, user_id: Optional[int] = None, semestr_id: Optio
         query = query.filter(Dezyderata.user_id == user_id)
     if semestr_id is not None:
         query = query.filter(Dezyderata.semestr_id == semestr_id)
-    return query.order_by(Dezyderata.data_od.desc(), Dezyderata.day_id.asc(), Dezyderata.from_hour.asc()).all()
+    normalized_start = case(
+        (Dezyderata.from_hour <= 23, Dezyderata.from_hour * 60),
+        else_=Dezyderata.from_hour,
+    )
+    return query.order_by(Dezyderata.data_od.desc(), Dezyderata.day_id.asc(), normalized_start.asc()).all()
 
 
 def get_all_dezyderaty(db: Session) -> List[Dezyderata]:
@@ -58,8 +83,8 @@ def replace_dezyderata_for_week(db: Session, user_id: int, payload: DezyderataCr
             data_do=payload.data_do,
             semestr_id=payload.semestr_id,
             day_id=entry.day_id,
-            from_hour=entry.from_hour,
-            to_hour=entry.to_hour + 1,
+            from_hour=_time_to_storage_minutes(entry.start_time),
+            to_hour=_time_to_storage_minutes(entry.end_time),
             is_available=entry.is_available,
         )
         db.add(created)
@@ -85,8 +110,8 @@ def map_dezyderata_to_response(dezyderata: Dezyderata) -> dict:
         "data_do": dezyderata.data_do,
         "semestr_id": dezyderata.semestr_id,
         "day_id": dezyderata.day_id,
-        "from_hour": dezyderata.from_hour,
-        "to_hour": dezyderata.to_hour,
+        "start_time": _storage_minutes_to_time(int(dezyderata.from_hour)),
+        "end_time": _storage_minutes_to_time(int(dezyderata.to_hour)),
         "is_available": dezyderata.is_available,
         "day_name": dezyderata.day.name if dezyderata.day else None,
         "semestr_nazwa": dezyderata.semestr.nazwa if dezyderata.semestr else None
@@ -133,9 +158,9 @@ def dezyderaty_to_schema(db: Session) -> SchemaRaplaReservations:
         apointment = SchemaRaplaApointment(
             uuid=str(uuid4()),
             start_date=format_rapla_datetime(get_first_day(cast(datetime, semester.data_rozpoczecia), cast(int, model_dezyderata.day_id))),
-            start_time=f"{int(model_dezyderata.from_hour):02d}:00:00",
+            start_time=_format_rapla_time(_storage_minutes_to_time(cast(int, model_dezyderata.from_hour))),
             end_date=format_rapla_datetime(get_first_day(cast(datetime, semester.data_rozpoczecia), cast(int, model_dezyderata.day_id))),
-            end_time=f"{int(model_dezyderata.to_hour):02d}:00:00",
+            end_time=_format_rapla_time(_storage_minutes_to_time(cast(int, model_dezyderata.to_hour))),
             repeating=repiting,
         )
 
